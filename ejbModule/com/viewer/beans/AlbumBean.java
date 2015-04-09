@@ -1,5 +1,10 @@
 package com.viewer.beans;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -57,6 +62,20 @@ public class AlbumBean implements AlbumBeanRemote, AlbumBeanLocal {
 		try {
 			return albumDAO.fetchPhoto(photoid);
 		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	@Override
+	public byte[] fetchPhotoData(long photoid) {
+		try {
+			PhotoDTO photoDTO = albumDAO.fetchPhoto(photoid);
+			// Read data
+			Path path = Paths.get(photoDTO.getSource().getAbsolutePath());
+			byte [] bytes = Files.readAllBytes(path);
+			return bytes;
+		} catch (SQLException | IOException e) {
 			e.printStackTrace();
 		}
 		return null;

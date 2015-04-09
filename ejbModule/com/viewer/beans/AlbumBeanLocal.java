@@ -20,4 +20,6 @@ public interface AlbumBeanLocal {
 	public boolean createAlbum(long userid, AlbumDTO album);
 
 	public PhotoDTO fetchAlbumCover(long albumid);
+
+	public byte[] fetchPhotoData(long photoid);
 }

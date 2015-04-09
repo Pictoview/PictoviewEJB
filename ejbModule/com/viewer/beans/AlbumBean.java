@@ -58,7 +58,7 @@ public class AlbumBean implements AlbumBeanRemote, AlbumBeanLocal {
 	}
 
 	@Override
-	public PhotoDTO fetchPhoto(long photoid) {
+	public PhotoDTO fetchPhoto(long userid, long photoid) {
 		try {
 			return albumDAO.fetchPhoto(photoid);
 		} catch (SQLException e) {
@@ -66,14 +66,14 @@ public class AlbumBean implements AlbumBeanRemote, AlbumBeanLocal {
 		}
 		return null;
 	}
-	
+
 	@Override
-	public byte[] fetchPhotoData(long photoid) {
+	public byte[] fetchPhotoData(long userid, long photoid) {
 		try {
 			PhotoDTO photoDTO = albumDAO.fetchPhoto(photoid);
 			// Read data
 			Path path = Paths.get(photoDTO.getSource().getAbsolutePath());
-			byte [] bytes = Files.readAllBytes(path);
+			byte[] bytes = Files.readAllBytes(path);
 			return bytes;
 		} catch (SQLException | IOException e) {
 			e.printStackTrace();
@@ -95,6 +95,17 @@ public class AlbumBean implements AlbumBeanRemote, AlbumBeanLocal {
 	public PhotoDTO fetchAlbumCover(long albumid) {
 		try {
 			return albumDAO.fetchAlbumCover(albumid);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	@Override
+	public List<AlbumDTO> fetchSearchedUserAlbums(long userid, String name,
+			String[] tags) {
+		try {
+			return albumDAO.fetchSearchUserAlbums(userid, name, tags);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

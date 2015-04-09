@@ -20,7 +20,6 @@ public class AlbumDTO {
 
 	public AlbumDTO(long id, File source, String name, String subtitle,
 			long coverId, long parentId) {
-		super();
 		this.id = id;
 		this.source = source;
 		this.name = name;

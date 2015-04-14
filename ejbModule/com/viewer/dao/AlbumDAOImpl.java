@@ -12,7 +12,7 @@ import com.viewer.dto.AlbumDTO;
 import com.viewer.dto.PhotoDTO;
 
 public class AlbumDAOImpl implements AlbumDAO {
-	
+
 	/** Album Methods **/
 
 	@Override
@@ -21,7 +21,10 @@ public class AlbumDAOImpl implements AlbumDAO {
 		Connection conn = Connector.connect();
 
 		// Create Statement
-		String sql = "SELECT id, name, source, coverid FROM Albums WHERE uid = ?";
+		String sql = "SELECT Albums.id, Albums.name, Albums.source, MIN(Photos.id) FROM Albums"
+				+ " LEFT JOIN Photos ON Albums.id = Photos.albumId"
+				+ " WHERE Albums.uid = ?"
+				+ " GROUP BY Albums.id";
 		PreparedStatement stmt = conn.prepareStatement(sql);
 		stmt.setLong(1, userid);
 
@@ -66,7 +69,8 @@ public class AlbumDAOImpl implements AlbumDAO {
 		// Create Statement
 		String sql = "SELECT Albums.id, Albums.name, Albums.source, Albums.coverid FROM Albums"
 				+ " LEFT JOIN AlbumTags ON AlbumTags.albumid = Albums.id"
-				+ " WHERE Albums.uid = ?" + " AND (Albums.subtitle LIKE ? OR Albums.name LIKE ?";
+				+ " WHERE Albums.uid = ?"
+				+ " AND (Albums.subtitle LIKE ? OR Albums.name LIKE ?";
 		for (int i = 0; i < tags.length; i++) {
 			sql += " OR AlbumTags.name = ?";
 		}
@@ -105,7 +109,7 @@ public class AlbumDAOImpl implements AlbumDAO {
 		stmt.setLong(6, album.getParentId());
 		return stmt.execute();
 	}
-	
+
 	/** Photo Methods **/
 
 	@Override
@@ -115,8 +119,8 @@ public class AlbumDAOImpl implements AlbumDAO {
 		Connection conn = Connector.connect();
 
 		// Create Statement
-		String sql = "SELECT Photos.id, Photos.name, Photos.source, Photos.ordering FROM Photos"
-				+ " INNER JOIN Albums ON Albums.id = Photos.albumid WHERE uid = ? AND albumid = ?";
+		String sql = "SELECT Photos.id, Photos.name, Photos.source FROM Photos"
+				+ " WHERE Photos.uid = ? AND Photos.albumid = ?";
 		PreparedStatement stmt = conn.prepareStatement(sql);
 		stmt.setLong(1, userid);
 		stmt.setLong(2, albumid);
@@ -136,7 +140,7 @@ public class AlbumDAOImpl implements AlbumDAO {
 		Connection conn = Connector.connect();
 
 		// Create Statement
-		String sql = "SELECT id, name, source, ordering FROM Photos WHERE id = ?";
+		String sql = "SELECT id, name, source FROM Photos WHERE id = ?";
 		PreparedStatement stmt = conn.prepareStatement(sql);
 		stmt.setLong(1, photoid);
 
@@ -151,28 +155,6 @@ public class AlbumDAOImpl implements AlbumDAO {
 		return photo;
 	}
 
-	@Override
-	public PhotoDTO fetchAlbumCover(long albumid) throws SQLException {
-		Connection conn = Connector.connect();
-
-		// Create Statement
-		String sql = "SELECT Photos.id, Photos.name, Photos.source FROM Photos"
-				+ " INNER JOIN Albums ON Photos.albumId = Albums.id "
-				+ " WHERE Albums.id = ?";
-		PreparedStatement stmt = conn.prepareStatement(sql);
-		stmt.setLong(1, albumid);
-
-		// Execute Statement
-		PhotoDTO photo = null;
-		ResultSet rs = stmt.executeQuery();
-		if (rs.next()) {
-			photo = new PhotoDTO(rs.getLong(1), rs.getString(2), new File(
-					rs.getString(3)));
-		}
-		conn.close();
-		return photo;
-	}
-	
 	/** Category & Tag Methods **/
 
 	@Override

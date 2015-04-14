@@ -92,16 +92,6 @@ public class AlbumBean implements AlbumBeanRemote, AlbumBeanLocal {
 	}
 
 	@Override
-	public PhotoDTO fetchAlbumCover(long albumid) {
-		try {
-			return albumDAO.fetchAlbumCover(albumid);
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
-
-	@Override
 	public List<AlbumDTO> fetchSearchedUserAlbums(long userid, String name,
 			String[] tags) {
 		try {

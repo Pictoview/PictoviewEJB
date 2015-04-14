@@ -39,6 +39,4 @@ public interface AlbumDAO {
 			throws SQLException;
 
 	public PhotoDTO fetchPhoto(long photoid) throws SQLException;
-
-	public PhotoDTO fetchAlbumCover(long albumid) throws SQLException;
 }

@@ -1,5 +1,8 @@
 package com.viewer.beans;
 
+import java.awt.Image;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -9,6 +12,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 import javax.ejb.Stateless;
+import javax.imageio.ImageIO;
 
 import com.viewer.dao.AlbumDAO;
 import com.viewer.dao.AlbumDAOImpl;
@@ -75,6 +79,29 @@ public class AlbumBean implements AlbumBeanRemote, AlbumBeanLocal {
 			Path path = Paths.get(photoDTO.getSource().getAbsolutePath());
 			byte[] bytes = Files.readAllBytes(path);
 			return bytes;
+		} catch (SQLException | IOException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	@Override
+	public byte[] fetchPhotoThumbnailData(long userid, long photoid, int flags) {
+		final int width = 30, height = 30;
+		try {
+			PhotoDTO photoDTO = albumDAO.fetchPhoto(photoid);
+			
+			// Scale Image
+			BufferedImage image = ImageIO.read(new File(photoDTO.getSource().getAbsolutePath()));
+			Image scaledImage = image.getScaledInstance(width, height, Image.SCALE_DEFAULT);
+			image.getGraphics().drawImage(scaledImage, 0, 0 , null);
+			
+
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			ImageIO.write(image, "jpg", baos);
+			byte[] imageBytes = baos.toByteArray();
+			baos.close();
+			return imageBytes;
 		} catch (SQLException | IOException e) {
 			e.printStackTrace();
 		}

@@ -32,9 +32,9 @@ public class AlbumBean implements AlbumBeanRemote, AlbumBeanLocal {
 	}
 
 	@Override
-	public List<AlbumDTO> fetchAllUserAlbums(long userid) {
+	public List<AlbumDTO> fetchAllUserAlbums(long userid, long parentId) {
 		try {
-			return albumDAO.fetchAllUserAlbums(userid);
+			return albumDAO.fetchAllUserAlbums(userid, parentId);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -83,6 +83,11 @@ public class AlbumBean implements AlbumBeanRemote, AlbumBeanLocal {
 			e.printStackTrace();
 		}
 		return null;
+	}
+	
+	@Override
+	public byte[] fetchPhotoThumbnailData(long userid, long photoid) {
+		return fetchPhotoThumbnailData(userid, photoid, 0);
 	}
 	
 	@Override

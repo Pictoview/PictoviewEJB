@@ -16,17 +16,18 @@ public class AlbumDAOImpl implements AlbumDAO {
 	/** Album Methods **/
 
 	@Override
-	public List<AlbumDTO> fetchAllUserAlbums(long userid) throws SQLException {
+	public List<AlbumDTO> fetchAllUserAlbums(long userid, long parentId) throws SQLException {
 		List<AlbumDTO> dto = new ArrayList<AlbumDTO>();
 		Connection conn = Connector.connect();
 
 		// Create Statement
 		String sql = "SELECT Albums.id, Albums.name, Albums.source, MIN(Photos.id) FROM Albums"
 				+ " LEFT JOIN Photos ON Albums.id = Photos.albumId"
-				+ " WHERE Albums.uid = ?"
+				+ " WHERE Albums.uid = ? AND Albums.parent = ?"
 				+ " GROUP BY Albums.id";
 		PreparedStatement stmt = conn.prepareStatement(sql);
 		stmt.setLong(1, userid);
+		stmt.setLong(2, parentId);
 
 		// Execute Statement
 		ResultSet rs = stmt.executeQuery();

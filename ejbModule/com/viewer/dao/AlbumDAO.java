@@ -10,7 +10,7 @@ public interface AlbumDAO {
 
 	// Album Methods
 
-	public List<AlbumDTO> fetchAllUserAlbums(long userid) throws SQLException;
+	public List<AlbumDTO> fetchAllUserAlbums(long userid, long parentId) throws SQLException;
 
 	public List<AlbumDTO> fetchSearchUserAlbums(long userid, String name,
 			String[] tags) throws SQLException;

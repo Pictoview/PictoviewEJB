@@ -10,7 +10,7 @@ import com.viewer.dto.PhotoDTO;
 
 @Remote
 public interface AlbumBeanRemote {
-	public List<AlbumDTO> fetchAllUserAlbums(long userid);
+	public List<AlbumDTO> fetchAllUserAlbums(long userid, long parentId);
 	
 	public List<AlbumDTO> fetchSearchedUserAlbums(long userid, String name, String[] tags);
 
@@ -25,4 +25,6 @@ public interface AlbumBeanRemote {
 	public byte[] fetchPhotoData(long userid, long photoid);
 	
 	public byte[] fetchPhotoThumbnailData(long userid, long photoid, int flags);
+	
+	public byte[] fetchPhotoThumbnailData(long userid, long photoid);
 }

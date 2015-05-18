@@ -3,7 +3,7 @@ package com.viewer.dto;
 import java.io.File;
 
 public class PhotoDTO {
-	private long id;
+	private final long id;
 	private String name;
 	private File source;
 
@@ -25,10 +25,6 @@ public class PhotoDTO {
 
 	public long getId() {
 		return id;
-	}
-
-	public void setId(long id) {
-		this.id = id;
 	}
 
 	public File getSource() {

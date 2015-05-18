@@ -4,7 +4,7 @@ import java.io.File;
 
 public class AlbumDTO {
 
-	private long id;
+	private final long id;
 	private File source;
 	private String name;
 	private String subtitle;
@@ -30,10 +30,6 @@ public class AlbumDTO {
 
 	public long getId() {
 		return id;
-	}
-
-	public void setId(long id) {
-		this.id = id;
 	}
 
 	public File getSource() {

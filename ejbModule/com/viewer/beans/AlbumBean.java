@@ -17,7 +17,9 @@ import javax.imageio.ImageIO;
 import com.viewer.dao.AlbumDAO;
 import com.viewer.dao.AlbumDAOImpl;
 import com.viewer.dto.AlbumDTO;
+import com.viewer.dto.AlbumTagsDTO;
 import com.viewer.dto.PhotoDTO;
+import com.viewer.dto.TagsDTO;
 
 /**
  * Session Bean implementation class AlbumBean
@@ -98,7 +100,7 @@ public class AlbumBean implements AlbumBeanRemote, AlbumBeanLocal {
 			
 			// Scale Image
 			BufferedImage image = ImageIO.read(new File(photoDTO.getSource().getAbsolutePath()));
-			Image scaledImage = image.getScaledInstance(width, height, Image.SCALE_DEFAULT);
+			Image scaledImage = image.getScaledInstance(width, height, Image.SCALE_FAST);
 			image.getGraphics().drawImage(scaledImage, 0, 0 , null);
 			
 
@@ -124,13 +126,32 @@ public class AlbumBean implements AlbumBeanRemote, AlbumBeanLocal {
 	}
 
 	@Override
-	public List<AlbumDTO> fetchSearchedUserAlbums(long userid, String name,
-			String[] tags) {
+	public List<AlbumDTO> fetchSearchedUserAlbums(long userid, String searchName, String... tags) {
 		try {
-			return albumDAO.fetchSearchUserAlbums(userid, name, tags);
+			return albumDAO.fetchSearchUserAlbums(userid, searchName, tags);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 		return null;
+	}
+
+	@Override
+	public AlbumTagsDTO fetchUserAlbumTags(long userid, long albumid) {
+			try {
+				return albumDAO.fetchUserAlbumTags(userid, albumid);
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		return null;
+	}
+	
+	@Override
+	public boolean tagUserAlbum(long userid, long albumid, String tag, long cateid) {
+		try {
+			return albumDAO.tagAlbum(userid, tag, albumid, cateid);
+		} catch(SQLException e) {
+			e.printStackTrace();
+		}
+		return true;
 	}
 }

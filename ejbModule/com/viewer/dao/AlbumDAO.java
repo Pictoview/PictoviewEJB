@@ -4,13 +4,15 @@ import java.sql.SQLException;
 import java.util.List;
 
 import com.viewer.dto.AlbumDTO;
+import com.viewer.dto.AlbumTagsDTO;
 import com.viewer.dto.PhotoDTO;
 
 public interface AlbumDAO {
 
 	// Album Methods
 
-	public List<AlbumDTO> fetchAllUserAlbums(long userid, long parentId) throws SQLException;
+	public List<AlbumDTO> fetchAllUserAlbums(long userid, long parentId)
+			throws SQLException;
 
 	public List<AlbumDTO> fetchSearchUserAlbums(long userid, String name,
 			String[] tags) throws SQLException;
@@ -22,15 +24,12 @@ public interface AlbumDAO {
 
 	// Tags & Categories
 
-	public boolean tagAlbum(long userid, String name, long albumid)
+	public boolean tagAlbum(long userid, String name, long albumid, long cateid)
 			throws SQLException;
 
 	public boolean createCategory(long userid, String name) throws SQLException;
 
-	public boolean createCategoryElement(long userid, String name, long catid)
-			throws SQLException;
-
-	public boolean linkCategory(long userid, long cateid, long albumid)
+	public AlbumTagsDTO fetchUserAlbumTags(long userid, long albumid)
 			throws SQLException;
 
 	// Photo Methods

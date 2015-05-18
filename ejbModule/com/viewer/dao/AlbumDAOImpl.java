@@ -9,14 +9,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.viewer.dto.AlbumDTO;
+import com.viewer.dto.AlbumTagsDTO;
 import com.viewer.dto.PhotoDTO;
+import com.viewer.dto.TagsDTO;
 
 public class AlbumDAOImpl implements AlbumDAO {
 
 	/** Album Methods **/
 
 	@Override
-	public List<AlbumDTO> fetchAllUserAlbums(long userid, long parentId) throws SQLException {
+	public List<AlbumDTO> fetchAllUserAlbums(long userid, long parentId)
+			throws SQLException {
 		List<AlbumDTO> dto = new ArrayList<AlbumDTO>();
 		Connection conn = Connector.connect();
 
@@ -159,14 +162,38 @@ public class AlbumDAOImpl implements AlbumDAO {
 	/** Category & Tag Methods **/
 
 	@Override
-	public boolean tagAlbum(long userid, String name, long albumid)
+	public boolean tagAlbum(long userid, String name, long albumid, long cateid)
 			throws SQLException {
 		Connection conn = Connector.connect();
-		String sql = "INSERT INTO AlbumTags VALUES (NULL, ?, ?)";
+		String sql = "INSERT INTO AlbumTags VALUES (NULL, ?, ?, ?)";
 		PreparedStatement stmt = conn.prepareStatement(sql);
 		stmt.setString(1, name);
-		stmt.setLong(2, albumid);
+		stmt.setLong(2, cateid);
+		stmt.setLong(3, albumid);
 		return stmt.execute();
+	}
+
+	@Override
+	public AlbumTagsDTO fetchUserAlbumTags(long userid, long albumid)
+			throws SQLException {
+		Connection conn = Connector.connect();
+
+		// Create Statement
+		String sql = "SELECT AlbumTags.id, AlbumTags.name, Category.name FROM AlbumTags"
+				+ " INNER JOIN Category ON AlbumTags.cateid = Category.id"
+				+ " WHERE Category.uid = ? AND AlbumTags.albumid = ?";
+		PreparedStatement stmt = conn.prepareStatement(sql);
+		stmt.setLong(1, userid);
+		stmt.setLong(2, albumid);
+
+		// Execute Statement
+		ResultSet rs = stmt.executeQuery();
+		AlbumTagsDTO tags = new AlbumTagsDTO(albumid);
+		if (rs.next()) {
+			tags.insertTag(rs.getLong(1), rs.getString(2), rs.getString(3));
+		}
+		conn.close();
+		return tags;
 	}
 
 	@Override
@@ -176,31 +203,6 @@ public class AlbumDAOImpl implements AlbumDAO {
 		PreparedStatement stmt = conn.prepareStatement(sql);
 		stmt.setString(1, name);
 		stmt.setLong(2, userid);
-
-		return stmt.execute();
-	}
-
-	@Override
-	public boolean createCategoryElement(long userid, String name, long catid)
-			throws SQLException {
-		Connection conn = Connector.connect();
-		String sql = "INSERT INTO CategoryElement VALUES (NULL, ?, ?, ?)";
-		PreparedStatement stmt = conn.prepareStatement(sql);
-		stmt.setLong(1, catid);
-		stmt.setString(2, name);
-		stmt.setLong(3, userid);
-
-		return stmt.execute();
-	}
-
-	@Override
-	public boolean linkCategory(long userid, long cateid, long albumid)
-			throws SQLException {
-		Connection conn = Connector.connect();
-		String sql = "INSERT INTO CategoryElement VALUES (NULL, ?, ?)";
-		PreparedStatement stmt = conn.prepareStatement(sql);
-		stmt.setLong(1, cateid);
-		stmt.setLong(2, albumid);
 
 		return stmt.execute();
 	}

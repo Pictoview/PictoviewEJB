@@ -1,18 +1,18 @@
 package com.viewer.beans;
 
-import java.sql.SQLException;
 import java.util.List;
 
 import javax.ejb.Remote;
 
 import com.viewer.dto.AlbumDTO;
+import com.viewer.dto.AlbumTagsDTO;
 import com.viewer.dto.PhotoDTO;
 
 @Remote
 public interface AlbumBeanRemote {
 	public List<AlbumDTO> fetchAllUserAlbums(long userid, long parentId);
 	
-	public List<AlbumDTO> fetchSearchedUserAlbums(long userid, String name, String[] tags);
+	public List<AlbumDTO> fetchSearchedUserAlbums(long userid, String searchName, String... tags);
 
 	public AlbumDTO fetchUserAlbumInfo(long userid, long albumid);
 
@@ -27,4 +27,8 @@ public interface AlbumBeanRemote {
 	public byte[] fetchPhotoThumbnailData(long userid, long photoid, int flags);
 	
 	public byte[] fetchPhotoThumbnailData(long userid, long photoid);
+	
+	public AlbumTagsDTO fetchUserAlbumTags(long userid, long albumid);
+
+	boolean tagUserAlbum(long userid, long albumid, String tag, long cateid);
 }

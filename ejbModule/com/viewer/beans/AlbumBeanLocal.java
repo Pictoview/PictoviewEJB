@@ -30,5 +30,7 @@ public interface AlbumBeanLocal {
 	
 	public AlbumTagsDTO fetchUserAlbumTags(long userid, long albumid);
 
-	boolean tagUserAlbum(long userid, long albumid, String tag, long cateid);
+	boolean tagUserAlbum(long userid, long albumid, String tag, String category);
+
+	public List<String> fetchAllUserCategories(long userid);
 }

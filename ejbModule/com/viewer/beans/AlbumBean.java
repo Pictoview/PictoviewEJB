@@ -25,7 +25,7 @@ import com.viewer.dto.TagsDTO;
  * Session Bean implementation class AlbumBean
  */
 @Stateless
-public class AlbumBean implements AlbumBeanRemote, AlbumBeanLocal {
+public class AlbumBean implements AlbumBeanLocal {
 
 	AlbumDAO albumDAO;
 
@@ -146,12 +146,22 @@ public class AlbumBean implements AlbumBeanRemote, AlbumBeanLocal {
 	}
 	
 	@Override
-	public boolean tagUserAlbum(long userid, long albumid, String tag, long cateid) {
+	public boolean tagUserAlbum(long userid, long albumid, String tag, String category) {
 		try {
-			return albumDAO.tagAlbum(userid, tag, albumid, cateid);
+			return albumDAO.tagAlbum(userid, tag, albumid, category);
 		} catch(SQLException e) {
 			e.printStackTrace();
 		}
-		return true;
+		return false;
+	}
+
+	@Override
+	public List<String> fetchAllUserCategories(long userid) {
+		try {
+			return albumDAO.fetchAllUserCategories(userid);
+		} catch(SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 }

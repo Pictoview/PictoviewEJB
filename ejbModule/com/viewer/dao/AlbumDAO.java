@@ -24,7 +24,7 @@ public interface AlbumDAO {
 
 	// Tags & Categories
 
-	public boolean tagAlbum(long userid, String name, long albumid, long cateid)
+	public boolean tagAlbum(long userid, String name, long albumid, String category)
 			throws SQLException;
 
 	public boolean createCategory(long userid, String name) throws SQLException;
@@ -38,4 +38,6 @@ public interface AlbumDAO {
 			throws SQLException;
 
 	public PhotoDTO fetchPhoto(long photoid) throws SQLException;
+
+	public List<String> fetchAllUserCategories(long userid) throws SQLException;
 }

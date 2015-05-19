@@ -162,13 +162,13 @@ public class AlbumDAOImpl implements AlbumDAO {
 	/** Category & Tag Methods **/
 
 	@Override
-	public boolean tagAlbum(long userid, String name, long albumid, long cateid)
-			throws SQLException {
+	public boolean tagAlbum(long userid, String name, long albumid,
+			String category) throws SQLException {
 		Connection conn = Connector.connect();
-		String sql = "INSERT INTO AlbumTags VALUES (NULL, ?, ?, ?)";
+		String sql = "INSERT INTO AlbumTags VALUES (NULL, ?, (SELECT Category.id FROM Category WHERE Category.name = ?), ?)";
 		PreparedStatement stmt = conn.prepareStatement(sql);
 		stmt.setString(1, name);
-		stmt.setLong(2, cateid);
+		stmt.setString(2, category);
 		stmt.setLong(3, albumid);
 		return stmt.execute();
 	}
@@ -189,7 +189,7 @@ public class AlbumDAOImpl implements AlbumDAO {
 		// Execute Statement
 		ResultSet rs = stmt.executeQuery();
 		AlbumTagsDTO tags = new AlbumTagsDTO(albumid);
-		if (rs.next()) {
+		while (rs.next()) {
 			tags.insertTag(rs.getLong(1), rs.getString(2), rs.getString(3));
 		}
 		conn.close();
@@ -205,5 +205,23 @@ public class AlbumDAOImpl implements AlbumDAO {
 		stmt.setLong(2, userid);
 
 		return stmt.execute();
+	}
+
+	@Override
+	public List<String> fetchAllUserCategories(long userid) throws SQLException {
+		Connection conn = Connector.connect();
+
+		// Create Statement
+		String sql = "SELECT name FROM Category WHERE uid = ?";
+		PreparedStatement stmt = conn.prepareStatement(sql);
+		stmt.setLong(1, userid);
+
+		// Execute Statement
+		ResultSet rs = stmt.executeQuery();
+		List<String> categories = new ArrayList<String>();
+		while (rs.next())
+			categories.add(rs.getString(1));
+		conn.close();
+		return categories;
 	}
 }

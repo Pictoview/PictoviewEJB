@@ -5,21 +5,18 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.List;
 
 import javax.ejb.Stateless;
 import javax.imageio.ImageIO;
+import javax.imageio.stream.ImageInputStream;
 
 import com.viewer.dao.AlbumDAO;
 import com.viewer.dao.AlbumDAOImpl;
 import com.viewer.dto.AlbumDTO;
 import com.viewer.dto.AlbumTagsDTO;
 import com.viewer.dto.PhotoDTO;
-import com.viewer.dto.TagsDTO;
 
 /**
  * Session Bean implementation class AlbumBean
@@ -74,13 +71,10 @@ public class AlbumBean implements AlbumBeanLocal {
 	}
 
 	@Override
-	public byte[] fetchPhotoData(long userid, long photoid) {
+	public ImageInputStream fetchPhotoData(long userid, long photoid) {
 		try {
 			PhotoDTO photoDTO = albumDAO.fetchPhoto(photoid);
-			// Read data
-			Path path = Paths.get(photoDTO.getSource().getAbsolutePath());
-			byte[] bytes = Files.readAllBytes(path);
-			return bytes;
+			return ImageIO.createImageInputStream(photoDTO.getSource());
 		} catch (SQLException | IOException e) {
 			e.printStackTrace();
 		}

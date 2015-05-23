@@ -38,6 +38,8 @@ public interface AlbumDAO {
 			throws SQLException;
 
 	public PhotoDTO fetchPhoto(long photoid) throws SQLException;
+	
+	public PhotoDTO fetchPhotoThumbnail(long photoid) throws SQLException;
 
 	public List<String> fetchAllUserCategories(long userid) throws SQLException;
 }

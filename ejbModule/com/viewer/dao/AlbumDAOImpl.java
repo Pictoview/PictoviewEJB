@@ -11,7 +11,6 @@ import java.util.List;
 import com.viewer.dto.AlbumDTO;
 import com.viewer.dto.AlbumTagsDTO;
 import com.viewer.dto.PhotoDTO;
-import com.viewer.dto.TagsDTO;
 
 public class AlbumDAOImpl implements AlbumDAO {
 
@@ -145,6 +144,26 @@ public class AlbumDAOImpl implements AlbumDAO {
 
 		// Create Statement
 		String sql = "SELECT id, name, source FROM Photos WHERE id = ?";
+		PreparedStatement stmt = conn.prepareStatement(sql);
+		stmt.setLong(1, photoid);
+
+		// Execute Statement
+		PhotoDTO photo = null;
+		ResultSet rs = stmt.executeQuery();
+		if (rs.next()) {
+			photo = new PhotoDTO(rs.getLong(1), rs.getString(2), new File(
+					rs.getString(3)));
+		}
+		conn.close();
+		return photo;
+	}
+	
+	@Override
+	public PhotoDTO fetchPhotoThumbnail(long photoid) throws SQLException {
+		Connection conn = Connector.connect();
+
+		// Create Statement
+		String sql = "SELECT id, name, thumbnail FROM Photos WHERE id = ?";
 		PreparedStatement stmt = conn.prepareStatement(sql);
 		stmt.setLong(1, photoid);
 

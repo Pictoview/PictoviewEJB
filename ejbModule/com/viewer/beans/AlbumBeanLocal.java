@@ -3,6 +3,7 @@ package com.viewer.beans;
 import java.util.List;
 
 import javax.ejb.Local;
+import javax.imageio.stream.ImageInputStream;
 
 import com.viewer.dto.AlbumDTO;
 import com.viewer.dto.AlbumTagsDTO;
@@ -22,7 +23,7 @@ public interface AlbumBeanLocal {
 
 	public boolean createAlbum(long userid, AlbumDTO album);
 
-	public byte[] fetchPhotoData(long userid, long photoid);
+	public ImageInputStream fetchPhotoData(long userid, long photoid);
 	
 	public byte[] fetchPhotoThumbnailData(long userid, long photoid, int flags);
 	

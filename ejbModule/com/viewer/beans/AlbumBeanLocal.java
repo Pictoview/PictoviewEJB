@@ -8,12 +8,13 @@ import javax.imageio.stream.ImageInputStream;
 import com.viewer.dto.AlbumDTO;
 import com.viewer.dto.AlbumTagsDTO;
 import com.viewer.dto.PhotoDTO;
+import com.viewer.dto.SearchQueryDTO;
 
 @Local
 public interface AlbumBeanLocal {
 	public List<AlbumDTO> fetchAllUserAlbums(long userid, long parentId);
 	
-	public List<AlbumDTO> fetchSearchedUserAlbums(long userid, String searchName, String... tags);
+	public List<AlbumDTO> fetchSearchedUserAlbums(long userid, SearchQueryDTO searchQuery);
 
 	public AlbumDTO fetchUserAlbumInfo(long userid, long albumid);
 

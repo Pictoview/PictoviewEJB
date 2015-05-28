@@ -3,7 +3,7 @@ package com.viewer.dao;
 import java.sql.Connection;
 import java.sql.DriverManager;
 
-public class Connector {
+public class SQLConnector {
 
 	public static Connection connect() {
 		Connection con = null;

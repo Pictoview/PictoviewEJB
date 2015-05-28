@@ -14,10 +14,11 @@ import javax.imageio.ImageIO;
 import javax.imageio.stream.ImageInputStream;
 
 import com.viewer.dao.AlbumDAO;
-import com.viewer.dao.AlbumDAOImpl;
+import com.viewer.dao.SQLAlbumDAO;
 import com.viewer.dto.AlbumDTO;
 import com.viewer.dto.AlbumTagsDTO;
 import com.viewer.dto.PhotoDTO;
+import com.viewer.dto.SearchQueryDTO;
 
 /**
  * Session Bean implementation class AlbumBean
@@ -28,7 +29,7 @@ public class AlbumBean implements AlbumBeanLocal {
 	AlbumDAO albumDAO;
 
 	public AlbumBean() {
-		albumDAO = new AlbumDAOImpl();
+		albumDAO = new SQLAlbumDAO();
 	}
 
 	@Override
@@ -125,10 +126,9 @@ public class AlbumBean implements AlbumBeanLocal {
 	}
 
 	@Override
-	public List<AlbumDTO> fetchSearchedUserAlbums(long userid,
-			String searchName, String... tags) {
+	public List<AlbumDTO> fetchSearchedUserAlbums(long userid, SearchQueryDTO searchQuery) {
 		try {
-			return albumDAO.fetchSearchUserAlbums(userid, searchName, tags);
+			return albumDAO.fetchSearchUserAlbums(userid, searchQuery);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

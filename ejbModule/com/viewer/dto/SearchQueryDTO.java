@@ -26,9 +26,27 @@ public class SearchQueryDTO {
 		}
 		tagList.add(value);
 	}
+	
+	public void insertTag(String category, List<String> value) {
+		List<String> tagList = tags.get(category);
+		if (tagList == null) {
+			tagList = new ArrayList<String>();
+			tags.put(category, tagList);
+		}
+		tagList.addAll(value);
+	}
 
 	public List<String> getTagList(String category) {
 		return tags.get(category);
+	}
+	
+	public List<CategoryDTO> getAllTags() {
+		List<CategoryDTO> allCategories = new ArrayList<CategoryDTO>();
+		for (String c : tags.keySet()) {
+			CategoryDTO category = new CategoryDTO(c, tags.get(c));
+			allCategories.add(category);
+		}
+		return allCategories;
 	}
 
 	public List<String> getNames() {

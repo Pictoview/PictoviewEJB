@@ -6,6 +6,7 @@ import java.util.List;
 import com.viewer.dto.AlbumDTO;
 import com.viewer.dto.AlbumTagsDTO;
 import com.viewer.dto.PhotoDTO;
+import com.viewer.dto.SearchQueryDTO;
 
 public interface AlbumDAO {
 
@@ -14,8 +15,7 @@ public interface AlbumDAO {
 	public List<AlbumDTO> fetchAllUserAlbums(long userid, long parentId)
 			throws SQLException;
 
-	public List<AlbumDTO> fetchSearchUserAlbums(long userid, String name,
-			String[] tags) throws SQLException;
+	public List<AlbumDTO> fetchSearchUserAlbums(long userid, SearchQueryDTO searchQuery) throws SQLException;
 
 	public AlbumDTO fetchUserAlbumInfo(long userid, long albumid)
 			throws SQLException;

@@ -1,11 +1,8 @@
 package com.viewer.beans;
 
-import java.awt.Image;
-import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferByte;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -19,6 +16,7 @@ import com.viewer.dto.AlbumDTO;
 import com.viewer.dto.AlbumTagsDTO;
 import com.viewer.dto.PhotoDTO;
 import com.viewer.dto.SearchQueryDTO;
+import com.viewer.file.AlbumFileManager;
 
 /**
  * Session Bean implementation class AlbumBean
@@ -76,7 +74,9 @@ public class AlbumBean implements AlbumBeanLocal {
 	public ImageInputStream fetchPhotoData(long userid, long photoid) {
 		try {
 			PhotoDTO photoDTO = albumDAO.fetchPhoto(photoid);
-			return ImageIO.createImageInputStream(photoDTO.getSource());
+			String source = AlbumFileManager.StorageLocation
+					+ photoDTO.getSource();
+			return ImageIO.createImageInputStream(new File(source));
 		} catch (SQLException | IOException e) {
 			e.printStackTrace();
 		}
@@ -84,31 +84,18 @@ public class AlbumBean implements AlbumBeanLocal {
 	}
 
 	@Override
-	public byte[] fetchPhotoThumbnailData(long userid, long photoid) {
+	public ImageInputStream fetchPhotoThumbnailData(long userid, long photoid) {
 		return fetchPhotoThumbnailData(userid, photoid, 0);
 	}
 
 	@Override
-	public byte[] fetchPhotoThumbnailData(long userid, long photoid, int flags) {
-		final int width = 30, height = 30;
+	public ImageInputStream fetchPhotoThumbnailData(long userid, long photoid,
+			int flags) {
 		try {
-			PhotoDTO photoDTO = albumDAO.fetchPhotoThumbnail(photoid);
-
-			// Scale Image
-			BufferedImage image = ImageIO.read(new File(photoDTO.getSource()
-					.getAbsolutePath()));
-			Image scaledImage = image.getScaledInstance(width, height,
-					Image.SCALE_DEFAULT);
-			image.getGraphics().drawImage(scaledImage, 0, 0, null);
-
-			BufferedImage retImage = new BufferedImage(width, height,
-					BufferedImage.TYPE_4BYTE_ABGR);
-			retImage.getGraphics().drawImage(scaledImage, 0, 0, null);
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			ImageIO.write(retImage, "jpg", baos);
-			byte[] imageBytes = baos.toByteArray();
-			baos.close();
-			return imageBytes;
+			PhotoDTO photoDTO = albumDAO.fetchPhoto(photoid);
+			String source = AlbumFileManager.ThumbnailStorageLocation
+					+ photoDTO.getSource();
+			return ImageIO.createImageInputStream(new File(source));
 		} catch (SQLException | IOException e) {
 			e.printStackTrace();
 		}
@@ -116,9 +103,10 @@ public class AlbumBean implements AlbumBeanLocal {
 	}
 
 	@Override
-	public boolean createAlbum(long userid, AlbumDTO album) {
+	public boolean createAlbum(long userid, String name, String subtitle,
+			long parentId) {
 		try {
-			return albumDAO.createAlbum(userid, album);
+			return albumDAO.createAlbum(userid, name, subtitle, parentId);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -126,7 +114,8 @@ public class AlbumBean implements AlbumBeanLocal {
 	}
 
 	@Override
-	public List<AlbumDTO> fetchSearchedUserAlbums(long userid, SearchQueryDTO searchQuery) {
+	public List<AlbumDTO> fetchSearchedUserAlbums(long userid,
+			SearchQueryDTO searchQuery) {
 		try {
 			return albumDAO.fetchSearchUserAlbums(userid, searchQuery);
 		} catch (SQLException e) {
@@ -164,5 +153,19 @@ public class AlbumBean implements AlbumBeanLocal {
 			e.printStackTrace();
 		}
 		return null;
+	}
+
+	@Override
+	public boolean uploadPhoto(long userid, long albumId, String name,
+			InputStream data) {
+		try {
+			PhotoDTO photo = albumDAO.insertPhoto(userid, albumId, name);
+			AlbumFileManager.createPhotoFile(photo.getSource(), data);
+			AlbumFileManager.createPhotoThumbnail(photo.getSource());
+			return true;
+		} catch (SQLException | IOException e) {
+			e.printStackTrace();
+		}
+		return false;
 	}
 }

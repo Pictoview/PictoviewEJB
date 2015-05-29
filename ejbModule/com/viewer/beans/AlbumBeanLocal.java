@@ -1,5 +1,6 @@
 package com.viewer.beans;
 
+import java.io.InputStream;
 import java.util.List;
 
 import javax.ejb.Local;
@@ -22,17 +23,19 @@ public interface AlbumBeanLocal {
 
 	public PhotoDTO fetchPhoto(long userid, long photoid);
 
-	public boolean createAlbum(long userid, AlbumDTO album);
+	public boolean createAlbum(long userid, String name, String subtitle, long parentId);
 
 	public ImageInputStream fetchPhotoData(long userid, long photoid);
 	
-	public byte[] fetchPhotoThumbnailData(long userid, long photoid, int flags);
+	public ImageInputStream fetchPhotoThumbnailData(long userid, long photoid, int flags);
 	
-	public byte[] fetchPhotoThumbnailData(long userid, long photoid);
+	public ImageInputStream fetchPhotoThumbnailData(long userid, long photoid);
 	
 	public AlbumTagsDTO fetchUserAlbumTags(long userid, long albumid);
 
 	boolean tagUserAlbum(long userid, long albumid, String tag, String category);
 
 	public List<String> fetchAllUserCategories(long userid);
+	
+	public boolean uploadPhoto(long userid, long albumId, String name, InputStream data);
 }

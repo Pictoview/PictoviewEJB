@@ -73,7 +73,7 @@ public class SQLAlbumDAO implements AlbumDAO {
 
 		List<String> names = searchQuery.getNames();
 		List<CategoryDTO> categories = searchQuery.getAllTags();
-		
+
 		System.out.println(categories);
 
 		// Create Statement
@@ -85,7 +85,6 @@ public class SQLAlbumDAO implements AlbumDAO {
 		for (int i = 0; i < names.size(); i++) {
 			sql += " AND (Albums.name LIKE ? OR Albums.subtitle LIKE ?)";
 		}
-		if (!names.isEmpty()) sql += ")";
 		for (CategoryDTO category : categories) {
 			sql += " AND ( Category.name = ?";
 			for (int i = 0; i < category.getTags().size(); i++) {
@@ -101,7 +100,7 @@ public class SQLAlbumDAO implements AlbumDAO {
 		stmt.setLong(1, userid);
 		int index = 2;
 		for (String name : names) {
-			stmt.setString(index, '%'+name+'%');
+			stmt.setString(index, '%' + name + '%');
 			index++;
 		}
 		for (CategoryDTO category : categories) {
@@ -125,16 +124,26 @@ public class SQLAlbumDAO implements AlbumDAO {
 	}
 
 	@Override
-	public boolean createAlbum(long userid, AlbumDTO album) throws SQLException {
+	public boolean createAlbum(long userid, String name, String subtitle,
+			long parentId) throws SQLException {
 		Connection conn = SQLConnector.connect();
-		String sql = "INSERT INTO Albums VALUES (NULL, ?, ?, ?, ?, ?)";
+
+		String sql;
+		if (parentId == 0)
+			sql = "INSERT INTO Albums VALUES (NULL, ?, ?, ?, ?, ?)";
+		else
+			sql = "INSERT INTO Albums VALUES (NULL, ?, ?, ?, ?, (SELECT name FROM Albums WHERE id = ?) || ?)";
 		PreparedStatement stmt = conn.prepareStatement(sql);
-		stmt.setString(1, album.getName());
-		stmt.setString(2, album.getSubtitle());
-		stmt.setString(3, album.getSource().getAbsolutePath());
-		stmt.setLong(4, album.getCoverId());
-		stmt.setLong(5, userid);
-		stmt.setLong(6, album.getParentId());
+		stmt.setString(1, name);
+		stmt.setString(2, subtitle);
+		stmt.setLong(3, userid);
+		stmt.setLong(4, parentId);
+		if (parentId == 0) {
+			stmt.setString(5, name);
+		} else {
+			stmt.setLong(5, parentId);
+			stmt.setString(6, "/" + name);
+		}
 		return stmt.execute();
 	}
 
@@ -156,8 +165,8 @@ public class SQLAlbumDAO implements AlbumDAO {
 		// Execute Statement
 		ResultSet rs = stmt.executeQuery();
 		while (rs.next()) {
-			photos.add(new PhotoDTO(rs.getLong(1), rs.getString(2), new File(rs
-					.getString(3))));
+			photos.add(new PhotoDTO(rs.getLong(1), rs.getString(2), rs
+					.getString(3)));
 		}
 		conn.close();
 		return photos;
@@ -176,28 +185,8 @@ public class SQLAlbumDAO implements AlbumDAO {
 		PhotoDTO photo = null;
 		ResultSet rs = stmt.executeQuery();
 		if (rs.next()) {
-			photo = new PhotoDTO(rs.getLong(1), rs.getString(2), new File(
-					rs.getString(3)));
-		}
-		conn.close();
-		return photo;
-	}
-
-	@Override
-	public PhotoDTO fetchPhotoThumbnail(long photoid) throws SQLException {
-		Connection conn = SQLConnector.connect();
-
-		// Create Statement
-		String sql = "SELECT id, name, thumbnail FROM Photos WHERE id = ?";
-		PreparedStatement stmt = conn.prepareStatement(sql);
-		stmt.setLong(1, photoid);
-
-		// Execute Statement
-		PhotoDTO photo = null;
-		ResultSet rs = stmt.executeQuery();
-		if (rs.next()) {
-			photo = new PhotoDTO(rs.getLong(1), rs.getString(2), new File(
-					rs.getString(3)));
+			photo = new PhotoDTO(rs.getLong(1), rs.getString(2), 
+					rs.getString(3));
 		}
 		conn.close();
 		return photo;
@@ -267,5 +256,40 @@ public class SQLAlbumDAO implements AlbumDAO {
 			categories.add(rs.getString(1));
 		conn.close();
 		return categories;
+	}
+
+	@Override
+	public PhotoDTO insertPhoto(long userid, long albumId, String name)
+			throws SQLException {
+		Connection conn = SQLConnector.connect();
+
+		// Create Statement
+		String sql = "INSERT INTO Photos VALUES (NULL, ?, (SELECT source FROM Albums WHERE id = ?) || ?, ?, ?)";
+		PreparedStatement stmt = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
+		stmt.setString(1, name);
+		stmt.setLong(2, albumId);
+		stmt.setString(3, "/" + name);
+		stmt.setLong(4, albumId);
+		stmt.setLong(5, userid);
+		
+		// Get Id
+
+		int id = stmt.executeUpdate();
+		ResultSet rs = stmt.getGeneratedKeys();
+		if (rs.next()) {
+			id = rs.getInt(1);
+		}
+		stmt.close();
+		// Execute Statement
+		String retrieveSql = "SELECT source FROM Photos WHERE id = ?";
+		PreparedStatement rstmt = conn.prepareStatement(retrieveSql);
+		rstmt.setLong(1, id);
+		rs = rstmt.executeQuery();
+		PhotoDTO photo = null;
+		if (rs.next()) {
+			photo = new PhotoDTO(id, name, rs.getString(1));
+		}
+		conn.close();
+		return photo;
 	}
 }

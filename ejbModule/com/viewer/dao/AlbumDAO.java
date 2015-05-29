@@ -20,7 +20,7 @@ public interface AlbumDAO {
 	public AlbumDTO fetchUserAlbumInfo(long userid, long albumid)
 			throws SQLException;
 
-	public boolean createAlbum(long userid, AlbumDTO album) throws SQLException;
+	public boolean createAlbum(long userid, String name, String subtitle, long parentId) throws SQLException;
 
 	// Tags & Categories
 
@@ -38,8 +38,8 @@ public interface AlbumDAO {
 			throws SQLException;
 
 	public PhotoDTO fetchPhoto(long photoid) throws SQLException;
-	
-	public PhotoDTO fetchPhotoThumbnail(long photoid) throws SQLException;
 
 	public List<String> fetchAllUserCategories(long userid) throws SQLException;
+
+	public PhotoDTO insertPhoto(long userid, long albumId, String name) throws SQLException;
 }

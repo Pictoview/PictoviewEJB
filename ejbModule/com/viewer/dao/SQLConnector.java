@@ -10,7 +10,7 @@ public class SQLConnector {
 		try {
 			Class.forName("org.sqlite.JDBC");
 			con = DriverManager
-					.getConnection("jdbc:sqlite:C:/Users/ArthurXu/Pictures/pictureDB/pdb.db");
+					.getConnection("jdbc:sqlite:E:/PictoViewDB/database/pdb.db");
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {

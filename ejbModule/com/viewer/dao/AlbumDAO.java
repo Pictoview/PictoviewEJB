@@ -27,7 +27,7 @@ public interface AlbumDAO {
 	public boolean tagAlbum(long userid, String name, long albumid, String category)
 			throws SQLException;
 
-	public boolean createCategory(long userid, String name) throws SQLException;
+	public int createCategory(long userid, String name) throws SQLException;
 
 	public AlbumTagsDTO fetchUserAlbumTags(long userid, long albumid)
 			throws SQLException;

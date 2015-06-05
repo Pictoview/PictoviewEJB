@@ -149,6 +149,7 @@ public class SQLAlbumDAO implements AlbumDAO {
 		if (rs.next()) {
 			id = rs.getInt(1);
 		}
+		conn.close();
 		return id;
 	}
 
@@ -208,7 +209,9 @@ public class SQLAlbumDAO implements AlbumDAO {
 		stmt.setString(1, name);
 		stmt.setString(2, category);
 		stmt.setLong(3, albumid);
-		return stmt.execute();
+		stmt.executeUpdate();
+		conn.close();
+		return true;
 	}
 
 	@Override
@@ -219,7 +222,8 @@ public class SQLAlbumDAO implements AlbumDAO {
 		// Create Statement
 		String sql = "SELECT AlbumTags.id, AlbumTags.name, Category.name FROM AlbumTags"
 				+ " INNER JOIN Category ON AlbumTags.cateid = Category.id"
-				+ " WHERE Category.uid = ? AND AlbumTags.albumid = ?";
+				+ " INNER JOIN UserCategory ON UserCategory.cateid = Category.id"
+				+ " WHERE UserCategory.uid = ? AND AlbumTags.albumid = ?";
 		PreparedStatement stmt = conn.prepareStatement(sql);
 		stmt.setLong(1, userid);
 		stmt.setLong(2, albumid);
@@ -235,14 +239,24 @@ public class SQLAlbumDAO implements AlbumDAO {
 	}
 
 	@Override
-	public boolean createCategory(long userid, String name) throws SQLException {
+	public int createCategory(long userid, String name) throws SQLException {
 		Connection conn = SQLConnector.connect();
-		String sql = "INSERT INTO Category VALUES (NULL, ?, ?)";
-		PreparedStatement stmt = conn.prepareStatement(sql);
+		String sql = "INSERT OR IGNORE INTO Category VALUES (NULL, ?)";
+		PreparedStatement stmt = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
 		stmt.setString(1, name);
-		stmt.setLong(2, userid);
-
-		return stmt.execute();
+		int id = stmt.executeUpdate();
+		ResultSet rs = stmt.getGeneratedKeys();
+		if (rs.next()) {
+			id = rs.getInt(1);
+		}
+		stmt.close();
+		sql = "INSERT INTO UserCategory VALUES (NULL, ?, ?)";
+		PreparedStatement userCate = conn.prepareStatement(sql);
+		userCate.setLong(1, id);
+		userCate.setLong(2, userid);
+		userCate.executeUpdate();
+		conn.close();
+		return id;
 	}
 
 	@Override

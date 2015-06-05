@@ -146,6 +146,17 @@ public class AlbumBean implements AlbumBeanLocal {
 	}
 
 	@Override
+	public boolean createCategory(long userid, String category) {
+		try {
+			albumDAO.createCategory(1, category);
+			return true;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+
+	@Override
 	public List<String> fetchAllUserCategories(long userid) {
 		try {
 			return albumDAO.fetchAllUserCategories(userid);

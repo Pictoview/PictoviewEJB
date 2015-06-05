@@ -23,7 +23,7 @@ public interface AlbumBeanLocal {
 
 	public PhotoDTO fetchPhoto(long userid, long photoid);
 
-	public boolean createAlbum(long userid, String name, String subtitle, long parentId);
+	public long createAlbum(long userid, String name, String subtitle, long parentId);
 
 	public ImageInputStream fetchPhotoData(long userid, long photoid);
 	

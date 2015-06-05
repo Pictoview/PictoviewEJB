@@ -124,7 +124,7 @@ public class SQLAlbumDAO implements AlbumDAO {
 	}
 
 	@Override
-	public boolean createAlbum(long userid, String name, String subtitle,
+	public long createAlbum(long userid, String name, String subtitle,
 			long parentId) throws SQLException {
 		Connection conn = SQLConnector.connect();
 
@@ -133,7 +133,7 @@ public class SQLAlbumDAO implements AlbumDAO {
 			sql = "INSERT INTO Albums VALUES (NULL, ?, ?, ?, ?, ?)";
 		else
 			sql = "INSERT INTO Albums VALUES (NULL, ?, ?, ?, ?, (SELECT name FROM Albums WHERE id = ?) || ?)";
-		PreparedStatement stmt = conn.prepareStatement(sql);
+		PreparedStatement stmt = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
 		stmt.setString(1, name);
 		stmt.setString(2, subtitle);
 		stmt.setLong(3, userid);
@@ -144,7 +144,12 @@ public class SQLAlbumDAO implements AlbumDAO {
 			stmt.setLong(5, parentId);
 			stmt.setString(6, "/" + name);
 		}
-		return stmt.execute();
+		int id = stmt.executeUpdate();
+		ResultSet rs = stmt.getGeneratedKeys();
+		if (rs.next()) {
+			id = rs.getInt(1);
+		}
+		return id;
 	}
 
 	/** Photo Methods **/
@@ -273,7 +278,6 @@ public class SQLAlbumDAO implements AlbumDAO {
 		stmt.setLong(5, userid);
 		
 		// Get Id
-
 		int id = stmt.executeUpdate();
 		ResultSet rs = stmt.getGeneratedKeys();
 		if (rs.next()) {

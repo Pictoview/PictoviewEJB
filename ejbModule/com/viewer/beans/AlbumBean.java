@@ -103,14 +103,14 @@ public class AlbumBean implements AlbumBeanLocal {
 	}
 
 	@Override
-	public boolean createAlbum(long userid, String name, String subtitle,
+	public long createAlbum(long userid, String name, String subtitle,
 			long parentId) {
 		try {
 			return albumDAO.createAlbum(userid, name, subtitle, parentId);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		return false;
+		return -1;
 	}
 
 	@Override

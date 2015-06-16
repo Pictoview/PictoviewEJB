@@ -25,7 +25,7 @@ public class SQLAlbumDAO implements AlbumDAO {
 		Connection conn = SQLConnector.connect();
 
 		// Create Statement
-		String sql = "SELECT Albums.id, Albums.name, Albums.source, MIN(Photos.id) FROM Albums"
+		String sql = "SELECT Albums.id, Albums.name, Albums.subtitle, Albums.source, MIN(Photos.id) FROM Albums"
 				+ " LEFT JOIN Photos ON Albums.id = Photos.albumId"
 				+ " WHERE Albums.uid = ? AND Albums.parent = ?"
 				+ " GROUP BY Albums.id";
@@ -37,7 +37,7 @@ public class SQLAlbumDAO implements AlbumDAO {
 		ResultSet rs = stmt.executeQuery();
 		while (rs.next()) {
 			AlbumDTO album = new AlbumDTO(rs.getLong(1), new File(
-					rs.getString(3)), rs.getString(2), rs.getLong(4));
+					rs.getString(4)), rs.getString(2), rs.getString(3), rs.getLong(5), parentId);
 			dto.add(album);
 		}
 		conn.close();

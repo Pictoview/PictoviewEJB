@@ -74,8 +74,6 @@ public class SQLAlbumDAO implements AlbumDAO {
 		List<String> names = searchQuery.getNames();
 		List<CategoryDTO> categories = searchQuery.getAllTags();
 
-		System.out.println(categories);
-
 		// Create Statement
 		String sql = "SELECT Albums.id, Albums.name, Albums.source, MIN(Photos.id) FROM Albums"
 				+ " LEFT JOIN Photos ON Albums.id = Photos.albumId"
@@ -93,7 +91,6 @@ public class SQLAlbumDAO implements AlbumDAO {
 			sql += ")";
 		}
 		sql += " GROUP BY Albums.id";
-		System.out.println(sql);
 		PreparedStatement stmt = conn.prepareStatement(sql);
 
 		// Set Statement

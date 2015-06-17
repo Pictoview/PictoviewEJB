@@ -3,6 +3,8 @@ package com.viewer.dao;
 import java.sql.Connection;
 import java.sql.DriverManager;
 
+import com.viewer.file.ConfigProperties;
+
 public class SQLConnector {
 
 	public static Connection connect() {
@@ -10,7 +12,7 @@ public class SQLConnector {
 		try {
 			Class.forName("org.sqlite.JDBC");
 			con = DriverManager
-					.getConnection("jdbc:sqlite:E:/PictoViewDB/database/pdb.db");
+					.getConnection(ConfigProperties.getProperty("jdbcLoc"));
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {

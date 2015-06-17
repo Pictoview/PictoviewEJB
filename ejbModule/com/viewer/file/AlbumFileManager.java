@@ -3,7 +3,6 @@ package com.viewer.file;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,8 +12,8 @@ import javax.imageio.ImageIO;
 import com.google.common.io.Files;
 
 public class AlbumFileManager {
-	public static final String StorageLocation = "E:/PictoViewDB/Albums/";
-	public static final String ThumbnailStorageLocation = "E:/PictoViewDB/Thumbnail/";
+	public static final String StorageLocation = ConfigProperties.getProperty("albumDirectory");
+	public static final String ThumbnailStorageLocation = ConfigProperties.getProperty("thumbnailDirectory");
 
 	public static final int DEFAULT_PHOTO = 0;
 	public static final int MEDIUM_PHOTO = 1;

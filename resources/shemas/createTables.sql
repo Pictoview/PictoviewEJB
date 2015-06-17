@@ -1,0 +1,71 @@
+DROP TABLE Users;
+DROP TABLE Albums;
+DROP TABLE Photos;
+DROP TABLE UserInfo;
+DROP TABLE UserNotes;
+DROP TABLE AlbumTags;
+DROP TABLE Category;
+DROP TABLE UserCategory;
+
+CREATE TABLE Users (
+uid INTEGER PRIMARY KEY,
+username VARCHAR(127) NOT NULL,
+passkey BLOB,
+infoid INTEGER
+);
+
+CREATE TABLE Albums (
+id INTEGER PRIMARY KEY,
+name VARCHAR(255) NOT NULL,
+subtitle VARCHAR(255),
+uid INTEGER,
+parent INTEGER,
+source VARCHAR(511) NOT NULL,
+FOREIGN KEY(uid) REFERENCES Users(uid)
+);
+
+CREATE TABLE Photos (
+id INTEGER PRIMARY KEY,
+name VARCHAR(255) NOT NULL,
+source VARCHAR(511) NOT NULL,
+albumid INTEGER,
+uid INTEGER,
+FOREIGN KEY(albumid) REFERENCES Albums(id)
+);
+
+CREATE TABLE UserInfo (
+id INTEGER PRIMARY KEY,
+name VARCHAR(255),
+gender BOOLEAN,
+address VARCHAR(255),
+noteid INTEGER,
+FOREIGN KEY(noteid) REFERENCES UserNotes
+);
+
+CREATE TABLE UserNotes (
+id INTEGER PRIMARY KEY,
+notetype VARCHAR(255),
+noteinfo VARCHAR(511)
+);
+
+CREATE TABLE AlbumTags (
+id INTEGER PRIMARY KEY,
+name VARCHAR(255),
+cateid INTEGER,
+albumid INTEGER,
+FOREIGN KEY(cateid) REFERENCES Category(id),
+FOREIGN KEY(albumid) REFERENCES Albums(id)
+);
+
+CREATE TABLE Category (
+id INTEGER PRIMARY KEY,
+name VARCHAR(255) NOT NULL UNIQUE
+);
+
+CREATE TABLE UserCategory (
+id INTEGER PRIMARY KEY,
+cateid INTEGER,
+uid INTEGER,
+FOREIGN KEY(cateid) REFERENCES Category(id),
+FOREIGN KEY(uid) REFERENCES Users(uid)
+);

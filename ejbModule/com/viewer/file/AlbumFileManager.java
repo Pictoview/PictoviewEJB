@@ -10,6 +10,8 @@ import java.io.InputStream;
 
 import javax.imageio.ImageIO;
 
+import com.google.common.io.Files;
+
 public class AlbumFileManager {
 	public static final String StorageLocation = "E:/PictoViewDB/Albums/";
 	public static final String ThumbnailStorageLocation = "E:/PictoViewDB/Thumbnail/";
@@ -39,8 +41,9 @@ public class AlbumFileManager {
 
 	private static void createMediumPhoto(File sourceFile, InputStream data)
 			throws IOException {
+		String ext = Files.getFileExtension(sourceFile.getName());
 		BufferedImage scaledImageBuffer = scaleImageRatio(data, 800, 600);
-		ImageIO.write(scaledImageBuffer, "jpg", sourceFile);
+		ImageIO.write(scaledImageBuffer, ext, sourceFile);
 	}
 
 	private static void createDefaultPhoto(File sourceFile, InputStream data)
@@ -62,7 +65,7 @@ public class AlbumFileManager {
 		Image scaledImage = image.getScaledInstance(width, height,
 				Image.SCALE_DEFAULT);
 		int imageType = image.getType();
-		if (imageType == 0) imageType = 5;
+		if (imageType == 0) imageType = BufferedImage.TYPE_INT_ARGB;
 		BufferedImage retImage = new BufferedImage(width, height, imageType);
 		retImage.getGraphics().drawImage(scaledImage, 0, 0, null);
 		return retImage;
@@ -90,8 +93,10 @@ public class AlbumFileManager {
 
 		Image scaledImage = image.getScaledInstance((int) scaleW, (int) scaleH,
 				Image.SCALE_SMOOTH);
+		int imageType = image.getType();
+		if (imageType == 0) imageType = BufferedImage.TYPE_INT_ARGB;
 		BufferedImage retImage = new BufferedImage((int) scaleW, (int) scaleH,
-				image.getType());
+				imageType);
 		retImage.getGraphics().drawImage(scaledImage, 0, 0, null);
 		return retImage;
 	}
@@ -102,7 +107,8 @@ public class AlbumFileManager {
 		if (!thumbnailFile.getParentFile().exists())
 			thumbnailFile.getParentFile().mkdirs();
 
+		String ext = Files.getFileExtension(source);
 		BufferedImage scaledImageBuffer = scaleImage(sourceFile, 120, 120);
-		ImageIO.write(scaledImageBuffer, "jpg", thumbnailFile);
+		ImageIO.write(scaledImageBuffer, ext, thumbnailFile);
 	}
 }

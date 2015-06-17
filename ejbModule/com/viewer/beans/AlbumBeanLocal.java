@@ -159,5 +159,5 @@ public interface AlbumBeanLocal {
 	 * @return Success status of action
 	 */
 	public boolean uploadPhoto(long userid, long albumId, String name,
-			InputStream data);
+			InputStream data, int flags);
 }

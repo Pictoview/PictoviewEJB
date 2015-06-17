@@ -168,10 +168,10 @@ public class AlbumBean implements AlbumBeanLocal {
 
 	@Override
 	public boolean uploadPhoto(long userid, long albumId, String name,
-			InputStream data) {
+			InputStream data, int flags) {
 		try {
 			PhotoDTO photo = albumDAO.insertPhoto(userid, albumId, name);
-			AlbumFileManager.createPhotoFile(photo.getSource(), data);
+			AlbumFileManager.createPhotoFile(photo.getSource(), data, flags);
 			AlbumFileManager.createPhotoThumbnail(photo.getSource());
 			return true;
 		} catch (SQLException | IOException e) {

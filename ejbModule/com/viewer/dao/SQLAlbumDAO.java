@@ -280,11 +280,11 @@ public class SQLAlbumDAO implements AlbumDAO {
 		Connection conn = SQLConnector.connect();
 
 		// Create Statement
-		String sql = "INSERT INTO Photos VALUES (NULL, ?, (SELECT source FROM Albums WHERE id = ?) || ?, ?, ?)";
+		String sql = "INSERT INTO Photos VALUES (NULL, ?, (SELECT source FROM Albums WHERE id = ?) || '/' || (SELECT COALESCE(MAX(id) + 1, 1) FROM Photos) || ?, ?, ?)";
 		PreparedStatement stmt = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
 		stmt.setString(1, name);
 		stmt.setLong(2, albumId);
-		stmt.setString(3, "/" + name);
+		stmt.setString(3, "-" + name);
 		stmt.setLong(4, albumId);
 		stmt.setLong(5, userid);
 		

@@ -25,7 +25,7 @@ public class SQLAlbumDAO implements AlbumDAO {
 		Connection conn = SQLConnector.connect();
 
 		// Create Statement
-		String sql = "SELECT Albums.id, Albums.name, Albums.subtitle, Albums.source, MIN(Photos.id) FROM Albums"
+		String sql = "SELECT Albums.id, Albums.name, Albums.subtitle, Albums.source, MIN(Photos.name), Photos.id FROM Albums"
 				+ " LEFT JOIN Photos ON Albums.id = Photos.albumId"
 				+ " WHERE Albums.uid = ? AND Albums.parent = ?"
 				+ " GROUP BY Albums.id";
@@ -37,7 +37,7 @@ public class SQLAlbumDAO implements AlbumDAO {
 		ResultSet rs = stmt.executeQuery();
 		while (rs.next()) {
 			AlbumDTO album = new AlbumDTO(rs.getLong(1), new File(
-					rs.getString(4)), rs.getString(2), rs.getString(3), rs.getLong(5), parentId);
+					rs.getString(4)), rs.getString(2), rs.getString(3), rs.getLong(6), parentId);
 			dto.add(album);
 		}
 		conn.close();
@@ -75,7 +75,7 @@ public class SQLAlbumDAO implements AlbumDAO {
 		List<CategoryDTO> categories = searchQuery.getAllTags();
 
 		// Create Statement
-		String sql = "SELECT Albums.id, Albums.name, Albums.source, MIN(Photos.id) FROM Albums"
+		String sql = "SELECT Albums.id, Albums.name, Albums.source, MIN(Photos.name), Photos.id FROM Albums"
 				+ " LEFT JOIN Photos ON Albums.id = Photos.albumId"
 				+ " LEFT JOIN AlbumTags ON AlbumTags.albumid = Albums.id"
 				+ " LEFT JOIN Category ON AlbumTags.cateid = Category.id"
@@ -113,7 +113,7 @@ public class SQLAlbumDAO implements AlbumDAO {
 		ResultSet rs = stmt.executeQuery();
 		while (rs.next()) {
 			AlbumDTO album = new AlbumDTO(rs.getLong(1), new File(
-					rs.getString(3)), rs.getString(2), rs.getLong(4));
+					rs.getString(3)), rs.getString(2), rs.getLong(5));
 			dto.add(album);
 		}
 		conn.close();
@@ -160,7 +160,7 @@ public class SQLAlbumDAO implements AlbumDAO {
 
 		// Create Statement
 		String sql = "SELECT Photos.id, Photos.name, Photos.source FROM Photos"
-				+ " WHERE Photos.uid = ? AND Photos.albumid = ?";
+				+ " WHERE Photos.uid = ? AND Photos.albumid = ? ORDER BY Photos.name";
 		PreparedStatement stmt = conn.prepareStatement(sql);
 		stmt.setLong(1, userid);
 		stmt.setLong(2, albumid);

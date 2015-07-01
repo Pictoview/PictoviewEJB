@@ -139,8 +139,7 @@ public class SQLAlbumDAO implements AlbumDAO {
 
 		String sql;
 		if (parentId == 0) sql = "INSERT INTO Albums VALUES (NULL, ?, ?, ?, ?, ?)";
-		else
-			sql = "INSERT INTO Albums VALUES (NULL, ?, ?, ?, ?, (SELECT name FROM Albums WHERE id = ?) || ?)";
+		else sql = "INSERT INTO Albums VALUES (NULL, ?, ?, ?, ?, (SELECT name FROM Albums WHERE id = ?) || ?)";
 		PreparedStatement stmt = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
 		stmt.setString(1, name);
 		stmt.setString(2, subtitle);
@@ -213,6 +212,17 @@ public class SQLAlbumDAO implements AlbumDAO {
 		stmt.setString(1, name);
 		stmt.setString(2, category);
 		stmt.setLong(3, albumid);
+		stmt.executeUpdate();
+		conn.close();
+		return true;
+	}
+
+	@Override
+	public boolean clearAlbumTag(long albumid) throws SQLException {
+		Connection conn = SQLConnector.connect();
+		String sql = "DELETE AlbumTags WHERE albumid = ?";
+		PreparedStatement stmt = conn.prepareStatement(sql);
+		stmt.setLong(1, albumid);
 		stmt.executeUpdate();
 		conn.close();
 		return true;

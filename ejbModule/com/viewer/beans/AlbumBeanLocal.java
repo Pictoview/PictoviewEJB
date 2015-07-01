@@ -1,7 +1,6 @@
 package com.viewer.beans;
 
 import java.io.InputStream;
-import java.sql.SQLException;
 import java.util.List;
 
 import javax.ejb.Local;
@@ -167,4 +166,13 @@ public interface AlbumBeanLocal {
 	 * @return Success status of action
 	 */
 	public boolean uploadPhoto(long userid, long albumId, String name, InputStream data, int flags);
+
+	/**
+	 * Clears all tags on Album without removing categories
+	 * 
+	 * @param userid
+	 * @param albumid
+	 * @return Success status of action
+	 */
+	boolean clearAlbumTag(long userid, long albumid);
 }

@@ -44,4 +44,6 @@ public interface AlbumDAO {
 	public List<String> fetchAllUserCategories(long userid) throws SQLException;
 
 	public PhotoDTO insertPhoto(long userid, long albumId, String name) throws SQLException;
+
+	public boolean clearAlbumTag(long albumid) throws SQLException;
 }

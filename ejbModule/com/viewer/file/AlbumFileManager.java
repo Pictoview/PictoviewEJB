@@ -107,7 +107,7 @@ public class AlbumFileManager {
 			thumbnailFile.getParentFile().mkdirs();
 
 		String ext = Files.getFileExtension(source);
-		BufferedImage scaledImageBuffer = scaleImage(sourceFile, 120, 120);
+		BufferedImage scaledImageBuffer = scaleImage(sourceFile, 256, 256);
 		ImageIO.write(scaledImageBuffer, ext, thumbnailFile);
 	}
 }

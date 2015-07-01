@@ -19,6 +19,8 @@ public interface AlbumDAO {
 
 	public AlbumDTO fetchUserAlbumInfo(long userid, long albumid)
 			throws SQLException;
+	
+	public long albumExist(long userid, String name, long parentId) throws SQLException;
 
 	public long createAlbum(long userid, String name, String subtitle, long parentId) throws SQLException;
 

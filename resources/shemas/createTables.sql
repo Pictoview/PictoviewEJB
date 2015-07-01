@@ -20,7 +20,7 @@ name VARCHAR(255) NOT NULL,
 subtitle VARCHAR(255),
 uid INTEGER,
 parent INTEGER,
-source VARCHAR(511) NOT NULL,
+source VARCHAR(511) NOT NULL UNIQUE,
 FOREIGN KEY(uid) REFERENCES Users(uid)
 );
 

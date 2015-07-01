@@ -49,6 +49,16 @@ public class AlbumBean implements AlbumBeanLocal {
 		}
 		return null;
 	}
+	
+	@Override
+	public long albumExist(long userid, String name, long parentId) {
+		try {
+			return albumDAO.albumExist(userid, name, parentId);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return -1;
+	}
 
 	@Override
 	public List<PhotoDTO> fetchUserAlbumPhotos(long userid, long albumid) {

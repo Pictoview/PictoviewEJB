@@ -19,15 +19,13 @@ public class SQLAlbumDAO implements AlbumDAO {
 	/** Album Methods **/
 
 	@Override
-	public List<AlbumDTO> fetchAllUserAlbums(long userid, long parentId)
-			throws SQLException {
+	public List<AlbumDTO> fetchAllUserAlbums(long userid, long parentId) throws SQLException {
 		List<AlbumDTO> dto = new ArrayList<AlbumDTO>();
 		Connection conn = SQLConnector.connect();
 
 		// Create Statement
 		String sql = "SELECT Albums.id, Albums.name, Albums.subtitle, Albums.source, MIN(Photos.name), Photos.id FROM Albums"
-				+ " LEFT JOIN Photos ON Albums.id = Photos.albumId"
-				+ " WHERE Albums.uid = ? AND Albums.parent = ?"
+				+ " LEFT JOIN Photos ON Albums.id = Photos.albumId" + " WHERE Albums.uid = ? AND Albums.parent = ?"
 				+ " GROUP BY Albums.id";
 		PreparedStatement stmt = conn.prepareStatement(sql);
 		stmt.setLong(1, userid);
@@ -36,8 +34,8 @@ public class SQLAlbumDAO implements AlbumDAO {
 		// Execute Statement
 		ResultSet rs = stmt.executeQuery();
 		while (rs.next()) {
-			AlbumDTO album = new AlbumDTO(rs.getLong(1), new File(
-					rs.getString(4)), rs.getString(2), rs.getString(3), rs.getLong(6), parentId);
+			AlbumDTO album = new AlbumDTO(rs.getLong(1), new File(rs.getString(4)), rs.getString(2), rs.getString(3),
+					rs.getLong(6), parentId);
 			dto.add(album);
 		}
 		conn.close();
@@ -45,8 +43,7 @@ public class SQLAlbumDAO implements AlbumDAO {
 	}
 
 	@Override
-	public AlbumDTO fetchUserAlbumInfo(long userid, long albumid)
-			throws SQLException {
+	public AlbumDTO fetchUserAlbumInfo(long userid, long albumid) throws SQLException {
 		Connection conn = SQLConnector.connect();
 
 		// Create Statement
@@ -58,16 +55,35 @@ public class SQLAlbumDAO implements AlbumDAO {
 		ResultSet rs = stmt.executeQuery();
 		AlbumDTO album = null;
 		if (rs.next()) {
-			album = new AlbumDTO(rs.getLong(1), new File(rs.getString(3)),
-					rs.getString(2), rs.getLong(4));
+			album = new AlbumDTO(rs.getLong(1), new File(rs.getString(3)), rs.getString(2), rs.getLong(4));
 		}
 		conn.close();
 		return album;
 	}
 
 	@Override
-	public List<AlbumDTO> fetchSearchUserAlbums(long userid,
-			SearchQueryDTO searchQuery) throws SQLException {
+	public long albumExist(long userid, String name, long parentId) throws SQLException {
+		Connection conn = SQLConnector.connect();
+		long albumId = -1;
+
+		// Create Statement
+		String sql = "SELECT id FROM Albums WHERE uid = ? AND name = ? AND parent = ?";
+		PreparedStatement stmt = conn.prepareStatement(sql);
+		stmt.setLong(1, userid);
+		stmt.setString(2, name);
+		stmt.setLong(3, parentId);
+
+		// Execute Statement
+		ResultSet rs = stmt.executeQuery();
+		if (rs.next()) {
+			albumId = rs.getInt(1);
+		}
+		conn.close();
+		return albumId;
+	}
+
+	@Override
+	public List<AlbumDTO> fetchSearchUserAlbums(long userid, SearchQueryDTO searchQuery) throws SQLException {
 		List<AlbumDTO> dto = new ArrayList<AlbumDTO>();
 		Connection conn = SQLConnector.connect();
 
@@ -76,10 +92,8 @@ public class SQLAlbumDAO implements AlbumDAO {
 
 		// Create Statement
 		String sql = "SELECT Albums.id, Albums.name, Albums.source, MIN(Photos.name), Photos.id FROM Albums"
-				+ " LEFT JOIN Photos ON Albums.id = Photos.albumId"
-				+ " LEFT JOIN AlbumTags ON AlbumTags.albumid = Albums.id"
-				+ " LEFT JOIN Category ON AlbumTags.cateid = Category.id"
-				+ " WHERE Albums.uid = ?";
+				+ " LEFT JOIN Photos ON Albums.id = Photos.albumId" + " LEFT JOIN AlbumTags ON AlbumTags.albumid = Albums.id"
+				+ " LEFT JOIN Category ON AlbumTags.cateid = Category.id" + " WHERE Albums.uid = ?";
 		for (int i = 0; i < names.size(); i++) {
 			sql += " AND (Albums.name LIKE ? OR Albums.subtitle LIKE ?)";
 		}
@@ -112,8 +126,7 @@ public class SQLAlbumDAO implements AlbumDAO {
 		// Execute Statement
 		ResultSet rs = stmt.executeQuery();
 		while (rs.next()) {
-			AlbumDTO album = new AlbumDTO(rs.getLong(1), new File(
-					rs.getString(3)), rs.getString(2), rs.getLong(5));
+			AlbumDTO album = new AlbumDTO(rs.getLong(1), new File(rs.getString(3)), rs.getString(2), rs.getLong(5));
 			dto.add(album);
 		}
 		conn.close();
@@ -121,13 +134,11 @@ public class SQLAlbumDAO implements AlbumDAO {
 	}
 
 	@Override
-	public long createAlbum(long userid, String name, String subtitle,
-			long parentId) throws SQLException {
+	public long createAlbum(long userid, String name, String subtitle, long parentId) throws SQLException {
 		Connection conn = SQLConnector.connect();
 
 		String sql;
-		if (parentId == 0)
-			sql = "INSERT INTO Albums VALUES (NULL, ?, ?, ?, ?, ?)";
+		if (parentId == 0) sql = "INSERT INTO Albums VALUES (NULL, ?, ?, ?, ?, ?)";
 		else
 			sql = "INSERT INTO Albums VALUES (NULL, ?, ?, ?, ?, (SELECT name FROM Albums WHERE id = ?) || ?)";
 		PreparedStatement stmt = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
@@ -153,8 +164,7 @@ public class SQLAlbumDAO implements AlbumDAO {
 	/** Photo Methods **/
 
 	@Override
-	public List<PhotoDTO> fetchUserAlbumPhotos(long userid, long albumid)
-			throws SQLException {
+	public List<PhotoDTO> fetchUserAlbumPhotos(long userid, long albumid) throws SQLException {
 		List<PhotoDTO> photos = new ArrayList<PhotoDTO>();
 		Connection conn = SQLConnector.connect();
 
@@ -168,8 +178,7 @@ public class SQLAlbumDAO implements AlbumDAO {
 		// Execute Statement
 		ResultSet rs = stmt.executeQuery();
 		while (rs.next()) {
-			photos.add(new PhotoDTO(rs.getLong(1), rs.getString(2), rs
-					.getString(3)));
+			photos.add(new PhotoDTO(rs.getLong(1), rs.getString(2), rs.getString(3)));
 		}
 		conn.close();
 		return photos;
@@ -188,8 +197,7 @@ public class SQLAlbumDAO implements AlbumDAO {
 		PhotoDTO photo = null;
 		ResultSet rs = stmt.executeQuery();
 		if (rs.next()) {
-			photo = new PhotoDTO(rs.getLong(1), rs.getString(2), 
-					rs.getString(3));
+			photo = new PhotoDTO(rs.getLong(1), rs.getString(2), rs.getString(3));
 		}
 		conn.close();
 		return photo;
@@ -198,8 +206,7 @@ public class SQLAlbumDAO implements AlbumDAO {
 	/** Category & Tag Methods **/
 
 	@Override
-	public boolean tagAlbum(long userid, String name, long albumid,
-			String category) throws SQLException {
+	public boolean tagAlbum(long userid, String name, long albumid, String category) throws SQLException {
 		Connection conn = SQLConnector.connect();
 		String sql = "INSERT INTO AlbumTags VALUES (NULL, ?, (SELECT Category.id FROM Category WHERE Category.name = ?), ?)";
 		PreparedStatement stmt = conn.prepareStatement(sql);
@@ -212,8 +219,7 @@ public class SQLAlbumDAO implements AlbumDAO {
 	}
 
 	@Override
-	public AlbumTagsDTO fetchUserAlbumTags(long userid, long albumid)
-			throws SQLException {
+	public AlbumTagsDTO fetchUserAlbumTags(long userid, long albumid) throws SQLException {
 		Connection conn = SQLConnector.connect();
 
 		// Create Statement
@@ -261,7 +267,7 @@ public class SQLAlbumDAO implements AlbumDAO {
 		Connection conn = SQLConnector.connect();
 
 		// Create Statement
-		String sql = "SELECT name FROM Category WHERE uid = ?";
+		String sql = "SELECT name FROM Category INNER JOIN UserCategory ON Category.id = UserCategory.cateid WHERE uid = ?";
 		PreparedStatement stmt = conn.prepareStatement(sql);
 		stmt.setLong(1, userid);
 
@@ -275,8 +281,7 @@ public class SQLAlbumDAO implements AlbumDAO {
 	}
 
 	@Override
-	public PhotoDTO insertPhoto(long userid, long albumId, String name)
-			throws SQLException {
+	public PhotoDTO insertPhoto(long userid, long albumId, String name) throws SQLException {
 		Connection conn = SQLConnector.connect();
 
 		// Create Statement
@@ -287,7 +292,7 @@ public class SQLAlbumDAO implements AlbumDAO {
 		stmt.setString(3, "-" + name);
 		stmt.setLong(4, albumId);
 		stmt.setLong(5, userid);
-		
+
 		// Get Id
 		int id = stmt.executeUpdate();
 		ResultSet rs = stmt.getGeneratedKeys();

@@ -1,6 +1,7 @@
 package com.viewer.beans;
 
 import java.io.InputStream;
+import java.sql.SQLException;
 import java.util.List;
 
 import javax.ejb.Local;
@@ -33,8 +34,7 @@ public interface AlbumBeanLocal {
 	 *            includes the name and list of category tag associations.
 	 * @return List of DTO encapsulating information regarding album
 	 */
-	public List<AlbumDTO> fetchSearchedUserAlbums(long userid,
-			SearchQueryDTO searchQuery);
+	public List<AlbumDTO> fetchSearchedUserAlbums(long userid, SearchQueryDTO searchQuery);
 
 	/**
 	 * Fetches a single Album associated with user
@@ -44,6 +44,16 @@ public interface AlbumBeanLocal {
 	 * @return List of DTO encapsulating information regarding album
 	 */
 	public AlbumDTO fetchUserAlbumInfo(long userid, long albumid);
+
+	/**
+	 * Check if album with name exists within parent album
+	 * 
+	 * @param userid
+	 * @param name
+	 * @param parentId
+	 * @return albumId or -1 if not exist
+	 */
+	public long albumExist(long userid, String name, long parentId);
 
 	/**
 	 * Fetches meta-data for list of photos
@@ -78,8 +88,7 @@ public interface AlbumBeanLocal {
 	 *            ID of the album's parent
 	 * @return ID of created album
 	 */
-	public long createAlbum(long userid, String name, String subtitle,
-			long parentId);
+	public long createAlbum(long userid, String name, String subtitle, long parentId);
 
 	/**
 	 * Fetches the data encapsulated in the photo
@@ -98,8 +107,7 @@ public interface AlbumBeanLocal {
 	 * @param flags
 	 * @return Stream of photo thumbnail file data
 	 */
-	public ImageInputStream fetchPhotoThumbnailData(long userid, long photoid,
-			int flags);
+	public ImageInputStream fetchPhotoThumbnailData(long userid, long photoid, int flags);
 
 	/**
 	 * Fetches the data encapsulated in the photo thumbnail
@@ -158,6 +166,5 @@ public interface AlbumBeanLocal {
 	 *            InputStream to file being transferred
 	 * @return Success status of action
 	 */
-	public boolean uploadPhoto(long userid, long albumId, String name,
-			InputStream data, int flags);
+	public boolean uploadPhoto(long userid, long albumId, String name, InputStream data, int flags);
 }

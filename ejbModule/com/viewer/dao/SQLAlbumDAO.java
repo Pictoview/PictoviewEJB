@@ -105,7 +105,6 @@ public class SQLAlbumDAO implements AlbumDAO {
 			sql += ")";
 		}
 		sql += " GROUP BY Albums.id";
-		System.out.println(sql);
 		PreparedStatement stmt = conn.prepareStatement(sql);
 
 		// Set Statement

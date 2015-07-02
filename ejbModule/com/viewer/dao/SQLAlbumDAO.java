@@ -95,16 +95,17 @@ public class SQLAlbumDAO implements AlbumDAO {
 				+ " LEFT JOIN Photos ON Albums.id = Photos.albumId" + " LEFT JOIN AlbumTags ON AlbumTags.albumid = Albums.id"
 				+ " LEFT JOIN Category ON AlbumTags.cateid = Category.id" + " WHERE Albums.uid = ?";
 		for (int i = 0; i < names.size(); i++) {
-			sql += " AND (Albums.name LIKE ? OR Albums.subtitle LIKE ?)";
+			sql += " AND Albums.name LIKE ?";
 		}
 		for (CategoryDTO category : categories) {
-			sql += " AND ( Category.name = ?";
+			sql += " AND (Category.name = ?";
 			for (int i = 0; i < category.getTags().size(); i++) {
 				sql += " AND AlbumTags.name = ?";
 			}
 			sql += ")";
 		}
 		sql += " GROUP BY Albums.id";
+		System.out.println(sql);
 		PreparedStatement stmt = conn.prepareStatement(sql);
 
 		// Set Statement
@@ -220,7 +221,7 @@ public class SQLAlbumDAO implements AlbumDAO {
 	@Override
 	public boolean clearAlbumTag(long albumid) throws SQLException {
 		Connection conn = SQLConnector.connect();
-		String sql = "DELETE AlbumTags WHERE albumid = ?";
+		String sql = "DELETE FROM AlbumTags WHERE albumid = ?";
 		PreparedStatement stmt = conn.prepareStatement(sql);
 		stmt.setLong(1, albumid);
 		stmt.executeUpdate();

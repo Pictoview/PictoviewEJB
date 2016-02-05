@@ -38,7 +38,7 @@ public class SQLAlbumDAO implements AlbumDAO {
 					rs.getLong(6), parentId);
 			dto.add(album);
 		}
-		conn.close();
+		// conn.close();
 		return dto;
 	}
 
@@ -57,7 +57,7 @@ public class SQLAlbumDAO implements AlbumDAO {
 		if (rs.next()) {
 			album = new AlbumDTO(rs.getLong(1), new File(rs.getString(3)), rs.getString(2), rs.getLong(4));
 		}
-		conn.close();
+		// conn.close();
 		return album;
 	}
 
@@ -78,7 +78,7 @@ public class SQLAlbumDAO implements AlbumDAO {
 		if (rs.next()) {
 			albumId = rs.getInt(1);
 		}
-		conn.close();
+		// conn.close();
 		return albumId;
 	}
 
@@ -129,7 +129,7 @@ public class SQLAlbumDAO implements AlbumDAO {
 			AlbumDTO album = new AlbumDTO(rs.getLong(1), new File(rs.getString(3)), rs.getString(2), rs.getLong(5));
 			dto.add(album);
 		}
-		conn.close();
+		// conn.close();
 		return dto;
 	}
 
@@ -156,7 +156,7 @@ public class SQLAlbumDAO implements AlbumDAO {
 		if (rs.next()) {
 			id = rs.getInt(1);
 		}
-		conn.close();
+		// conn.close();
 		return id;
 	}
 
@@ -179,7 +179,7 @@ public class SQLAlbumDAO implements AlbumDAO {
 		while (rs.next()) {
 			photos.add(new PhotoDTO(rs.getLong(1), rs.getString(2), rs.getString(3)));
 		}
-		conn.close();
+		// conn.close();
 		return photos;
 	}
 
@@ -198,7 +198,7 @@ public class SQLAlbumDAO implements AlbumDAO {
 		if (rs.next()) {
 			photo = new PhotoDTO(rs.getLong(1), rs.getString(2), rs.getString(3));
 		}
-		conn.close();
+		// conn.close();
 		return photo;
 	}
 
@@ -213,7 +213,7 @@ public class SQLAlbumDAO implements AlbumDAO {
 		stmt.setString(2, category);
 		stmt.setLong(3, albumid);
 		stmt.executeUpdate();
-		conn.close();
+		// conn.close();
 		return true;
 	}
 
@@ -224,7 +224,7 @@ public class SQLAlbumDAO implements AlbumDAO {
 		PreparedStatement stmt = conn.prepareStatement(sql);
 		stmt.setLong(1, albumid);
 		stmt.executeUpdate();
-		conn.close();
+		// conn.close();
 		return true;
 	}
 
@@ -247,7 +247,7 @@ public class SQLAlbumDAO implements AlbumDAO {
 		while (rs.next()) {
 			tags.insertTag(rs.getLong(1), rs.getString(2), rs.getString(3));
 		}
-		conn.close();
+		// conn.close();
 		return tags;
 	}
 
@@ -268,7 +268,7 @@ public class SQLAlbumDAO implements AlbumDAO {
 		userCate.setLong(1, id);
 		userCate.setLong(2, userid);
 		userCate.executeUpdate();
-		conn.close();
+		// conn.close();
 		return id;
 	}
 
@@ -286,7 +286,7 @@ public class SQLAlbumDAO implements AlbumDAO {
 		List<String> categories = new ArrayList<String>();
 		while (rs.next())
 			categories.add(rs.getString(1));
-		conn.close();
+		// conn.close();
 		return categories;
 	}
 
@@ -319,7 +319,7 @@ public class SQLAlbumDAO implements AlbumDAO {
 		if (rs.next()) {
 			photo = new PhotoDTO(id, name, rs.getString(1));
 		}
-		conn.close();
+		// conn.close();
 		return photo;
 	}
 }

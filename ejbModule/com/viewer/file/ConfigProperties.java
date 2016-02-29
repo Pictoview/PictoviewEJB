@@ -11,10 +11,12 @@ public class ConfigProperties {
 	private static Properties prop = new Properties();
 	
 	static {
-		InputStream is = null;
 		try {
-			is = new FileInputStream(new File("config.properties"));
+			File propertyFile = new File("config.properties");
+			if (!propertyFile.exists()) propertyFile = new File("resources/config/config.properties"); // Fallback
+			InputStream is = new FileInputStream(propertyFile);
 			prop.load(is);
+			is.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

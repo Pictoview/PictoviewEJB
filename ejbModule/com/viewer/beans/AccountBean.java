@@ -5,7 +5,8 @@ import java.sql.SQLException;
 import javax.ejb.Stateless;
 
 import com.viewer.dao.AccountDAO;
-import com.viewer.dao.SQLAccountDAO;
+import com.viewer.dao.impl.SQLAccountDAO;
+import com.viewer.dto.UserDataDTO;
 import com.viewer.dto.UserInfoDTO;
 
 @Stateless
@@ -18,7 +19,7 @@ public class AccountBean implements AccountBeanLocal {
 
 	public long registerUser(String username, String passkey, String name, boolean gender) {
 		try {
-			return accountDAO.registerUser(username, passkey.getBytes(), name, gender);
+			return accountDAO.registerUser(UserDataDTO.createRegularUser(username, passkey.getBytes(), name, gender, ""));
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

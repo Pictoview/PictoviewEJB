@@ -11,7 +11,7 @@ import javax.imageio.ImageIO;
 import javax.imageio.stream.ImageInputStream;
 
 import com.viewer.dao.AlbumDAO;
-import com.viewer.dao.SQLAlbumDAO;
+import com.viewer.dao.impl.SQLAlbumDAO;
 import com.viewer.dto.AlbumDTO;
 import com.viewer.dto.AlbumTagsDTO;
 import com.viewer.dto.PhotoDTO;
@@ -24,16 +24,15 @@ import com.viewer.file.AlbumFileManager;
 @Stateless
 public class AlbumBean implements AlbumBeanLocal {
 
-	AlbumDAO albumDAO;
+	private AlbumDAO albumDAO;
 
 	public AlbumBean() {
 		albumDAO = new SQLAlbumDAO();
 	}
 
-	@Override
-	public List<AlbumDTO> fetchAllUserAlbums(long userid, long parentId) {
+	public List<AlbumDTO> fetchAllPublicAlbums(int limit, int offset) {
 		try {
-			return albumDAO.fetchAllUserAlbums(userid, parentId);
+			return albumDAO.fetchAllPublicAlbums(limit, offset);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -41,9 +40,9 @@ public class AlbumBean implements AlbumBeanLocal {
 	}
 
 	@Override
-	public AlbumDTO fetchUserAlbumInfo(long userid, long albumid) {
+	public List<AlbumDTO> fetchAllUserAlbums(String username, long parentId) {
 		try {
-			return albumDAO.fetchUserAlbumInfo(userid, albumid);
+			return albumDAO.fetchAllSubscribedAlbums(username, parentId);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -51,9 +50,19 @@ public class AlbumBean implements AlbumBeanLocal {
 	}
 
 	@Override
-	public long albumExist(long userid, String name, long parentId) {
+	public AlbumDTO fetchUserAlbumInfo(String username, long albumid) {
 		try {
-			return albumDAO.albumExist(userid, name, parentId);
+			return albumDAO.fetchUserAlbumInfo(username, albumid);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	@Override
+	public long albumExist(String username, String name, long parentId) {
+		try {
+			return albumDAO.albumExist(username, name, parentId);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -61,9 +70,9 @@ public class AlbumBean implements AlbumBeanLocal {
 	}
 
 	@Override
-	public List<PhotoDTO> fetchUserAlbumPhotos(long userid, long albumid) {
+	public List<PhotoDTO> fetchUserAlbumPhotos(String username, long albumid) {
 		try {
-			return albumDAO.fetchUserAlbumPhotos(userid, albumid);
+			return albumDAO.fetchUserAlbumPhotos(username, albumid);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -71,7 +80,7 @@ public class AlbumBean implements AlbumBeanLocal {
 	}
 
 	@Override
-	public PhotoDTO fetchPhoto(long userid, long photoid) {
+	public PhotoDTO fetchPhoto(String username, long photoid) {
 		try {
 			return albumDAO.fetchPhoto(photoid);
 		} catch (SQLException e) {
@@ -81,7 +90,7 @@ public class AlbumBean implements AlbumBeanLocal {
 	}
 
 	@Override
-	public ImageInputStream fetchPhotoData(long userid, long photoid) {
+	public ImageInputStream fetchPhotoData(String username, long photoid) {
 		try {
 			PhotoDTO photoDTO = albumDAO.fetchPhoto(photoid);
 			String source = AlbumFileManager.StorageLocation + photoDTO.getSource();
@@ -93,12 +102,12 @@ public class AlbumBean implements AlbumBeanLocal {
 	}
 
 	@Override
-	public ImageInputStream fetchPhotoThumbnailData(long userid, long photoid) {
-		return fetchPhotoThumbnailData(userid, photoid, 0);
+	public ImageInputStream fetchPhotoThumbnailData(String username, long photoid) {
+		return fetchPhotoThumbnailData(username, photoid, 0);
 	}
 
 	@Override
-	public ImageInputStream fetchPhotoThumbnailData(long userid, long photoid, int flags) {
+	public ImageInputStream fetchPhotoThumbnailData(String username, long photoid, int flags) {
 		try {
 			PhotoDTO photoDTO = albumDAO.fetchPhoto(photoid);
 			String source = AlbumFileManager.ThumbnailStorageLocation + photoDTO.getSource();
@@ -108,11 +117,11 @@ public class AlbumBean implements AlbumBeanLocal {
 		}
 		return null;
 	}
-
+	
 	@Override
-	public long createAlbum(long userid, String name, String subtitle, long parentId) {
+	public long createAlbum(String username, String name, String subtitle, String permission) {
 		try {
-			return albumDAO.createAlbum(userid, name, subtitle, parentId);
+			return albumDAO.createAlbum(username, name, subtitle, permission);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -120,9 +129,19 @@ public class AlbumBean implements AlbumBeanLocal {
 	}
 
 	@Override
-	public List<AlbumDTO> fetchSearchedUserAlbums(long userid, SearchQueryDTO searchQuery) {
+	public long createAlbum(String username, String name, String subtitle, long parentId) {
 		try {
-			return albumDAO.fetchSearchUserAlbums(userid, searchQuery);
+			return albumDAO.createAlbum(username, name, subtitle, parentId);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return -1;
+	}
+
+	@Override
+	public List<AlbumDTO> fetchSearchedUserAlbums(String username, SearchQueryDTO searchQuery) {
+		try {
+			return albumDAO.fetchSearchUserAlbums(username, searchQuery);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -130,9 +149,9 @@ public class AlbumBean implements AlbumBeanLocal {
 	}
 
 	@Override
-	public AlbumTagsDTO fetchUserAlbumTags(long userid, long albumid) {
+	public AlbumTagsDTO fetchUserAlbumTags(String username, long albumid) {
 		try {
-			return albumDAO.fetchUserAlbumTags(userid, albumid);
+			return albumDAO.fetchUserAlbumTags(username, albumid);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -140,9 +159,9 @@ public class AlbumBean implements AlbumBeanLocal {
 	}
 
 	@Override
-	public boolean tagUserAlbum(long userid, long albumid, String tag, String category) {
+	public boolean tagUserAlbum(String username, long albumid, String tag, String category) {
 		try {
-			return albumDAO.tagAlbum(userid, tag, albumid, category);
+			return albumDAO.tagAlbum(username, tag, albumid, category);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -150,7 +169,7 @@ public class AlbumBean implements AlbumBeanLocal {
 	}
 
 	@Override
-	public boolean clearAlbumTag(long userid, long albumid) {
+	public boolean clearAlbumTag(String username, long albumid) {
 		try {
 			return albumDAO.clearAlbumTag(albumid);
 		} catch (SQLException e) {
@@ -160,9 +179,9 @@ public class AlbumBean implements AlbumBeanLocal {
 	}
 
 	@Override
-	public boolean createCategory(long userid, String category) {
+	public boolean createCategory(String username, String category) {
 		try {
-			albumDAO.createCategory(1, category);
+			albumDAO.createCategory(username, category);
 			return true;
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -171,9 +190,9 @@ public class AlbumBean implements AlbumBeanLocal {
 	}
 
 	@Override
-	public List<String> fetchAllUserCategories(long userid) {
+	public List<String> fetchAllUserCategories(String username) {
 		try {
-			return albumDAO.fetchAllUserCategories(userid);
+			return albumDAO.fetchAllCategories(username);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -181,9 +200,9 @@ public class AlbumBean implements AlbumBeanLocal {
 	}
 
 	@Override
-	public boolean uploadPhoto(long userid, long albumId, String name, InputStream data, int flags) {
+	public boolean uploadPhoto(String username, long albumId, String name, InputStream data, int flags) {
 		try {
-			PhotoDTO photo = albumDAO.insertPhoto(userid, albumId, name);
+			PhotoDTO photo = albumDAO.insertPhoto(username, albumId, name);
 			AlbumFileManager.createPhotoFile(photo.getSource(), data, flags);
 			AlbumFileManager.createPhotoThumbnail(photo.getSource());
 			return true;

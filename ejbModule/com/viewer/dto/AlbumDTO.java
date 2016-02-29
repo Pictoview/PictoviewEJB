@@ -1,43 +1,44 @@
 package com.viewer.dto;
 
-import java.io.File;
-
 public class AlbumDTO {
 
 	private final long id;
-	private File source;
+	private long ownerid;
 	private String name;
 	private String subtitle;
 	private long coverId;
 	private long parentId;
 
-	public AlbumDTO(long id, File source, String name, long coverId) {
+	public AlbumDTO(long id, long ownerid, String name, long coverId) {
 		this.id = id;
-		this.source = source;
+		this.ownerid = ownerid;
 		this.name = name;
 		this.coverId = coverId;
 	}
 
-	public AlbumDTO(long id, File source, String name, String subtitle,
-			long coverId, long parentId) {
+	public AlbumDTO(long id, long ownerid, String name, String subtitle, long coverId, long parentId) {
 		this.id = id;
-		this.source = source;
+		this.ownerid = ownerid;
 		this.name = name;
 		this.subtitle = subtitle;
 		this.coverId = coverId;
 		this.parentId = parentId;
 	}
 
+	public String toString() {
+		return id + ": " + name + " [" + subtitle + "] " + "Cover: " + coverId + " Parent: " + parentId;
+	}
+
 	public long getId() {
 		return id;
 	}
 
-	public File getSource() {
-		return source;
+	public long getOwnerid() {
+		return ownerid;
 	}
 
-	public void setSource(File source) {
-		this.source = source;
+	public void setOwnerid(long ownerid) {
+		this.ownerid = ownerid;
 	}
 
 	public String getName() {

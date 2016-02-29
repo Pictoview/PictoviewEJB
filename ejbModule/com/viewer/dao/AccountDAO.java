@@ -2,13 +2,16 @@ package com.viewer.dao;
 
 import java.sql.SQLException;
 
+import com.viewer.dto.UserDataDTO;
 import com.viewer.dto.UserInfoDTO;
 
 public interface AccountDAO {
 
-	public long registerUser(String username, byte[] passkey, String name, boolean gender) throws SQLException;
+	public long registerUser(UserDataDTO userData) throws SQLException;
 
-	public boolean updateUserInfo(long uid, String name, boolean gender) throws SQLException;
+	public boolean deleteUser(String username, byte[] passkey) throws SQLException;
+
+	public boolean updateUserInfo(UserDataDTO userData) throws SQLException;
 
 	public UserInfoDTO verifyUser(String username) throws SQLException;
 }

@@ -2,26 +2,49 @@ DROP TABLE Users;
 DROP TABLE Albums;
 DROP TABLE Photos;
 DROP TABLE UserInfo;
-DROP TABLE UserNotes;
+DROP TABLE AlbumAccess;
 DROP TABLE AlbumTags;
-DROP TABLE Category;
-DROP TABLE UserCategory;
+DROP TABLE TagCategory;
+DROP TABLE UserSubscriptions;
 
 CREATE TABLE Users (
 uid INTEGER PRIMARY KEY,
 username VARCHAR(127) NOT NULL,
-passkey BLOB,
-infoid INTEGER
+passkey VARCHAR(127),
+role INTEGER,
+points INTEGER,
+status VARCHAR(10),
+lastAccessed TIMESTAMP
+);
+
+CREATE TABLE UserInfo (
+id INTEGER PRIMARY KEY,
+uid INTEGER,
+name VARCHAR(255),
+gender BOOLEAN,
+address VARCHAR(255),
+description VARCHAR(525),
+FOREIGN KEY(uid) REFERENCES Users(uid)
+);
+
+CREATE TABLE UserSubscriptions (
+id INTEGER PRIMARY KEY,
+uid INTEGER,
+albumid INTEGER,
+lastChecked TIMESTAMP,
+FOREIGN KEY(uid) REFERENCES Users(uid),
+FOREIGN KEY(albumid) REFERENCES Albums(id)
 );
 
 CREATE TABLE Albums (
 id INTEGER PRIMARY KEY,
 name VARCHAR(255) NOT NULL,
 subtitle VARCHAR(255),
-uid INTEGER,
+owner INTEGER,
 parent INTEGER,
-source VARCHAR(511) NOT NULL UNIQUE,
-FOREIGN KEY(uid) REFERENCES Users(uid)
+permission VARCHAR(25),
+lastModifiedDate TIMESTAMP,
+FOREIGN KEY(owner) REFERENCES Users(uid)
 );
 
 CREATE TABLE Photos (
@@ -29,43 +52,33 @@ id INTEGER PRIMARY KEY,
 name VARCHAR(255) NOT NULL,
 source VARCHAR(511) NOT NULL,
 albumid INTEGER,
-uid INTEGER,
-FOREIGN KEY(albumid) REFERENCES Albums(id)
+owner INTEGER,
+lastModifiedDate TIMESTAMP,
+FOREIGN KEY(albumid) REFERENCES Albums(id),
+FOREIGN KEY(owner) REFERENCES Users(uid)
 );
 
-CREATE TABLE UserInfo (
+CREATE TABLE AlbumAccess (
 id INTEGER PRIMARY KEY,
-name VARCHAR(255),
-gender BOOLEAN,
-address VARCHAR(255),
-noteid INTEGER,
-FOREIGN KEY(noteid) REFERENCES UserNotes
-);
-
-CREATE TABLE UserNotes (
-id INTEGER PRIMARY KEY,
-notetype VARCHAR(255),
-noteinfo VARCHAR(511)
+albumid INTEGER,
+owner INTEGER,
+visitor INTEGER,
+FOREIGN KEY(albumid) REFERENCES Albums(id),
+FOREIGN KEY(owner) REFERENCES Users(uid),
+FOREIGN KEY (visitor) REFERENCES Users(uid)
 );
 
 CREATE TABLE AlbumTags (
 id INTEGER PRIMARY KEY,
 name VARCHAR(255),
-cateid INTEGER,
 albumid INTEGER,
-FOREIGN KEY(cateid) REFERENCES Category(id),
-FOREIGN KEY(albumid) REFERENCES Albums(id)
-);
-
-CREATE TABLE Category (
-id INTEGER PRIMARY KEY,
-name VARCHAR(255) NOT NULL UNIQUE
-);
-
-CREATE TABLE UserCategory (
-id INTEGER PRIMARY KEY,
 cateid INTEGER,
-uid INTEGER,
-FOREIGN KEY(cateid) REFERENCES Category(id),
-FOREIGN KEY(uid) REFERENCES Users(uid)
+FOREIGN KEY(albumid) REFERENCES Albums(id),
+FOREIGN KEY(cateid) REFERENCES Category(id)
+);
+
+CREATE TABLE TagCategory (
+id INTEGER PRIMARY KEY,
+name VARCHAR(255) NOT NULL UNIQUE,
+visibility VARCHAR(25)
 );

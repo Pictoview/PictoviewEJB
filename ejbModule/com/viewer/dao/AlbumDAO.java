@@ -10,40 +10,51 @@ import com.viewer.dto.SearchQueryDTO;
 
 public interface AlbumDAO {
 
-	// Album Methods
+	/** Album Methods **/
 
-	public List<AlbumDTO> fetchAllUserAlbums(long userid, long parentId)
-			throws SQLException;
+	// Fetch Methods
 
-	public List<AlbumDTO> fetchSearchUserAlbums(long userid, SearchQueryDTO searchQuery) throws SQLException;
+	public List<AlbumDTO> fetchAllPublicAlbums(int limit, int offset) throws SQLException;
 
-	public AlbumDTO fetchUserAlbumInfo(long userid, long albumid)
-			throws SQLException;
-	
-	public long albumExist(long userid, String name, long parentId) throws SQLException;
+	public List<AlbumDTO> fetchViewableAlbums(String username, long parentId) throws SQLException;
 
-	public long createAlbum(long userid, String name, String subtitle, long parentId) throws SQLException;
+	public List<AlbumDTO> fetchAllSubscribedAlbums(String username, long parentId) throws SQLException;
+
+	public List<AlbumDTO> fetchSearchUserAlbums(String username, SearchQueryDTO searchQuery) throws SQLException;
+
+	public AlbumDTO fetchUserAlbumInfo(String username, long albumid) throws SQLException;
+
+	// Update Methods
+
+	public long albumExist(String username, String name, long parentId) throws SQLException;
+
+	public long createAlbum(String username, String name, String subtitle, String permission) throws SQLException;
+
+	public long createAlbum(String username, String name, String subtitle, long parentId) throws SQLException;
+
+	public boolean deleteAlbum(String username, long albumId) throws SQLException;
+
+	public boolean subscribeToAlbum(String username, long albumId) throws SQLException;
+
+	public boolean unsubscribeToAlbum(String username, long albumId) throws SQLException;
 
 	// Tags & Categories
 
-	public boolean tagAlbum(long userid, String name, long albumid, String category)
-			throws SQLException;
+	public boolean tagAlbum(String username, String name, long albumid, String category) throws SQLException;
 
-	public int createCategory(long userid, String name) throws SQLException;
+	public int createCategory(String username, String name) throws SQLException;
 
-	public AlbumTagsDTO fetchUserAlbumTags(long userid, long albumid)
-			throws SQLException;
+	public AlbumTagsDTO fetchUserAlbumTags(String username, long albumid) throws SQLException;
 
 	// Photo Methods
 
-	public List<PhotoDTO> fetchUserAlbumPhotos(long userid, long albumid)
-			throws SQLException;
+	public List<PhotoDTO> fetchUserAlbumPhotos(String username, long albumid) throws SQLException;
 
 	public PhotoDTO fetchPhoto(long photoid) throws SQLException;
 
-	public List<String> fetchAllUserCategories(long userid) throws SQLException;
+	public List<String> fetchAllCategories(String visibility) throws SQLException;
 
-	public PhotoDTO insertPhoto(long userid, long albumId, String name) throws SQLException;
+	public PhotoDTO insertPhoto(String username, long albumId, String name) throws SQLException;
 
 	public boolean clearAlbumTag(long albumid) throws SQLException;
 }

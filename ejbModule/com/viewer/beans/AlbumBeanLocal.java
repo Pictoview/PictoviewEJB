@@ -13,6 +13,11 @@ import com.viewer.dto.SearchQueryDTO;
 
 @Local
 public interface AlbumBeanLocal {
+	
+
+	public static enum Permission { PUBLIC, PRIVATE, LIMITED};
+	
+	public List<AlbumDTO> fetchAllPublicAlbums(int limit, int offset);
 
 	/**
 	 * Fetches all Albums associated with user
@@ -21,7 +26,7 @@ public interface AlbumBeanLocal {
 	 * @param parentId
 	 * @return List of DTO encapsulating information regarding album
 	 */
-	public List<AlbumDTO> fetchAllUserAlbums(long userid, long parentId);
+	public List<AlbumDTO> fetchAllUserAlbums(String username, long parentId);
 
 	/**
 	 * Fetches all albums matching search criteria (Regardless of file hierarchy
@@ -33,7 +38,7 @@ public interface AlbumBeanLocal {
 	 *            includes the name and list of category tag associations.
 	 * @return List of DTO encapsulating information regarding album
 	 */
-	public List<AlbumDTO> fetchSearchedUserAlbums(long userid, SearchQueryDTO searchQuery);
+	public List<AlbumDTO> fetchSearchedUserAlbums(String username, SearchQueryDTO searchQuery);
 
 	/**
 	 * Fetches a single Album associated with user
@@ -42,7 +47,7 @@ public interface AlbumBeanLocal {
 	 * @param albumid
 	 * @return List of DTO encapsulating information regarding album
 	 */
-	public AlbumDTO fetchUserAlbumInfo(long userid, long albumid);
+	public AlbumDTO fetchUserAlbumInfo(String username, long albumid);
 
 	/**
 	 * Check if album with name exists within parent album
@@ -52,7 +57,7 @@ public interface AlbumBeanLocal {
 	 * @param parentId
 	 * @return albumId or -1 if not exist
 	 */
-	public long albumExist(long userid, String name, long parentId);
+	public long albumExist(String username, String name, long parentId);
 
 	/**
 	 * Fetches meta-data for list of photos
@@ -62,7 +67,7 @@ public interface AlbumBeanLocal {
 	 * @return List of DTO encapsulating information regarding photo including
 	 *         source directory
 	 */
-	public List<PhotoDTO> fetchUserAlbumPhotos(long userid, long albumid);
+	public List<PhotoDTO> fetchUserAlbumPhotos(String username, long albumid);
 
 	/**
 	 * Fetches meta-data of photo
@@ -72,7 +77,7 @@ public interface AlbumBeanLocal {
 	 * @return DTO encapsulating information regarding photo including source
 	 *         directory
 	 */
-	public PhotoDTO fetchPhoto(long userid, long photoid);
+	public PhotoDTO fetchPhoto(String username, long photoid);
 
 	/**
 	 * Create a new empty album
@@ -87,7 +92,9 @@ public interface AlbumBeanLocal {
 	 *            ID of the album's parent
 	 * @return ID of created album
 	 */
-	public long createAlbum(long userid, String name, String subtitle, long parentId);
+	public long createAlbum(String username, String name, String subtitle, long parentId);
+	
+	public long createAlbum(String username, String name, String subtitle, String permission);
 
 	/**
 	 * Fetches the data encapsulated in the photo
@@ -96,7 +103,7 @@ public interface AlbumBeanLocal {
 	 * @param photoid
 	 * @return Stream of photo file data
 	 */
-	public ImageInputStream fetchPhotoData(long userid, long photoid);
+	public ImageInputStream fetchPhotoData(String username, long photoid);
 
 	/**
 	 * Fetches the data encapsulated in the photo thumbnail
@@ -106,7 +113,7 @@ public interface AlbumBeanLocal {
 	 * @param flags
 	 * @return Stream of photo thumbnail file data
 	 */
-	public ImageInputStream fetchPhotoThumbnailData(long userid, long photoid, int flags);
+	public ImageInputStream fetchPhotoThumbnailData(String username, long photoid, int flags);
 
 	/**
 	 * Fetches the data encapsulated in the photo thumbnail
@@ -115,7 +122,7 @@ public interface AlbumBeanLocal {
 	 * @param photoid
 	 * @return Stream of photo thumbnail file data
 	 */
-	public ImageInputStream fetchPhotoThumbnailData(long userid, long photoid);
+	public ImageInputStream fetchPhotoThumbnailData(String username, long photoid);
 
 	/**
 	 * Fetches all the tags and categories associated with the album
@@ -124,7 +131,7 @@ public interface AlbumBeanLocal {
 	 * @param albumid
 	 * @return DTO encapsulating the id and map of category and tags
 	 */
-	public AlbumTagsDTO fetchUserAlbumTags(long userid, long albumid);
+	public AlbumTagsDTO fetchUserAlbumTags(String username, long albumid);
 
 	/**
 	 * Creates a tag associated to the album
@@ -135,7 +142,7 @@ public interface AlbumBeanLocal {
 	 * @param category
 	 * @return Success status of action
 	 */
-	boolean tagUserAlbum(long userid, long albumid, String tag, String category);
+	boolean tagUserAlbum(String username, long albumid, String tag, String category);
 
 	/**
 	 * Creates an category and associates it with the user
@@ -144,7 +151,7 @@ public interface AlbumBeanLocal {
 	 * @param category
 	 * @return Success status of action
 	 */
-	boolean createCategory(long userid, String category);
+	boolean createCategory(String username, String category);
 
 	/**
 	 * Fetches all categories associated with the user
@@ -152,7 +159,7 @@ public interface AlbumBeanLocal {
 	 * @param userid
 	 * @return List of categories
 	 */
-	public List<String> fetchAllUserCategories(long userid);
+	public List<String> fetchAllUserCategories(String username);
 
 	/**
 	 * Uploads a photo to server file repository
@@ -165,7 +172,7 @@ public interface AlbumBeanLocal {
 	 *            InputStream to file being transferred
 	 * @return Success status of action
 	 */
-	public boolean uploadPhoto(long userid, long albumId, String name, InputStream data, int flags);
+	public boolean uploadPhoto(String username, long albumId, String name, InputStream data, int flags);
 
 	/**
 	 * Clears all tags on Album without removing categories
@@ -174,5 +181,5 @@ public interface AlbumBeanLocal {
 	 * @param albumid
 	 * @return Success status of action
 	 */
-	boolean clearAlbumTag(long userid, long albumid);
+	boolean clearAlbumTag(String username, long albumid);
 }

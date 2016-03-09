@@ -38,6 +38,12 @@ public interface AlbumDAO {
 
 	public boolean unsubscribeToAlbum(String username, long albumId) throws SQLException;
 
+	public void addPermissionToAlbum(String username, long albumId, String user) throws SQLException;
+
+	public void addPermissionToAlbum(String username, long albumId, List<String> users) throws SQLException;
+
+	public void revokePermissionToAlbum(String username, long albumId, List<String> users) throws SQLException;
+
 	// Tags & Categories
 
 	public boolean tagAlbum(String username, String name, long albumid, String category) throws SQLException;

@@ -49,14 +49,17 @@ public class SQLAlbumDAO implements AlbumDAO {
 		Connection conn = SQLConnector.connect();
 
 		// Create Statement
-		String sql = "SELECT Albums.id, Albums.owner, Albums.name, Albums.subtitle, MIN(Photos.name), Photos.id FROM Albums"
-				+ " LEFT JOIN Photos ON Albums.id = Photos.albumId" + " LEFT JOIN Users ON Users.uid = Albums.owner"
-				+ " LEFT JOIN AlbumAccess ON AlbumAccess.albumid = Albums.id AND AlbumAccess.visitor = Users.uid"
-				+ " WHERE (Users.username = ? OR AlbumAccess.visitor = Users.uid OR Albums.permission = 'PUBLIC') AND Albums.parent = ?"
+		String selectPublic = "SELECT Albums.id, Albums.owner, Albums.name, Albums.subtitle, MIN(Photos.name), Photos.id FROM Albums"
+				+ " LEFT JOIN Photos ON Albums.id = Photos.albumId"
+				+ " WHERE Albums.permission = 'PUBLIC' AND Albums.parent = ? GROUP BY Albums.id";
+		String selectViewable = "SELECT Albums.id, Albums.owner, Albums.name, Albums.subtitle, MIN(Photos.name), Photos.id FROM AlbumAccess"
+				+ " LEFT JOIN Users ON Users.uid = AlbumAccess.visitor" + " LEFT JOIN Albums ON AlbumAccess.albumid = Albums.id"
+				+ " LEFT JOIN Photos ON Albums.id = Photos.albumId" + " WHERE Users.username = ? AND Albums.parent = ?"
 				+ " GROUP BY Albums.id";
-		PreparedStatement stmt = conn.prepareStatement(sql);
-		stmt.setString(1, username);
-		stmt.setLong(2, parentId);
+		PreparedStatement stmt = conn.prepareStatement(selectPublic + " UNION " + selectViewable);
+		stmt.setLong(1, parentId);
+		stmt.setString(2, username);
+		stmt.setLong(3, parentId);
 
 		// Execute Statement
 		ResultSet rs = stmt.executeQuery();
@@ -197,7 +200,8 @@ public class SQLAlbumDAO implements AlbumDAO {
 		Connection conn = SQLConnector.connect();
 
 		// Create Statement
-		String sql = "DELETE FROM UserSubscriptions WHERE UserSubscriptions.albumid IN (" + "SELECT UserSubscriptions.albumid FROM UserSubscriptions"
+		String sql = "DELETE FROM UserSubscriptions WHERE UserSubscriptions.albumid IN ("
+				+ "SELECT UserSubscriptions.albumid FROM UserSubscriptions"
 				+ " LEFT JOIN Users ON Users.uid = UserSubscriptions.uid WHERE Users.username = ? AND UserSubscriptions.albumid = ?"
 				+ ")";
 		PreparedStatement stmt = conn.prepareStatement(sql);
@@ -209,6 +213,59 @@ public class SQLAlbumDAO implements AlbumDAO {
 		stmt.close();
 		// conn.close();
 		return result > 0;
+	}
+
+	@Override
+	public void addPermissionToAlbum(String username, long albumId, String user) throws SQLException {
+		Connection conn = SQLConnector.connect();
+
+		// Create Statement
+		String sql = "INSERT INTO AlbumAccess VALUES (NULL, ?, (SELECT Users.uid FROM Users WHERE Users.username = ?), (SELECT Users.uid FROM Users WHERE Users.username = ?))";
+		PreparedStatement stmt = conn.prepareStatement(sql);
+
+		stmt.setLong(1, albumId);
+		stmt.setString(2, username);
+		stmt.setString(3, user);
+		stmt.executeUpdate();
+		stmt.close();
+	}
+
+	@Override
+	public void addPermissionToAlbum(String username, long albumId, List<String> users) throws SQLException {
+		if (users.isEmpty()) return;
+		Connection conn = SQLConnector.connect();
+
+		// Create Statement
+		String sql = "INSERT INTO AlbumAccess VALUES (NULL, ?, (SELECT Users.uid FROM Users WHERE Users.username = ?), (SELECT Users.uid FROM Users WHERE Users.username = ?))";
+		PreparedStatement stmt = conn.prepareStatement(sql);
+
+		for (String user : users) {
+			stmt.setLong(1, albumId);
+			stmt.setString(2, username);
+			stmt.setString(3, user);
+			stmt.addBatch();
+		}
+		stmt.executeBatch();
+		stmt.close();
+	}
+
+	@Override
+	public void revokePermissionToAlbum(String username, long albumId, List<String> users) throws SQLException {
+		if (users.isEmpty()) return;
+		Connection conn = SQLConnector.connect();
+
+		// Create Statement
+		String sql = "DELETE FROM AlbumAccess WHERE albumid = ? AND owner IN (SELECT Users.uid FROM Users WHERE Users.username = ?) AND visitor IN (SELECT Users.uid FROM Users WHERE Users.username = ?)";
+		PreparedStatement stmt = conn.prepareStatement(sql);
+
+		for (String user : users) {
+			stmt.setLong(1, albumId);
+			stmt.setString(2, username);
+			stmt.setString(3, user);
+			stmt.addBatch();
+		}
+		stmt.executeBatch();
+		stmt.close();
 	}
 
 	@Override
@@ -252,6 +309,7 @@ public class SQLAlbumDAO implements AlbumDAO {
 			id = rs.getInt(1);
 		}
 		stmt.close();
+		addPermissionToAlbum(username, id, username);
 		// conn.close();
 		return id;
 	}
@@ -274,6 +332,7 @@ public class SQLAlbumDAO implements AlbumDAO {
 			id = rs.getInt(1);
 		}
 		stmt.close();
+		addPermissionToAlbum(username, id, username);
 		// conn.close();
 		return id;
 	}
@@ -282,12 +341,27 @@ public class SQLAlbumDAO implements AlbumDAO {
 	public boolean deleteAlbum(String username, long albumId) throws SQLException {
 		Connection conn = SQLConnector.connect();
 
-		String sql = "DELETE FROM Albums WHERE Albums.id = ? AND EXISTS(SELECT Users.uid FROM Users WHERE username = ?)";
-		PreparedStatement stmt = conn.prepareStatement(sql);
+		String deletePhotos = "DELETE FROM Photos WHERE Photos.AlbumId = ? AND EXISTS (SELECT Users.uid FROM Users WHERE username = ?)";
+
+		PreparedStatement stmt = conn.prepareStatement(deletePhotos);
 		stmt.setLong(1, albumId);
 		stmt.setString(2, username);
 		stmt.executeUpdate();
 		stmt.close();
+
+		String deleteAlbum = "DELETE FROM Albums WHERE Albums.id = ? AND EXISTS (SELECT Users.uid FROM Users WHERE username = ?)";
+		PreparedStatement stmt2 = conn.prepareStatement(deleteAlbum);
+		stmt2.setLong(1, albumId);
+		stmt2.setString(2, username);
+		stmt2.executeUpdate();
+		stmt2.close();
+
+		String deleteAlbumAccess = "DELETE FROM AlbumAccess WHERE AlbumAccess.albumid = ?";
+		PreparedStatement stmt3 = conn.prepareStatement(deleteAlbumAccess);
+		stmt3.setLong(1, albumId);
+		stmt3.executeUpdate();
+		stmt3.close();
+
 		// conn.close();
 		return true;
 	}
@@ -302,8 +376,8 @@ public class SQLAlbumDAO implements AlbumDAO {
 		// Create Statement
 		String sql = "SELECT Photos.id, Photos.name, Albums.id FROM Photos" + " LEFT JOIN Albums ON Photos.albumid = Albums.id"
 				+ " LEFT JOIN Users ON Users.uid = Albums.owner"
-				+ " LEFT JOIN AlbumAccess ON AlbumAccess.albumid = Album.id AND AlbumAccess.visitor = Users.uid"
-				+ " WHERE (Users.username = ? OR AlbumAccess.visitor = Users.uid) AND Photos.albumid = ? ORDER BY Photos.name";
+				+ " INNER JOIN AlbumAccess ON AlbumAccess.albumid = Albums.id AND AlbumAccess.visitor = Users.uid"
+				+ " WHERE (Users.username = ? OR AlbumAccess.visitor = Users.uid OR Albums.permission = 'PUBLIC') AND Photos.albumid = ? ORDER BY Photos.name";
 		PreparedStatement stmt = conn.prepareStatement(sql);
 		stmt.setString(1, username);
 		stmt.setLong(2, albumid);
@@ -426,7 +500,7 @@ public class SQLAlbumDAO implements AlbumDAO {
 		Connection conn = SQLConnector.connect();
 
 		// Create Statement
-		String sql = "INSERT INTO Photos VALUES (NULL, ?, ?,?, (SELECT User.id FROM Users WHERE Users.username = ?), ?)";
+		String sql = "INSERT INTO Photos VALUES (NULL, ?, ?,?, (SELECT Users.uid FROM Users WHERE Users.username = ?), ?)";
 		PreparedStatement stmt = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
 		stmt.setString(1, name);
 		stmt.setString(2, "");
@@ -439,7 +513,7 @@ public class SQLAlbumDAO implements AlbumDAO {
 		int id = stmt.executeUpdate();
 		ResultSet rs = stmt.getGeneratedKeys();
 		if (rs.next()) {
-			photo = new PhotoDTO(id, name, username + "/" + albumId + "/" + name);
+			photo = new PhotoDTO(rs.getLong(1), name, username + "/" + albumId + "/" + id);
 		}
 		stmt.close();
 		// conn.close();

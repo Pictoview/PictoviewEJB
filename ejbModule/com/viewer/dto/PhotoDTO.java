@@ -1,6 +1,5 @@
 package com.viewer.dto;
 
-
 /**
  * @author ArthurXu
  *
@@ -40,5 +39,9 @@ public class PhotoDTO {
 	public long getId() {
 		return id;
 	}
-	
+
+	public String toString() {
+		return id + ": " + name + " @" + source;
+	}
+
 }

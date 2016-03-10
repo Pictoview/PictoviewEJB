@@ -199,6 +199,8 @@ public interface AlbumBeanLocal {
 	 * @return Stream of photo thumbnail file data
 	 */
 	public ImageInputStream fetchPhotoThumbnailData(String username, long photoid);
+	
+	public ImageInputStream fetchAlbumCoverThumbnail(String username, long photoid, int flags);
 
 	/**
 	 * Uploads a photo to server file repository

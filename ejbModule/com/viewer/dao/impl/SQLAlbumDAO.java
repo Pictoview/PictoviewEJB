@@ -398,6 +398,30 @@ public class SQLAlbumDAO implements AlbumDAO {
 		return photo;
 	}
 
+	public PhotoDTO fetchAlbumCoverPhoto(String username, long albumid) throws SQLException {
+		Connection conn = SQLConnector.connect();
+
+		// Create Statement
+		String selectPhotos = "SELECT MIN(Photos.id), Photos.name, Albums.id FROM Photos"
+				+ " LEFT JOIN Albums ON Photos.albumid = Albums.id"
+				+ " LEFT JOIN AlbumAccess ON AlbumAccess.albumid = Albums.id AND AlbumAccess.visitor = Users.uid"
+				+ " LEFT JOIN Users ON Users.uid = AlbumAccess.visitor"
+				+ " WHERE (Users.username = ? OR Albums.permission = 'PUBLIC') AND Photos.albumid = ? " + " GROUP BY AlbumId"
+				+ " ORDER BY Photos.name";
+		PreparedStatement stmt = conn.prepareStatement(selectPhotos);
+		stmt.setString(1, username);
+		stmt.setLong(2, albumid);
+
+		// Execute Statement
+		PhotoDTO photo = null;
+		ResultSet rs = stmt.executeQuery();
+		while (rs.next()) {
+			photo = new PhotoDTO(rs.getLong(1), rs.getString(2), username + "/" + rs.getLong(3) + "/" + rs.getString(2));
+		}
+		// conn.close();
+		return photo;
+	}
+
 	/** Category & Tag Methods **/
 
 	@Override

@@ -202,6 +202,18 @@ public class AlbumBean implements AlbumBeanLocal {
 		}
 		return null;
 	}
+	
+	@Override
+	public ImageInputStream fetchAlbumCoverThumbnail(String username, long albumid, int flags) {
+		try {
+			PhotoDTO photoDTO = albumDAO.fetchAlbumCoverPhoto(username, albumid);
+			String source = AlbumFileManager.ThumbnailStorageLocation + photoDTO.getSource();
+			return ImageIO.createImageInputStream(new File(source));
+		} catch (SQLException | IOException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 
 	@Override
 	public List<AlbumDTO> fetchSearchedUserAlbums(String username, SearchQueryDTO searchQuery) {

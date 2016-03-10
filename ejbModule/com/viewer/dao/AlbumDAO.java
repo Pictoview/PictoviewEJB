@@ -55,6 +55,8 @@ public interface AlbumDAO {
 	public AlbumTagsDTO fetchUserAlbumTags(String username, long albumid) throws SQLException;
 
 	// Photo Methods
+	
+	public PhotoDTO fetchAlbumCoverPhoto(String username, long albumId) throws SQLException;
 
 	public List<PhotoDTO> fetchUserAlbumPhotos(String username, long albumid) throws SQLException;
 

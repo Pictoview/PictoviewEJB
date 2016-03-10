@@ -1,6 +1,7 @@
 package com.viewer.beans;
 
 import java.io.InputStream;
+import java.sql.SQLException;
 import java.util.List;
 
 import javax.ejb.Local;
@@ -13,20 +14,39 @@ import com.viewer.dto.SearchQueryDTO;
 
 @Local
 public interface AlbumBeanLocal {
-	
 
-	public static enum Permission { PUBLIC, PRIVATE, LIMITED};
-	
+	public static enum Permission {
+		PUBLIC, PRIVATE, LIMITED
+	};
+
+	// Album Fetch Operations
+
+	/**
+	 * Fetches all the public albums viewable by all users
+	 * 
+	 * @param limit
+	 * @param offset
+	 * @return
+	 */
 	public List<AlbumDTO> fetchAllPublicAlbums(int limit, int offset);
 
 	/**
-	 * Fetches all Albums associated with user
+	 * Fetches all Albums viewable by the user
 	 * 
 	 * @param userid
 	 * @param parentId
 	 * @return List of DTO encapsulating information regarding album
 	 */
-	public List<AlbumDTO> fetchAllUserAlbums(String username, long parentId);
+	public List<AlbumDTO> fetchViewableAlbums(String username, long parentId);
+
+	/**
+	 * Fetches all viewable albums subscribed by the user
+	 * 
+	 * @param username
+	 * @param parentId
+	 * @return List of DTO encapsulating information regarding album
+	 */
+	public List<AlbumDTO> fetchUserSubscriptions(String username, long parentId);
 
 	/**
 	 * Fetches all albums matching search criteria (Regardless of file hierarchy
@@ -59,6 +79,79 @@ public interface AlbumBeanLocal {
 	 */
 	public long albumExist(String username, String name, long parentId);
 
+	// Permission Operations
+
+	/**
+	 * Subscribe to album
+	 * 
+	 * @param username
+	 * @param albumId
+	 * @return
+	 */
+	public boolean subscribeToAlbum(String username, long albumId);
+
+	/**
+	 * Unsubscribe from album
+	 * 
+	 * @param username
+	 * @param albumId
+	 * @return
+	 */
+	public boolean unsubscribeToAlbum(String username, long albumId);
+
+	/**
+	 * Give permission to view album for a single user
+	 * 
+	 * @param username
+	 * @param albumId
+	 * @param user
+	 */
+	public void addPermissionToAlbum(String username, long albumId, String user);
+
+	/**
+	 * Give permission to view album for a list of users
+	 * 
+	 * @param username
+	 * @param albumId
+	 * @param users
+	 */
+	public void addPermissionToAlbum(String username, long albumId, List<String> users);
+
+	/**
+	 * Remove permission to view album for list of users
+	 * 
+	 * @param username
+	 * @param albumId
+	 * @param users
+	 */
+	public void revokePermissionToAlbum(String username, long albumId, List<String> users);
+
+	// Album Updates
+
+	/**
+	 * Create a new empty album
+	 * 
+	 * @param userid
+	 * @param name
+	 * @param subtitle
+	 * @param parentId
+	 * @return ID of created album
+	 */
+	public long createAlbum(String username, String name, String subtitle, long parentId);
+
+	/**
+	 * Create a new empty album
+	 * 
+	 * @param userid
+	 * @param name
+	 * @param subtitle
+	 * @param permission
+	 * @return ID of created album
+	 */
+	public long createAlbum(String username, String name, String subtitle, String permission);
+
+	// Photo Related
+
 	/**
 	 * Fetches meta-data for list of photos
 	 * 
@@ -78,23 +171,6 @@ public interface AlbumBeanLocal {
 	 *         directory
 	 */
 	public PhotoDTO fetchPhoto(String username, long photoid);
-
-	/**
-	 * Create a new empty album
-	 * 
-	 * @param userid
-	 *            ID of user
-	 * @param name
-	 *            Name of album
-	 * @param subtitle
-	 *            Additional name information of the album
-	 * @param parentId
-	 *            ID of the album's parent
-	 * @return ID of created album
-	 */
-	public long createAlbum(String username, String name, String subtitle, long parentId);
-	
-	public long createAlbum(String username, String name, String subtitle, String permission);
 
 	/**
 	 * Fetches the data encapsulated in the photo
@@ -123,6 +199,21 @@ public interface AlbumBeanLocal {
 	 * @return Stream of photo thumbnail file data
 	 */
 	public ImageInputStream fetchPhotoThumbnailData(String username, long photoid);
+
+	/**
+	 * Uploads a photo to server file repository
+	 * 
+	 * @param userid
+	 * @param albumId
+	 * @param name
+	 *            New name of file
+	 * @param data
+	 *            InputStream to file being transferred
+	 * @return Success status of action
+	 */
+	public boolean uploadPhoto(String username, long albumId, String name, InputStream data, int flags);
+
+	// Category & Tags
 
 	/**
 	 * Fetches all the tags and categories associated with the album
@@ -160,19 +251,6 @@ public interface AlbumBeanLocal {
 	 * @return List of categories
 	 */
 	public List<String> fetchAllUserCategories(String username);
-
-	/**
-	 * Uploads a photo to server file repository
-	 * 
-	 * @param userid
-	 * @param albumId
-	 * @param name
-	 *            New name of file
-	 * @param data
-	 *            InputStream to file being transferred
-	 * @return Success status of action
-	 */
-	public boolean uploadPhoto(String username, long albumId, String name, InputStream data, int flags);
 
 	/**
 	 * Clears all tags on Album without removing categories

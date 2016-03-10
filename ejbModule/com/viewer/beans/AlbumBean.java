@@ -30,6 +30,8 @@ public class AlbumBean implements AlbumBeanLocal {
 		albumDAO = new SQLAlbumDAO();
 	}
 
+	// Album Fetch Operations
+
 	public List<AlbumDTO> fetchAllPublicAlbums(int limit, int offset) {
 		try {
 			return albumDAO.fetchAllPublicAlbums(limit, offset);
@@ -40,9 +42,19 @@ public class AlbumBean implements AlbumBeanLocal {
 	}
 
 	@Override
-	public List<AlbumDTO> fetchAllUserAlbums(String username, long parentId) {
+	public List<AlbumDTO> fetchViewableAlbums(String username, long parentId) {
 		try {
-			return albumDAO.fetchAllSubscribedAlbums(username, parentId);
+			return albumDAO.fetchViewableAlbums(username, parentId);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	@Override
+	public List<AlbumDTO> fetchUserSubscriptions(String username, long parentId) {
+		try {
+			return albumDAO.fetchViewableAlbums(username, parentId);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -68,6 +80,79 @@ public class AlbumBean implements AlbumBeanLocal {
 		}
 		return -1;
 	}
+
+	// Permission Operations
+
+	@Override
+	public boolean subscribeToAlbum(String username, long albumId) {
+		try {
+			return albumDAO.subscribeToAlbum(username, albumId);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+
+	@Override
+	public boolean unsubscribeToAlbum(String username, long albumId) {
+		try {
+			return albumDAO.unsubscribeToAlbum(username, albumId);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+
+	@Override
+	public void addPermissionToAlbum(String username, long albumId, String user) {
+		try {
+			albumDAO.addPermissionToAlbum(username, albumId, user);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public void addPermissionToAlbum(String username, long albumId, List<String> users) {
+		try {
+			albumDAO.addPermissionToAlbum(username, albumId, users);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public void revokePermissionToAlbum(String username, long albumId, List<String> users) {
+		try {
+			albumDAO.revokePermissionToAlbum(username, albumId, users);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+	// Album Updates
+
+	@Override
+	public long createAlbum(String username, String name, String subtitle, String permission) {
+		try {
+			return albumDAO.createAlbum(username, name, subtitle, permission);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return -1;
+	}
+
+	@Override
+	public long createAlbum(String username, String name, String subtitle, long parentId) {
+		try {
+			return albumDAO.createAlbum(username, name, subtitle, parentId);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return -1;
+	}
+
+	// Photo Related
 
 	@Override
 	public List<PhotoDTO> fetchUserAlbumPhotos(String username, long albumid) {
@@ -116,26 +201,6 @@ public class AlbumBean implements AlbumBeanLocal {
 			e.printStackTrace();
 		}
 		return null;
-	}
-	
-	@Override
-	public long createAlbum(String username, String name, String subtitle, String permission) {
-		try {
-			return albumDAO.createAlbum(username, name, subtitle, permission);
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		return -1;
-	}
-
-	@Override
-	public long createAlbum(String username, String name, String subtitle, long parentId) {
-		try {
-			return albumDAO.createAlbum(username, name, subtitle, parentId);
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		return -1;
 	}
 
 	@Override

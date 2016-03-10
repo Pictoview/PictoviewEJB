@@ -33,6 +33,8 @@ public interface AlbumDAO {
 	public long createAlbum(String username, String name, String subtitle, long parentId) throws SQLException;
 
 	public boolean deleteAlbum(String username, long albumId) throws SQLException;
+	
+	// Permission Operations
 
 	public boolean subscribeToAlbum(String username, long albumId) throws SQLException;
 

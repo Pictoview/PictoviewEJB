@@ -1,7 +1,6 @@
 package com.viewer.beans;
 
 import java.io.InputStream;
-import java.sql.SQLException;
 import java.util.List;
 
 import javax.ejb.Local;

@@ -2,22 +2,26 @@ package com.viewer.dto;
 
 import java.io.Serializable;
 
-public class UserInfoDTO implements Serializable {
+/**
+ * Encapsulates common user information data
+ */
+public class UserCredentialDTO implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	private String username;
 	private String passkey;
-	private String name;
 	private long userid;
 	private boolean enabled;
+	
+	private String oldPassword;
 
-	public UserInfoDTO() {
+	public UserCredentialDTO() {
 	}
 
-	public UserInfoDTO(long userid, String username, String name, String password, boolean enabled) {
+	public UserCredentialDTO(long userid, String username, String password, boolean enabled) {
 		this.userid = userid;
 		this.username = username;
-		this.name = name;
+		this.passkey = password;
 		this.enabled = enabled;
 	}
 
@@ -37,12 +41,12 @@ public class UserInfoDTO implements Serializable {
 		this.passkey = passkey;
 	}
 
-	public String getName() {
-		return name;
+	public long getUserid() {
+		return userid;
 	}
 
-	public void setName(String name) {
-		this.name = name;
+	public void setUserid(long userid) {
+		this.userid = userid;
 	}
 
 	public boolean isEnabled() {
@@ -53,11 +57,11 @@ public class UserInfoDTO implements Serializable {
 		this.enabled = enabled;
 	}
 
-	public long getUserid() {
-		return userid;
+	public String getOldPassword() {
+		return oldPassword;
 	}
 
-	public void setUserid(long userid) {
-		this.userid = userid;
+	public void setOldPassword(String oldPassword) {
+		this.oldPassword = oldPassword;
 	}
 }

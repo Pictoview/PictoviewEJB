@@ -9,7 +9,7 @@ public class UserDataDTO implements Serializable {
 
 	private long uid;
 	private String username;
-	private byte[] passkey;
+	private String passkey;
 	private int role; // (0, admin) (1, staff) (2, p_user) (3, user) (5, guest)
 	private String status;
 	private int points;
@@ -18,26 +18,39 @@ public class UserDataDTO implements Serializable {
 	private String name;
 	private boolean gender; // true = male
 	private String address;
+	private String email;
 	private String description;
 
-	public static UserDataDTO createRegularUser(String username, byte[] passkey, String name, boolean gender,
+	public static int ROLE_ADMIN = 0, ROLE_STAFF = 1, ROLE_PREMIUM = 2, ROLE_USER = 3, ROLE_GUEST = 5;
+
+	public static UserDataDTO createRegularUser(String username, String passkey, String name, boolean gender, String email,
 			String description) {
-		return new UserDataDTO(username, passkey, 3, "NORMAL", 0, new Timestamp(System.currentTimeMillis()), name, gender, "",
-				description);
+		return new UserDataDTO(username, passkey, ROLE_USER, "NORMAL", 0, new Timestamp(System.currentTimeMillis()), name,
+				gender, email, "", description);
 	}
 
-	public static UserDataDTO createAdmin(String username, byte[] passkey, String name, boolean gender) {
-		return new UserDataDTO(username, passkey, 3, "FULL", 0, new Timestamp(System.currentTimeMillis()), name, gender, "",
-				"Administrator");
+	public static UserDataDTO createAdmin(String username, String passkey, String name, boolean gender, String email) {
+		return new UserDataDTO(username, passkey, ROLE_USER, "FULL", 0, new Timestamp(System.currentTimeMillis()), name, gender,
+				email, "", "Administrator");
 	}
+	
+	public void markAsRegularUser() {
+		this.role = ROLE_USER;
+		this.status = "NORMAL";
+		this.points = 0;
+		this.lastAccessed = new Timestamp(System.currentTimeMillis());
+	}
+	
+	public UserDataDTO() {}
 
-	private UserDataDTO(String username, byte[] passkey, int role, String status, int points, Timestamp lastAccessed,
-			String name, boolean gender, String address, String description) {
+	private UserDataDTO(String username, String passkey, int role, String status, int points, Timestamp lastAccessed,
+			String name, boolean gender, String email, String address, String description) {
 		this.username = username;
 		this.passkey = passkey;
 		this.role = role;
 		this.name = name;
 		this.gender = gender;
+		this.email = email;
 		this.address = address;
 		this.description = description;
 	}
@@ -58,11 +71,11 @@ public class UserDataDTO implements Serializable {
 		this.username = username;
 	}
 
-	public byte[] getPasskey() {
+	public String getPasskey() {
 		return passkey;
 	}
 
-	public void setPasskey(byte[] passkey) {
+	public void setPasskey(String passkey) {
 		this.passkey = passkey;
 	}
 
@@ -128,5 +141,13 @@ public class UserDataDTO implements Serializable {
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
 	}
 }

@@ -57,8 +57,8 @@ public class DatabaseTest {
 
 	private long createMockUser(String username) {
 		try {
-			UserDataDTO userData = UserDataDTO.createRegularUser(username, "password".getBytes(), "Mock#" + username, true,
-					"Test User #" + username);
+			UserDataDTO userData = UserDataDTO.createRegularUser(username, "password", "Mock#" + username, true,
+					username + "@email.com", "Test User #" + username);
 			return accountDAO.registerUser(userData);
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -68,7 +68,7 @@ public class DatabaseTest {
 
 	private boolean deleteMockUsers(String username) {
 		try {
-			return accountDAO.deleteUser(username, "password".getBytes());
+			return accountDAO.deleteUser(username, "password");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -192,7 +192,7 @@ public class DatabaseTest {
 			e.printStackTrace();
 		}
 	}
-	
+
 	@Test
 	public void testPhotoAccess() {
 		try {

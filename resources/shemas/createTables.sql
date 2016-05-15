@@ -22,8 +22,9 @@ id INTEGER PRIMARY KEY,
 uid INTEGER,
 name VARCHAR(255),
 gender BOOLEAN,
+email VARCHAR(255),
 address VARCHAR(255),
-description VARCHAR(525),
+description VARCHAR(1024),
 FOREIGN KEY(uid) REFERENCES Users(uid)
 );
 

@@ -42,16 +42,19 @@ id INTEGER PRIMARY KEY,
 name VARCHAR(255) NOT NULL,
 subtitle VARCHAR(255),
 owner INTEGER,
+coverid INTEGER,
 parent INTEGER,
+description VARCHAR(1023),
 permission VARCHAR(25),
 lastModifiedDate TIMESTAMP,
-FOREIGN KEY(owner) REFERENCES Users(uid)
+FOREIGN KEY(owner) REFERENCES Users(uid),
+FOREIGN KEY(coverid) REFERENCES Photos(id)
 );
 
 CREATE TABLE Photos (
 id INTEGER PRIMARY KEY,
 name VARCHAR(255) NOT NULL,
-source VARCHAR(511) NOT NULL,
+ext VARCHAR(31) NOT NULL,
 albumid INTEGER,
 owner INTEGER,
 lastModifiedDate TIMESTAMP,

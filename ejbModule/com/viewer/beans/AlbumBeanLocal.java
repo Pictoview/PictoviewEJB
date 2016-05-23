@@ -136,7 +136,7 @@ public interface AlbumBeanLocal {
 	 * @param parentId
 	 * @return ID of created album
 	 */
-	public long createAlbum(String username, String name, String subtitle, long parentId);
+	public long createAlbum(String username, String name, String subtitle, String description, long parentId);
 
 	/**
 	 * Create a new empty album
@@ -147,7 +147,16 @@ public interface AlbumBeanLocal {
 	 * @param permission
 	 * @return ID of created album
 	 */
-	public long createAlbum(String username, String name, String subtitle, String permission);
+	public long createAlbum(String username, String name, String subtitle, String description, String permission);
+
+	/**
+	 * Sets the album's cover photo
+	 * 
+	 * @param username
+	 * @param albumid
+	 * @param photoid
+	 */
+	public void setAlbumCoverPhoto(String username, long albumid, long photoid);
 
 	// Photo Related
 
@@ -198,7 +207,7 @@ public interface AlbumBeanLocal {
 	 * @return Stream of photo thumbnail file data
 	 */
 	public ImageInputStream fetchPhotoThumbnailData(String username, long photoid);
-	
+
 	public ImageInputStream fetchAlbumCoverThumbnail(String username, long photoid, int flags);
 
 	/**
@@ -212,7 +221,7 @@ public interface AlbumBeanLocal {
 	 *            InputStream to file being transferred
 	 * @return Success status of action
 	 */
-	public boolean uploadPhoto(String username, long albumId, String name, InputStream data, int flags);
+	public PhotoDTO uploadPhoto(String username, long albumId, String name, String ext, InputStream data, int flags);
 
 	// Category & Tags
 

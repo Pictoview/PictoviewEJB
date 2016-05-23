@@ -133,9 +133,9 @@ public class AlbumBean implements AlbumBeanLocal {
 	// Album Updates
 
 	@Override
-	public long createAlbum(String username, String name, String subtitle, String permission) {
+	public long createAlbum(String username, String name, String subtitle, String description, String permission) {
 		try {
-			return albumDAO.createAlbum(username, name, subtitle, permission);
+			return albumDAO.createAlbum(username, name, subtitle, description, permission);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -143,13 +143,22 @@ public class AlbumBean implements AlbumBeanLocal {
 	}
 
 	@Override
-	public long createAlbum(String username, String name, String subtitle, long parentId) {
+	public long createAlbum(String username, String name, String subtitle, String description, long parentId) {
 		try {
-			return albumDAO.createAlbum(username, name, subtitle, parentId);
+			return albumDAO.createAlbum(username, name, subtitle, description, parentId);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 		return -1;
+	}
+	
+	@Override
+	public void setAlbumCoverPhoto(String username, long albumid, long photoid) {
+		try {
+			albumDAO.setAlbumCoverPhoto(username, albumid,  photoid);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 
 	// Photo Related
@@ -277,15 +286,15 @@ public class AlbumBean implements AlbumBeanLocal {
 	}
 
 	@Override
-	public boolean uploadPhoto(String username, long albumId, String name, InputStream data, int flags) {
+	public PhotoDTO uploadPhoto(String username, long albumId, String name, String ext, InputStream data, int flags) {
 		try {
-			PhotoDTO photo = albumDAO.insertPhoto(username, albumId, name);
+			PhotoDTO photo = albumDAO.insertPhoto(username, albumId, name, ext);
 			AlbumFileManager.createPhotoFile(photo.getSource(), data, flags);
 			AlbumFileManager.createPhotoThumbnail(photo.getSource());
-			return true;
+			return photo;
 		} catch (SQLException | IOException e) {
 			e.printStackTrace();
 		}
-		return false;
+		return null;
 	}
 }

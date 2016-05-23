@@ -28,9 +28,11 @@ public interface AlbumDAO {
 
 	public long albumExist(String username, String name, long parentId) throws SQLException;
 
-	public long createAlbum(String username, String name, String subtitle, String permission) throws SQLException;
+	public long createAlbum(String username, String name, String subtitle, String description, String permission) throws SQLException;
 
-	public long createAlbum(String username, String name, String subtitle, long parentId) throws SQLException;
+	public long createAlbum(String username, String name, String subtitle, String description, long parentId) throws SQLException;
+	
+	public void setAlbumCoverPhoto(String username, long albumid, long photoid) throws SQLException;
 
 	public boolean deleteAlbum(String username, long albumId) throws SQLException;
 	
@@ -64,7 +66,7 @@ public interface AlbumDAO {
 
 	public List<String> fetchAllCategories(String visibility) throws SQLException;
 
-	public PhotoDTO insertPhoto(String username, long albumId, String name) throws SQLException;
+	public PhotoDTO insertPhoto(String username, long albumId, String name, String ext) throws SQLException;
 
 	public boolean clearAlbumTag(long albumid) throws SQLException;
 }

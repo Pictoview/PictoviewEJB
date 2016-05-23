@@ -6,18 +6,17 @@ package com.viewer.dto;
  */
 public class PhotoDTO {
 	private final long id;
+	private long albumId;
+	private String ext;
 	private String name;
-	private String source;
+	private String ownername;
 
-	public PhotoDTO(long id, String source) {
-		this.id = id;
-		this.source = source;
-	}
-
-	public PhotoDTO(long id, String name, String source) {
+	public PhotoDTO(long id, String name, String ext, long albumId, String ownername) {
 		this.id = id;
 		this.name = name;
-		this.source = source;
+		this.albumId = albumId;
+		this.ext = ext;
+		this.ownername = ownername;
 	}
 
 	public String getName() {
@@ -29,19 +28,31 @@ public class PhotoDTO {
 	}
 
 	public String getSource() {
-		return source;
-	}
-
-	public void setSource(String source) {
-		this.source = source;
+		return ownername + "/" + albumId + "/" + id + "." + ext;
 	}
 
 	public long getId() {
 		return id;
 	}
 
+	public String getExt() {
+		return ext;
+	}
+
+	public void setExt(String ext) {
+		this.ext = ext;
+	}
+
+	public long getAlbumId() {
+		return albumId;
+	}
+
+	public String getOwnername() {
+		return ownername;
+	}
+
 	public String toString() {
-		return id + ": " + name + " @" + source;
+		return id + ": " + name + " @" + getSource();
 	}
 
 }

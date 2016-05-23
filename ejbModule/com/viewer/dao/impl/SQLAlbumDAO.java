@@ -277,17 +277,20 @@ public class SQLAlbumDAO implements AlbumDAO {
 	/** Create Albums **/
 
 	@Override
-	public long createAlbum(String username, String name, String subtitle, String permission) throws SQLException {
+	public long createAlbum(String username, String name, String subtitle, String description, String permission)
+			throws SQLException {
 		Connection conn = SQLConnector.connect();
 
-		String sql = "INSERT INTO Albums VALUES (NULL, ?, ?, (SELECT Users.uid FROM Users WHERE Users.username = ?), ?, ?, ?)";
+		String sql = "INSERT INTO Albums VALUES (NULL, ?, ?, (SELECT Users.uid FROM Users WHERE Users.username = ?), ?, ?, ?, ?, ?)";
 		PreparedStatement stmt = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
 		stmt.setString(1, name);
 		stmt.setString(2, subtitle);
 		stmt.setString(3, username);
-		stmt.setLong(4, 0);
-		stmt.setString(5, permission);
-		stmt.setTimestamp(6, new Timestamp(System.currentTimeMillis()));
+		stmt.setLong(4, 0); // Coverid
+		stmt.setLong(5, 0); // ParentId
+		stmt.setString(6, description);
+		stmt.setString(7, permission);
+		stmt.setTimestamp(8, new Timestamp(System.currentTimeMillis()));
 		int id = stmt.executeUpdate();
 		ResultSet rs = stmt.getGeneratedKeys();
 		if (rs.next()) {
@@ -300,17 +303,20 @@ public class SQLAlbumDAO implements AlbumDAO {
 	}
 
 	@Override
-	public long createAlbum(String username, String name, String subtitle, long parentId) throws SQLException {
+	public long createAlbum(String username, String name, String subtitle, String description, long parentId)
+			throws SQLException {
 		Connection conn = SQLConnector.connect();
 
-		String sql = "INSERT INTO Albums VALUES (NULL, ?, ?, (SELECT Users.uid FROM Users WHERE Users.username = ?), ?, (SELECT Albums.permission FROM Albums WHERE id = ?), ?)";
+		String sql = "INSERT INTO Albums VALUES (NULL, ?, ?, (SELECT Users.uid FROM Users WHERE Users.username = ?), ?, ?, ?, (SELECT Albums.permission FROM Albums WHERE id = ?), ?)";
 		PreparedStatement stmt = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
 		stmt.setString(1, name);
 		stmt.setString(2, subtitle);
 		stmt.setString(3, username);
-		stmt.setLong(4, parentId);
+		stmt.setLong(4, 0); // Coverid
 		stmt.setLong(5, parentId);
-		stmt.setTimestamp(6, new Timestamp(System.currentTimeMillis()));
+		stmt.setString(6, description);
+		stmt.setLong(7, parentId);
+		stmt.setTimestamp(8, new Timestamp(System.currentTimeMillis()));
 		int id = stmt.executeUpdate();
 		ResultSet rs = stmt.getGeneratedKeys();
 		if (rs.next()) {
@@ -320,6 +326,19 @@ public class SQLAlbumDAO implements AlbumDAO {
 		addPermissionToAlbum(username, id, username);
 		// conn.close();
 		return id;
+	}
+
+	@Override
+	public void setAlbumCoverPhoto(String username, long albumid, long photoid) throws SQLException {
+		Connection conn = SQLConnector.connect();
+
+		String sql = "UPDATE Albums SET coverid = ? WHERE id = ? AND owner = (SELECT Users.uid FROM Users WHERE Users.username = ?)";
+		PreparedStatement stmt = conn.prepareStatement(sql);
+		stmt.setLong(1, photoid);
+		stmt.setLong(2, albumid);
+		stmt.setString(3, username);
+		stmt.executeUpdate();
+		// conn.close();
 	}
 
 	@Override
@@ -373,36 +392,17 @@ public class SQLAlbumDAO implements AlbumDAO {
 		// Execute Statement
 		ResultSet rs = stmt.executeQuery();
 		while (rs.next()) {
-			photos.add(new PhotoDTO(rs.getLong(1), rs.getString(2), username + "/" + rs.getLong(3) + "/" + rs.getString(2)));
+			photos.add(new PhotoDTO(rs.getLong(1), rs.getString(2), rs.getString(3), albumid, username));
 		}
 		// conn.close();
 		return photos;
-	}
-
-	@Override
-	public PhotoDTO fetchPhoto(long photoid) throws SQLException {
-		Connection conn = SQLConnector.connect();
-
-		// Create Statement
-		String sql = "SELECT id, name, source FROM Photos WHERE id = ?";
-		PreparedStatement stmt = conn.prepareStatement(sql);
-		stmt.setLong(1, photoid);
-
-		// Execute Statement
-		PhotoDTO photo = null;
-		ResultSet rs = stmt.executeQuery();
-		if (rs.next()) {
-			photo = new PhotoDTO(rs.getLong(1), rs.getString(2), rs.getString(3));
-		}
-		// conn.close();
-		return photo;
 	}
 
 	public PhotoDTO fetchAlbumCoverPhoto(String username, long albumid) throws SQLException {
 		Connection conn = SQLConnector.connect();
 
 		// Create Statement
-		String selectPhotos = "SELECT MIN(Photos.id), Photos.name, Albums.id FROM Photos"
+		String selectPhotos = "SELECT MIN(Photos.id), Photos.name, Albums.id, Photos.ext FROM Photos"
 				+ " LEFT JOIN Albums ON Photos.albumid = Albums.id"
 				+ " LEFT JOIN AlbumAccess ON AlbumAccess.albumid = Albums.id AND AlbumAccess.visitor = Users.uid"
 				+ " LEFT JOIN Users ON Users.uid = AlbumAccess.visitor"
@@ -416,10 +416,16 @@ public class SQLAlbumDAO implements AlbumDAO {
 		PhotoDTO photo = null;
 		ResultSet rs = stmt.executeQuery();
 		while (rs.next()) {
-			photo = new PhotoDTO(rs.getLong(1), rs.getString(2), username + "/" + rs.getLong(3) + "/" + rs.getString(2));
+			photo = new PhotoDTO(rs.getLong(1), rs.getString(2), rs.getString(3), albumid, username);
 		}
 		// conn.close();
 		return photo;
+	}
+	
+	@Override
+	public PhotoDTO fetchPhoto(long photoid) throws SQLException {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	/** Category & Tag Methods **/
@@ -508,14 +514,14 @@ public class SQLAlbumDAO implements AlbumDAO {
 	}
 
 	@Override
-	public PhotoDTO insertPhoto(String username, long albumId, String name) throws SQLException {
+	public PhotoDTO insertPhoto(String username, long albumId, String name, String ext) throws SQLException {
 		Connection conn = SQLConnector.connect();
 
 		// Create Statement
-		String sql = "INSERT INTO Photos VALUES (NULL, ?, ?,?, (SELECT Users.uid FROM Users WHERE Users.username = ?), ?)";
+		String sql = "INSERT INTO Photos VALUES (NULL, ?, ?, ?, (SELECT Users.uid FROM Users WHERE Users.username = ?), ?)";
 		PreparedStatement stmt = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
 		stmt.setString(1, name);
-		stmt.setString(2, "");
+		stmt.setString(2, ext);
 		stmt.setLong(3, albumId);
 		stmt.setString(4, username);
 		stmt.setTimestamp(5, new Timestamp(System.currentTimeMillis()));
@@ -525,7 +531,7 @@ public class SQLAlbumDAO implements AlbumDAO {
 		int id = stmt.executeUpdate();
 		ResultSet rs = stmt.getGeneratedKeys();
 		if (rs.next()) {
-			photo = new PhotoDTO(rs.getLong(1), name, username + "/" + albumId + "/" + id);
+			photo = new PhotoDTO(rs.getLong(1), name, ext, albumId, username);
 		}
 		stmt.close();
 		// conn.close();

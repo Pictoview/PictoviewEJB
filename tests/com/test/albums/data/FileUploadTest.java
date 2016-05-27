@@ -33,6 +33,8 @@ public class FileUploadTest {
 	private String mockUser1 = "StandardUser1";
 	private String mockUser2 = "StandardUser2";
 	private String mockUser3 = "StandardUser3";
+	
+	private long mockUserId1, mockUserId2, mockUserId3;
 
 	@BeforeClass
 	public static void initialize() {
@@ -50,9 +52,9 @@ public class FileUploadTest {
 		accountDAO = new SQLAccountDAO();
 		albumDAO = new SQLAlbumDAO();
 		// Creating Mock User
-		createMockUser(mockUser1);
-		createMockUser(mockUser2);
-		createMockUser(mockUser3);
+		mockUserId1 = createMockUser(mockUser1);
+		mockUserId2 = createMockUser(mockUser2);
+		mockUserId3 = createMockUser(mockUser3);
 	}
 
 	private boolean deleteMockUsers(String username) {
@@ -102,10 +104,10 @@ public class FileUploadTest {
 					new File(ConfigProperties.getProperty("testStorageDirectory") + "image1.jpg"));
 
 			AlbumBeanLocal albumBean = new AlbumBean();
-			long albumid = albumBean.createAlbum(mockUser1, "TestAlbum1", "", "Description", 0);
-			PhotoDTO photo1 = albumBean.uploadPhoto(mockUser1, albumid, "image1.jpg", "jpg", data, 0);
+			long albumid = albumBean.createAlbum(mockUserId1, "TestAlbum1", "", "Description", 0);
+			PhotoDTO photo1 = albumBean.uploadPhoto(mockUserId1, albumid, "image1.jpg", "jpg", data, 0);
 
-			albumDAO.deleteAlbum(mockUser1, albumid);
+			albumDAO.deleteAlbum(mockUserId1, albumid);
 		} catch (IOException | SQLException e) {
 			e.printStackTrace();
 		}

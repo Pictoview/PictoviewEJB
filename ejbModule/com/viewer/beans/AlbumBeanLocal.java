@@ -36,7 +36,7 @@ public interface AlbumBeanLocal {
 	 * @param parentId
 	 * @return List of DTO encapsulating information regarding album
 	 */
-	public List<AlbumDTO> fetchViewableAlbums(String username, long parentId);
+	public List<AlbumDTO> fetchViewableAlbums(long userid, long parentId);
 
 	/**
 	 * Fetches all viewable albums subscribed by the user
@@ -45,7 +45,7 @@ public interface AlbumBeanLocal {
 	 * @param parentId
 	 * @return List of DTO encapsulating information regarding album
 	 */
-	public List<AlbumDTO> fetchUserSubscriptions(String username, long parentId);
+	public List<AlbumDTO> fetchUserSubscriptions(long userid, long parentId);
 
 	/**
 	 * Fetches all albums matching search criteria (Regardless of file hierarchy
@@ -57,7 +57,7 @@ public interface AlbumBeanLocal {
 	 *            includes the name and list of category tag associations.
 	 * @return List of DTO encapsulating information regarding album
 	 */
-	public List<AlbumDTO> fetchSearchedUserAlbums(String username, SearchQueryDTO searchQuery);
+	public List<AlbumDTO> fetchSearchedUserAlbums(long userid, SearchQueryDTO searchQuery);
 
 	/**
 	 * Fetches a single Album associated with user
@@ -66,7 +66,7 @@ public interface AlbumBeanLocal {
 	 * @param albumid
 	 * @return List of DTO encapsulating information regarding album
 	 */
-	public AlbumDTO fetchUserAlbumInfo(String username, long albumid);
+	public AlbumDTO fetchUserAlbumInfo(long userid, long albumid);
 
 	/**
 	 * Check if album with name exists within parent album
@@ -76,7 +76,7 @@ public interface AlbumBeanLocal {
 	 * @param parentId
 	 * @return albumId or -1 if not exist
 	 */
-	public long albumExist(String username, String name, long parentId);
+	public long albumExist(long userid, String name, long parentId);
 
 	// Permission Operations
 
@@ -87,7 +87,7 @@ public interface AlbumBeanLocal {
 	 * @param albumId
 	 * @return
 	 */
-	public boolean subscribeToAlbum(String username, long albumId);
+	public boolean subscribeToAlbum(long userid, long albumId);
 
 	/**
 	 * Unsubscribe from album
@@ -96,7 +96,7 @@ public interface AlbumBeanLocal {
 	 * @param albumId
 	 * @return
 	 */
-	public boolean unsubscribeToAlbum(String username, long albumId);
+	public boolean unsubscribeToAlbum(long userid, long albumId);
 
 	/**
 	 * Give permission to view album for a single user
@@ -105,7 +105,7 @@ public interface AlbumBeanLocal {
 	 * @param albumId
 	 * @param user
 	 */
-	public void addPermissionToAlbum(String username, long albumId, String user);
+	public void addPermissionToAlbum(long userid, long albumId, String user);
 
 	/**
 	 * Give permission to view album for a list of users
@@ -114,7 +114,7 @@ public interface AlbumBeanLocal {
 	 * @param albumId
 	 * @param users
 	 */
-	public void addPermissionToAlbum(String username, long albumId, List<String> users);
+	public void addPermissionToAlbum(long userid, long albumId, List<String> users);
 
 	/**
 	 * Remove permission to view album for list of users
@@ -123,7 +123,7 @@ public interface AlbumBeanLocal {
 	 * @param albumId
 	 * @param users
 	 */
-	public void revokePermissionToAlbum(String username, long albumId, List<String> users);
+	public void revokePermissionToAlbum(long userid, long albumId, List<String> users);
 
 	// Album Updates
 
@@ -136,7 +136,7 @@ public interface AlbumBeanLocal {
 	 * @param parentId
 	 * @return ID of created album
 	 */
-	public long createAlbum(String username, String name, String subtitle, String description, long parentId);
+	public long createAlbum(long userid, String name, String subtitle, String description, long parentId);
 
 	/**
 	 * Create a new empty album
@@ -147,7 +147,7 @@ public interface AlbumBeanLocal {
 	 * @param permission
 	 * @return ID of created album
 	 */
-	public long createAlbum(String username, String name, String subtitle, String description, String permission);
+	public long createAlbum(long userid, String name, String subtitle, String description, String permission);
 
 	/**
 	 * Sets the album's cover photo
@@ -156,7 +156,7 @@ public interface AlbumBeanLocal {
 	 * @param albumid
 	 * @param photoid
 	 */
-	public void setAlbumCoverPhoto(String username, long albumid, long photoid);
+	public void setAlbumCoverPhoto(long userid, long albumid, long photoid);
 
 	// Photo Related
 
@@ -168,7 +168,7 @@ public interface AlbumBeanLocal {
 	 * @return List of DTO encapsulating information regarding photo including
 	 *         source directory
 	 */
-	public List<PhotoDTO> fetchUserAlbumPhotos(String username, long albumid);
+	public List<PhotoDTO> fetchUserAlbumPhotos(long userid, long albumid);
 
 	/**
 	 * Fetches meta-data of photo
@@ -178,7 +178,7 @@ public interface AlbumBeanLocal {
 	 * @return DTO encapsulating information regarding photo including source
 	 *         directory
 	 */
-	public PhotoDTO fetchPhoto(String username, long photoid);
+	public PhotoDTO fetchPhoto(long userid, long photoid);
 
 	/**
 	 * Fetches the data encapsulated in the photo
@@ -187,7 +187,7 @@ public interface AlbumBeanLocal {
 	 * @param photoid
 	 * @return Stream of photo file data
 	 */
-	public ImageInputStream fetchPhotoData(String username, long photoid);
+	public ImageInputStream fetchPhotoData(long userid, long photoid);
 
 	/**
 	 * Fetches the data encapsulated in the photo thumbnail
@@ -197,7 +197,7 @@ public interface AlbumBeanLocal {
 	 * @param flags
 	 * @return Stream of photo thumbnail file data
 	 */
-	public ImageInputStream fetchPhotoThumbnailData(String username, long photoid, int flags);
+	public ImageInputStream fetchPhotoThumbnailData(long userid, long photoid, int flags);
 
 	/**
 	 * Fetches the data encapsulated in the photo thumbnail
@@ -206,9 +206,9 @@ public interface AlbumBeanLocal {
 	 * @param photoid
 	 * @return Stream of photo thumbnail file data
 	 */
-	public ImageInputStream fetchPhotoThumbnailData(String username, long photoid);
+	public ImageInputStream fetchPhotoThumbnailData(long userid, long photoid);
 
-	public ImageInputStream fetchAlbumCoverThumbnail(String username, long photoid, int flags);
+	public ImageInputStream fetchAlbumCoverThumbnail(long userid, long photoid, int flags);
 
 	/**
 	 * Uploads a photo to server file repository
@@ -221,7 +221,7 @@ public interface AlbumBeanLocal {
 	 *            InputStream to file being transferred
 	 * @return Success status of action
 	 */
-	public PhotoDTO uploadPhoto(String username, long albumId, String name, String ext, InputStream data, int flags);
+	public PhotoDTO uploadPhoto(long userid, long albumId, String name, String ext, InputStream data, int flags);
 
 	// Category & Tags
 
@@ -232,7 +232,7 @@ public interface AlbumBeanLocal {
 	 * @param albumid
 	 * @return DTO encapsulating the id and map of category and tags
 	 */
-	public AlbumTagsDTO fetchUserAlbumTags(String username, long albumid);
+	public AlbumTagsDTO fetchUserAlbumTags(long userid, long albumid);
 
 	/**
 	 * Creates a tag associated to the album
@@ -243,7 +243,7 @@ public interface AlbumBeanLocal {
 	 * @param category
 	 * @return Success status of action
 	 */
-	boolean tagUserAlbum(String username, long albumid, String tag, String category);
+	boolean tagUserAlbum(long userid, long albumid, String tag, String category);
 
 	/**
 	 * Creates an category and associates it with the user
@@ -252,7 +252,7 @@ public interface AlbumBeanLocal {
 	 * @param category
 	 * @return Success status of action
 	 */
-	boolean createCategory(String username, String category);
+	boolean createCategory(long userid, String category);
 
 	/**
 	 * Fetches all categories associated with the user
@@ -260,7 +260,7 @@ public interface AlbumBeanLocal {
 	 * @param userid
 	 * @return List of categories
 	 */
-	public List<String> fetchAllUserCategories(String username);
+	public List<String> fetchAllUserCategories(long userid);
 
 	/**
 	 * Clears all tags on Album without removing categories
@@ -269,5 +269,5 @@ public interface AlbumBeanLocal {
 	 * @param albumid
 	 * @return Success status of action
 	 */
-	boolean clearAlbumTag(String username, long albumid);
+	boolean clearAlbumTag(long userid, long albumid);
 }

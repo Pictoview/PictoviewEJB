@@ -4,8 +4,10 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.junit.After;
@@ -33,6 +35,8 @@ public class DatabaseTest {
 	private String mockUser2 = "StandardUser2";
 	private String mockUser3 = "StandardUser3";
 	private String mockUser4 = "StandardUser4";
+	
+	private Map<String, Long> userIds = new HashMap<String, Long>();
 
 	@BeforeClass
 	public static void initialize() {
@@ -50,9 +54,10 @@ public class DatabaseTest {
 		accountDAO = new SQLAccountDAO();
 		albumDAO = new SQLAlbumDAO();
 		// Creating Mock User
-		createMockUser(mockUser1);
-		createMockUser(mockUser2);
-		createMockUser(mockUser3);
+		userIds.put(mockUser1, createMockUser(mockUser1));
+		userIds.put(mockUser2, createMockUser(mockUser2));
+		userIds.put(mockUser3, createMockUser(mockUser3));
+		userIds.put(mockUser4, createMockUser(mockUser4));
 	}
 
 	private long createMockUser(String username) {
@@ -80,6 +85,7 @@ public class DatabaseTest {
 		deleteMockUsers(mockUser1);
 		deleteMockUsers(mockUser2);
 		deleteMockUsers(mockUser3);
+		deleteMockUsers(mockUser4);
 	}
 
 	/** Tests **/
@@ -88,43 +94,43 @@ public class DatabaseTest {
 	public void fetchUserAlbums() {
 		try {
 			// Create albums
-			long albumId1$1 = albumDAO.createAlbum(mockUser1, "Album1", "User1 (PUBLIC)", "AlbumDescription", "PUBLIC");
-			long albumId1$2 = albumDAO.createAlbum(mockUser1, "Album1-1", "User1 (PUBLIC)", "AlbumDescription", albumId1$1);
+			long albumId1$1 = albumDAO.createAlbum(userIds.get(mockUser1), "Album1", "User1 (PUBLIC)", "AlbumDescription", "PUBLIC");
+			long albumId1$2 = albumDAO.createAlbum(userIds.get(mockUser1), "Album1-1", "User1 (PUBLIC)", "AlbumDescription", albumId1$1);
 
-			long albumId2$1 = albumDAO.createAlbum(mockUser2, "Album2", "User2 (PUBLIC)", "AlbumDescription", "PUBLIC");
-			long albumId2$2 = albumDAO.createAlbum(mockUser2, "Album3", "User2 (PRIVATE)", "AlbumDescription", "PRIVATE");
-			long albumId2$3 = albumDAO.createAlbum(mockUser2, "Album4", "User2 (LIMITED)", "AlbumDescription", "LIMITED");
+			long albumId2$1 = albumDAO.createAlbum(userIds.get(mockUser2), "Album2", "User2 (PUBLIC)", "AlbumDescription", "PUBLIC");
+			long albumId2$2 = albumDAO.createAlbum(userIds.get(mockUser2), "Album3", "User2 (PRIVATE)", "AlbumDescription", "PRIVATE");
+			long albumId2$3 = albumDAO.createAlbum(userIds.get(mockUser2), "Album4", "User2 (LIMITED)", "AlbumDescription", "LIMITED");
 
 			List<String> allowedUsers2$3 = new ArrayList<String>();
 			allowedUsers2$3.add(mockUser1);
-			albumDAO.addPermissionToAlbum(mockUser2, albumId2$3, allowedUsers2$3);
+			albumDAO.addPermissionToAlbum(userIds.get(mockUser2), albumId2$3, allowedUsers2$3);
 
-			long albumId3$1 = albumDAO.createAlbum(mockUser3, "Album5", "User3 (PUBLIC)", "AlbumDescription", "PUBLIC");
-			long albumId3$2 = albumDAO.createAlbum(mockUser3, "Album5-1", "User3 (PUBLIC)", "AlbumDescription", albumId3$1);
-			long albumId3$3 = albumDAO.createAlbum(mockUser3, "Album5-1-1", "User3 (PUBLIC)", "AlbumDescription", albumId3$2);
+			long albumId3$1 = albumDAO.createAlbum(userIds.get(mockUser3), "Album5", "User3 (PUBLIC)", "AlbumDescription", "PUBLIC");
+			long albumId3$2 = albumDAO.createAlbum(userIds.get(mockUser3), "Album5-1", "User3 (PUBLIC)", "AlbumDescription", albumId3$1);
+			long albumId3$3 = albumDAO.createAlbum(userIds.get(mockUser3), "Album5-1-1", "User3 (PUBLIC)", "AlbumDescription", albumId3$2);
 
 			// Fetch public albums
 			List<AlbumDTO> publicAlbums = albumDAO.fetchAllPublicAlbums(25, 0);
 
 			// Fetch viewable albums
-			List<AlbumDTO> limitedAlbums1 = albumDAO.fetchViewableAlbums(mockUser1, 0);
-			List<AlbumDTO> limitedAlbums2 = albumDAO.fetchViewableAlbums(mockUser1, albumId1$1);
+			List<AlbumDTO> limitedAlbums1 = albumDAO.fetchViewableAlbums(userIds.get(mockUser1), 0);
+			List<AlbumDTO> limitedAlbums2 = albumDAO.fetchViewableAlbums(userIds.get(mockUser1), albumId1$1);
 
-			List<AlbumDTO> limitedAlbums3 = albumDAO.fetchViewableAlbums(mockUser2, 0);
+			List<AlbumDTO> limitedAlbums3 = albumDAO.fetchViewableAlbums(userIds.get(mockUser2), 0);
 
-			List<AlbumDTO> limitedAlbums4 = albumDAO.fetchViewableAlbums(mockUser3, 0);
-			List<AlbumDTO> limitedAlbums5 = albumDAO.fetchViewableAlbums(mockUser3, albumId3$1);
-			List<AlbumDTO> limitedAlbums6 = albumDAO.fetchViewableAlbums(mockUser3, albumId3$2);
+			List<AlbumDTO> limitedAlbums4 = albumDAO.fetchViewableAlbums(userIds.get(mockUser3), 0);
+			List<AlbumDTO> limitedAlbums5 = albumDAO.fetchViewableAlbums(userIds.get(mockUser3), albumId3$1);
+			List<AlbumDTO> limitedAlbums6 = albumDAO.fetchViewableAlbums(userIds.get(mockUser3), albumId3$2);
 
 			// Delete All Albums
-			albumDAO.deleteAlbum(mockUser1, albumId1$1);
-			albumDAO.deleteAlbum(mockUser1, albumId1$2);
-			albumDAO.deleteAlbum(mockUser2, albumId2$1);
-			albumDAO.deleteAlbum(mockUser2, albumId2$2);
-			albumDAO.deleteAlbum(mockUser2, albumId2$3);
-			albumDAO.deleteAlbum(mockUser3, albumId3$1);
-			albumDAO.deleteAlbum(mockUser3, albumId3$2);
-			albumDAO.deleteAlbum(mockUser3, albumId3$3);
+			albumDAO.deleteAlbum(userIds.get(mockUser1), albumId1$1);
+			albumDAO.deleteAlbum(userIds.get(mockUser1), albumId1$2);
+			albumDAO.deleteAlbum(userIds.get(mockUser2), albumId2$1);
+			albumDAO.deleteAlbum(userIds.get(mockUser2), albumId2$2);
+			albumDAO.deleteAlbum(userIds.get(mockUser2), albumId2$3);
+			albumDAO.deleteAlbum(userIds.get(mockUser3), albumId3$1);
+			albumDAO.deleteAlbum(userIds.get(mockUser3), albumId3$2);
+			albumDAO.deleteAlbum(userIds.get(mockUser3), albumId3$3);
 
 			// Check Assertions
 			checkCorrectAlbumsIDs(publicAlbums, albumId1$1, albumId2$1, albumId3$1);
@@ -148,41 +154,41 @@ public class DatabaseTest {
 		// Create albums
 		try {
 
-			long albumId1$1 = albumDAO.createAlbum(mockUser1, "Album1", "User1 (PUBLIC)", "AlbumDescription", "PUBLIC");
-			long albumId1$2 = albumDAO.createAlbum(mockUser1, "Album1-1", "User1 (PUBLIC)", "AlbumDescription", albumId1$1);
+			long albumId1$1 = albumDAO.createAlbum(userIds.get(mockUser1), "Album1", "User1 (PUBLIC)", "AlbumDescription", "PUBLIC");
+			long albumId1$2 = albumDAO.createAlbum(userIds.get(mockUser1), "Album1-1", "User1 (PUBLIC)", "AlbumDescription", albumId1$1);
 
-			long albumId2$1 = albumDAO.createAlbum(mockUser2, "Album2", "User2 (PUBLIC)", "AlbumDescription", "PUBLIC");
-			long albumId2$2 = albumDAO.createAlbum(mockUser2, "Album3", "User2 (PRIVATE)", "AlbumDescription", "PRIVATE");
-			long albumId2$3 = albumDAO.createAlbum(mockUser2, "Album4", "User2 (LIMITED)", "AlbumDescription", "LIMITED");
+			long albumId2$1 = albumDAO.createAlbum(userIds.get(mockUser2), "Album2", "User2 (PUBLIC)", "AlbumDescription", "PUBLIC");
+			long albumId2$2 = albumDAO.createAlbum(userIds.get(mockUser2), "Album3", "User2 (PRIVATE)", "AlbumDescription", "PRIVATE");
+			long albumId2$3 = albumDAO.createAlbum(userIds.get(mockUser2), "Album4", "User2 (LIMITED)", "AlbumDescription", "LIMITED");
 
 			List<String> allowedUsers2$3 = new ArrayList<String>();
 			allowedUsers2$3.add(mockUser1);
-			albumDAO.addPermissionToAlbum(mockUser2, albumId2$3, allowedUsers2$3);
+			albumDAO.addPermissionToAlbum(userIds.get(mockUser2), albumId2$3, allowedUsers2$3);
 
-			long albumId3$1 = albumDAO.createAlbum(mockUser3, "Album3", "User3 (PRIVATE)", "AlbumDescription", "PRIVATE");
-			long albumId3$2 = albumDAO.createAlbum(mockUser3, "Album3-1", "User3 (PRIVATE)", "AlbumDescription", albumId3$1);
-			long albumId3$3 = albumDAO.createAlbum(mockUser3, "Album3-1-1", "User3 (PRIVATE)", "AlbumDescription", albumId3$2);
+			long albumId3$1 = albumDAO.createAlbum(userIds.get(mockUser3), "Album3", "User3 (PRIVATE)", "AlbumDescription", "PRIVATE");
+			long albumId3$2 = albumDAO.createAlbum(userIds.get(mockUser3), "Album3-1", "User3 (PRIVATE)", "AlbumDescription", albumId3$1);
+			long albumId3$3 = albumDAO.createAlbum(userIds.get(mockUser3), "Album3-1-1", "User3 (PRIVATE)", "AlbumDescription", albumId3$2);
 
 			// Subscribe to Albums
-			albumDAO.subscribeToAlbum(mockUser1, albumId2$1);
-			albumDAO.subscribeToAlbum(mockUser1, albumId2$2);
+			albumDAO.subscribeToAlbum(userIds.get(mockUser1), albumId2$1);
+			albumDAO.subscribeToAlbum(userIds.get(mockUser1), albumId2$2);
 
 			// Fetch subscribed albums
-			List<AlbumDTO> limitedAlbums1 = albumDAO.fetchAllSubscribedAlbums(mockUser1, 0);
+			List<AlbumDTO> limitedAlbums1 = albumDAO.fetchAllSubscribedAlbums(userIds.get(mockUser1), 0);
 
 			// Delete Subscriptions
-			albumDAO.unsubscribeToAlbum(mockUser1, albumId2$1);
-			albumDAO.unsubscribeToAlbum(mockUser1, albumId2$2);
+			albumDAO.unsubscribeToAlbum(userIds.get(mockUser1), albumId2$1);
+			albumDAO.unsubscribeToAlbum(userIds.get(mockUser1), albumId2$2);
 
 			// Delete All Albums
-			albumDAO.deleteAlbum(mockUser1, albumId1$1);
-			albumDAO.deleteAlbum(mockUser1, albumId1$2);
-			albumDAO.deleteAlbum(mockUser2, albumId2$1);
-			albumDAO.deleteAlbum(mockUser2, albumId2$2);
-			albumDAO.deleteAlbum(mockUser2, albumId2$3);
-			albumDAO.deleteAlbum(mockUser3, albumId3$1);
-			albumDAO.deleteAlbum(mockUser3, albumId3$2);
-			albumDAO.deleteAlbum(mockUser3, albumId3$3);
+			albumDAO.deleteAlbum(userIds.get(mockUser1), albumId1$1);
+			albumDAO.deleteAlbum(userIds.get(mockUser1), albumId1$2);
+			albumDAO.deleteAlbum(userIds.get(mockUser2), albumId2$1);
+			albumDAO.deleteAlbum(userIds.get(mockUser2), albumId2$2);
+			albumDAO.deleteAlbum(userIds.get(mockUser2), albumId2$3);
+			albumDAO.deleteAlbum(userIds.get(mockUser3), albumId3$1);
+			albumDAO.deleteAlbum(userIds.get(mockUser3), albumId3$2);
+			albumDAO.deleteAlbum(userIds.get(mockUser3), albumId3$3);
 
 			// Test Assertions
 			checkCorrectAlbumsIDs(limitedAlbums1, albumId1$1, albumId2$1, albumId2$3);
@@ -197,77 +203,77 @@ public class DatabaseTest {
 	public void testPhotoAccess() {
 		try {
 			// Create Album & Photos
-			long albumId1 = albumDAO.createAlbum(mockUser1, "Album1", "User1 Album1", "AlbumDescription", "PUBLIC");
-			long albumId2 = albumDAO.createAlbum(mockUser1, "Album1-1", "User1 Album", "AlbumDescription", albumId1);
-			long albumId3 = albumDAO.createAlbum(mockUser1, "Album1-1-1", "User1 Album", "AlbumDescription", albumId2);
-			PhotoDTO photoId1U1 = albumDAO.insertPhoto(mockUser1, albumId1, "jpg", "A1(P1)");
-			PhotoDTO photoId1U2 = albumDAO.insertPhoto(mockUser1, albumId2, "jpg", "A1-1(P2)");
-			PhotoDTO photoId1U3 = albumDAO.insertPhoto(mockUser1, albumId2, "jpg", "A1-1(P3)");
-			PhotoDTO photoId1U4 = albumDAO.insertPhoto(mockUser1, albumId3, "jpg", "A1-1-1(P4)");
+			long albumId1 = albumDAO.createAlbum(userIds.get(mockUser1), "Album1", "User1 Album1", "AlbumDescription", "PUBLIC");
+			long albumId2 = albumDAO.createAlbum(userIds.get(mockUser1), "Album1-1", "User1 Album", "AlbumDescription", albumId1);
+			long albumId3 = albumDAO.createAlbum(userIds.get(mockUser1), "Album1-1-1", "User1 Album", "AlbumDescription", albumId2);
+			PhotoDTO photoId1U1 = albumDAO.insertPhoto(userIds.get(mockUser1), albumId1, "jpg", "A1(P1)");
+			PhotoDTO photoId1U2 = albumDAO.insertPhoto(userIds.get(mockUser1), albumId2, "jpg", "A1-1(P2)");
+			PhotoDTO photoId1U3 = albumDAO.insertPhoto(userIds.get(mockUser1), albumId2, "jpg", "A1-1(P3)");
+			PhotoDTO photoId1U4 = albumDAO.insertPhoto(userIds.get(mockUser1), albumId3, "jpg", "A1-1-1(P4)");
 
-			long albumId4 = albumDAO.createAlbum(mockUser2, "Album2", "User2 Album1", "AlbumDescription", "LIMITED");
-			long albumId5 = albumDAO.createAlbum(mockUser2, "Album2-1", "User2 Album", "AlbumDescription", albumId4);
-			long albumId6 = albumDAO.createAlbum(mockUser2, "Album2-1-1", "User2 Album", "AlbumDescription", albumId5);
-			PhotoDTO photoId2U1 = albumDAO.insertPhoto(mockUser2, albumId4, "jpg", "A2(P5)");
-			PhotoDTO photoId2U2 = albumDAO.insertPhoto(mockUser2, albumId5, "jpg", "A2-1(P6)");
-			PhotoDTO photoId2U3 = albumDAO.insertPhoto(mockUser2, albumId6, "jpg", "A2-1-1(P7)");
+			long albumId4 = albumDAO.createAlbum(userIds.get(mockUser2), "Album2", "User2 Album1", "AlbumDescription", "LIMITED");
+			long albumId5 = albumDAO.createAlbum(userIds.get(mockUser2), "Album2-1", "User2 Album", "AlbumDescription", albumId4);
+			long albumId6 = albumDAO.createAlbum(userIds.get(mockUser2), "Album2-1-1", "User2 Album", "AlbumDescription", albumId5);
+			PhotoDTO photoId2U1 = albumDAO.insertPhoto(userIds.get(mockUser2), albumId4, "jpg", "A2(P5)");
+			PhotoDTO photoId2U2 = albumDAO.insertPhoto(userIds.get(mockUser2), albumId5, "jpg", "A2-1(P6)");
+			PhotoDTO photoId2U3 = albumDAO.insertPhoto(userIds.get(mockUser2), albumId6, "jpg", "A2-1-1(P7)");
 
-			long albumId7 = albumDAO.createAlbum(mockUser3, "Album3", "User3 Album1", "AlbumDescription", "PRIVATE");
-			long albumId8 = albumDAO.createAlbum(mockUser3, "Album3-1", "User3 Album (PRIVATE)", "AlbumDescription", albumId7);
-			long albumId9 = albumDAO.createAlbum(mockUser3, "Album3-1-1", "User3 Album (PRIVATE)", "AlbumDescription", albumId8);
-			PhotoDTO photoId3U1 = albumDAO.insertPhoto(mockUser3, albumId7, "jpg", "A3(P8)");
-			PhotoDTO photoId3U2 = albumDAO.insertPhoto(mockUser3, albumId8, "jpg", "A3-1(P9)");
-			PhotoDTO photoId3U3 = albumDAO.insertPhoto(mockUser3, albumId9, "jpg", "A3-1-1(P10)");
+			long albumId7 = albumDAO.createAlbum(userIds.get(mockUser3), "Album3", "User3 Album1", "AlbumDescription", "PRIVATE");
+			long albumId8 = albumDAO.createAlbum(userIds.get(mockUser3), "Album3-1", "User3 Album (PRIVATE)", "AlbumDescription", albumId7);
+			long albumId9 = albumDAO.createAlbum(userIds.get(mockUser3), "Album3-1-1", "User3 Album (PRIVATE)", "AlbumDescription", albumId8);
+			PhotoDTO photoId3U1 = albumDAO.insertPhoto(userIds.get(mockUser3), albumId7, "jpg", "A3(P8)");
+			PhotoDTO photoId3U2 = albumDAO.insertPhoto(userIds.get(mockUser3), albumId8, "jpg", "A3-1(P9)");
+			PhotoDTO photoId3U3 = albumDAO.insertPhoto(userIds.get(mockUser3), albumId9, "jpg", "A3-1-1(P10)");
 
 			List<String> allowedUsers = new ArrayList<String>();
 			allowedUsers.add(mockUser1);
-			albumDAO.addPermissionToAlbum(mockUser2, albumId4, allowedUsers);
-			albumDAO.addPermissionToAlbum(mockUser2, albumId5, allowedUsers);
-			albumDAO.addPermissionToAlbum(mockUser2, albumId6, allowedUsers);
+			albumDAO.addPermissionToAlbum(userIds.get(mockUser2), albumId4, allowedUsers);
+			albumDAO.addPermissionToAlbum(userIds.get(mockUser2), albumId5, allowedUsers);
+			albumDAO.addPermissionToAlbum(userIds.get(mockUser2), albumId6, allowedUsers);
 
 			// Test User 1 Accessibility
-			List<PhotoDTO> user1PhotosA1 = albumDAO.fetchUserAlbumPhotos(mockUser1, albumId1);
-			List<PhotoDTO> user1PhotosA2 = albumDAO.fetchUserAlbumPhotos(mockUser1, albumId2);
-			List<PhotoDTO> user1PhotosA3 = albumDAO.fetchUserAlbumPhotos(mockUser1, albumId3);
-			List<PhotoDTO> user1PhotosA4 = albumDAO.fetchUserAlbumPhotos(mockUser1, albumId4);
-			List<PhotoDTO> user1PhotosA5 = albumDAO.fetchUserAlbumPhotos(mockUser1, albumId5);
-			List<PhotoDTO> user1PhotosA6 = albumDAO.fetchUserAlbumPhotos(mockUser1, albumId6);
-			List<PhotoDTO> user1PhotosA7 = albumDAO.fetchUserAlbumPhotos(mockUser1, albumId7);
-			List<PhotoDTO> user1PhotosA8 = albumDAO.fetchUserAlbumPhotos(mockUser1, albumId8);
-			List<PhotoDTO> user1PhotosA9 = albumDAO.fetchUserAlbumPhotos(mockUser1, albumId9);
+			List<PhotoDTO> user1PhotosA1 = albumDAO.fetchUserAlbumPhotos(userIds.get(mockUser1), albumId1);
+			List<PhotoDTO> user1PhotosA2 = albumDAO.fetchUserAlbumPhotos(userIds.get(mockUser1), albumId2);
+			List<PhotoDTO> user1PhotosA3 = albumDAO.fetchUserAlbumPhotos(userIds.get(mockUser1), albumId3);
+			List<PhotoDTO> user1PhotosA4 = albumDAO.fetchUserAlbumPhotos(userIds.get(mockUser1), albumId4);
+			List<PhotoDTO> user1PhotosA5 = albumDAO.fetchUserAlbumPhotos(userIds.get(mockUser1), albumId5);
+			List<PhotoDTO> user1PhotosA6 = albumDAO.fetchUserAlbumPhotos(userIds.get(mockUser1), albumId6);
+			List<PhotoDTO> user1PhotosA7 = albumDAO.fetchUserAlbumPhotos(userIds.get(mockUser1), albumId7);
+			List<PhotoDTO> user1PhotosA8 = albumDAO.fetchUserAlbumPhotos(userIds.get(mockUser1), albumId8);
+			List<PhotoDTO> user1PhotosA9 = albumDAO.fetchUserAlbumPhotos(userIds.get(mockUser1), albumId9);
 
 			// Test User 2 Accessibility
-			List<PhotoDTO> user2PhotosA1 = albumDAO.fetchUserAlbumPhotos(mockUser2, albumId1);
-			List<PhotoDTO> user2PhotosA2 = albumDAO.fetchUserAlbumPhotos(mockUser2, albumId2);
-			List<PhotoDTO> user2PhotosA3 = albumDAO.fetchUserAlbumPhotos(mockUser2, albumId3);
-			List<PhotoDTO> user2PhotosA4 = albumDAO.fetchUserAlbumPhotos(mockUser2, albumId4);
-			List<PhotoDTO> user2PhotosA5 = albumDAO.fetchUserAlbumPhotos(mockUser2, albumId5);
-			List<PhotoDTO> user2PhotosA6 = albumDAO.fetchUserAlbumPhotos(mockUser2, albumId6);
-			List<PhotoDTO> user2PhotosA7 = albumDAO.fetchUserAlbumPhotos(mockUser2, albumId7);
-			List<PhotoDTO> user2PhotosA8 = albumDAO.fetchUserAlbumPhotos(mockUser2, albumId8);
-			List<PhotoDTO> user2PhotosA9 = albumDAO.fetchUserAlbumPhotos(mockUser2, albumId9);
+			List<PhotoDTO> user2PhotosA1 = albumDAO.fetchUserAlbumPhotos(userIds.get(mockUser2), albumId1);
+			List<PhotoDTO> user2PhotosA2 = albumDAO.fetchUserAlbumPhotos(userIds.get(mockUser2), albumId2);
+			List<PhotoDTO> user2PhotosA3 = albumDAO.fetchUserAlbumPhotos(userIds.get(mockUser2), albumId3);
+			List<PhotoDTO> user2PhotosA4 = albumDAO.fetchUserAlbumPhotos(userIds.get(mockUser2), albumId4);
+			List<PhotoDTO> user2PhotosA5 = albumDAO.fetchUserAlbumPhotos(userIds.get(mockUser2), albumId5);
+			List<PhotoDTO> user2PhotosA6 = albumDAO.fetchUserAlbumPhotos(userIds.get(mockUser2), albumId6);
+			List<PhotoDTO> user2PhotosA7 = albumDAO.fetchUserAlbumPhotos(userIds.get(mockUser2), albumId7);
+			List<PhotoDTO> user2PhotosA8 = albumDAO.fetchUserAlbumPhotos(userIds.get(mockUser2), albumId8);
+			List<PhotoDTO> user2PhotosA9 = albumDAO.fetchUserAlbumPhotos(userIds.get(mockUser2), albumId9);
 
 			// Test User 3 Accessibility
-			List<PhotoDTO> user3PhotosA1 = albumDAO.fetchUserAlbumPhotos(mockUser3, albumId1);
-			List<PhotoDTO> user3PhotosA2 = albumDAO.fetchUserAlbumPhotos(mockUser3, albumId2);
-			List<PhotoDTO> user3PhotosA3 = albumDAO.fetchUserAlbumPhotos(mockUser3, albumId3);
-			List<PhotoDTO> user3PhotosA4 = albumDAO.fetchUserAlbumPhotos(mockUser3, albumId4);
-			List<PhotoDTO> user3PhotosA5 = albumDAO.fetchUserAlbumPhotos(mockUser3, albumId5);
-			List<PhotoDTO> user3PhotosA6 = albumDAO.fetchUserAlbumPhotos(mockUser3, albumId6);
-			List<PhotoDTO> user3PhotosA7 = albumDAO.fetchUserAlbumPhotos(mockUser3, albumId7);
-			List<PhotoDTO> user3PhotosA8 = albumDAO.fetchUserAlbumPhotos(mockUser3, albumId8);
-			List<PhotoDTO> user3PhotosA9 = albumDAO.fetchUserAlbumPhotos(mockUser3, albumId9);
+			List<PhotoDTO> user3PhotosA1 = albumDAO.fetchUserAlbumPhotos(userIds.get(mockUser3), albumId1);
+			List<PhotoDTO> user3PhotosA2 = albumDAO.fetchUserAlbumPhotos(userIds.get(mockUser3), albumId2);
+			List<PhotoDTO> user3PhotosA3 = albumDAO.fetchUserAlbumPhotos(userIds.get(mockUser3), albumId3);
+			List<PhotoDTO> user3PhotosA4 = albumDAO.fetchUserAlbumPhotos(userIds.get(mockUser3), albumId4);
+			List<PhotoDTO> user3PhotosA5 = albumDAO.fetchUserAlbumPhotos(userIds.get(mockUser3), albumId5);
+			List<PhotoDTO> user3PhotosA6 = albumDAO.fetchUserAlbumPhotos(userIds.get(mockUser3), albumId6);
+			List<PhotoDTO> user3PhotosA7 = albumDAO.fetchUserAlbumPhotos(userIds.get(mockUser3), albumId7);
+			List<PhotoDTO> user3PhotosA8 = albumDAO.fetchUserAlbumPhotos(userIds.get(mockUser3), albumId8);
+			List<PhotoDTO> user3PhotosA9 = albumDAO.fetchUserAlbumPhotos(userIds.get(mockUser3), albumId9);
 
 			// Delete All Albums
-			albumDAO.deleteAlbum(mockUser1, albumId1);
-			albumDAO.deleteAlbum(mockUser1, albumId2);
-			albumDAO.deleteAlbum(mockUser1, albumId3);
-			albumDAO.deleteAlbum(mockUser2, albumId4);
-			albumDAO.deleteAlbum(mockUser2, albumId5);
-			albumDAO.deleteAlbum(mockUser2, albumId6);
-			albumDAO.deleteAlbum(mockUser3, albumId7);
-			albumDAO.deleteAlbum(mockUser3, albumId8);
-			albumDAO.deleteAlbum(mockUser3, albumId9);
+			albumDAO.deleteAlbum(userIds.get(mockUser1), albumId1);
+			albumDAO.deleteAlbum(userIds.get(mockUser1), albumId2);
+			albumDAO.deleteAlbum(userIds.get(mockUser1), albumId3);
+			albumDAO.deleteAlbum(userIds.get(mockUser2), albumId4);
+			albumDAO.deleteAlbum(userIds.get(mockUser2), albumId5);
+			albumDAO.deleteAlbum(userIds.get(mockUser2), albumId6);
+			albumDAO.deleteAlbum(userIds.get(mockUser3), albumId7);
+			albumDAO.deleteAlbum(userIds.get(mockUser3), albumId8);
+			albumDAO.deleteAlbum(userIds.get(mockUser3), albumId9);
 
 			// Check Assertions
 			checkCorrectPhotoIDs(user1PhotosA1, photoId1U1.getId()); // User 1

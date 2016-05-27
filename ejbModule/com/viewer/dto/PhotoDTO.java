@@ -9,14 +9,14 @@ public class PhotoDTO {
 	private long albumId;
 	private String ext;
 	private String name;
-	private String ownername;
+	private long ownerid;
 
-	public PhotoDTO(long id, String name, String ext, long albumId, String ownername) {
+	public PhotoDTO(long id, String name, String ext, long albumId, long ownerid) {
 		this.id = id;
 		this.name = name;
 		this.albumId = albumId;
 		this.ext = ext;
-		this.ownername = ownername;
+		this.ownerid = ownerid;
 	}
 
 	public String getName() {
@@ -28,7 +28,7 @@ public class PhotoDTO {
 	}
 
 	public String getSource() {
-		return ownername + "/" + albumId + "/" + id + "." + ext;
+		return ownerid + "/" + albumId + "/" + id + "." + ext;
 	}
 
 	public long getId() {
@@ -47,8 +47,8 @@ public class PhotoDTO {
 		return albumId;
 	}
 
-	public String getOwnername() {
-		return ownername;
+	public long getOwnerid() {
+		return ownerid;
 	}
 
 	public String toString() {

@@ -77,6 +77,7 @@ id INTEGER PRIMARY KEY,
 name VARCHAR(255),
 albumid INTEGER,
 cateid INTEGER,
+relevance INTEGER,
 FOREIGN KEY(albumid) REFERENCES Albums(id),
 FOREIGN KEY(cateid) REFERENCES Category(id)
 );
@@ -86,3 +87,10 @@ id INTEGER PRIMARY KEY,
 name VARCHAR(255) NOT NULL UNIQUE,
 visibility VARCHAR(25)
 );
+
+CREATE INDEX AlbumOwner ON Albums(owner);
+CREATE INDEX AlbumPermission ON Albums(permission);
+CREATE INDEX AlbumAccessOwner ON AlbumAccess(visitor);
+CREATE INDEX PhotoAlbumID ON Photos(albumid);
+CREATE INDEX PhotoOwnerID ON Photos(owner);
+CREATE INDEX AlbumTagAlbum ON AlbumTags(albumid);

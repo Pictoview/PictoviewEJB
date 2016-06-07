@@ -176,7 +176,7 @@ public class AlbumBean implements AlbumBeanLocal {
 	@Override
 	public PhotoDTO fetchPhoto(long userid, long photoid) {
 		try {
-			return albumDAO.fetchPhoto(photoid);
+			return albumDAO.fetchPhoto(userid, photoid);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -186,7 +186,7 @@ public class AlbumBean implements AlbumBeanLocal {
 	@Override
 	public ImageInputStream fetchPhotoData(long userid, long photoid) {
 		try {
-			PhotoDTO photoDTO = albumDAO.fetchPhoto(photoid);
+			PhotoDTO photoDTO = albumDAO.fetchPhoto(userid, photoid);
 			String source = AlbumFileManager.StorageLocation + photoDTO.getSource();
 			return ImageIO.createImageInputStream(new File(source));
 		} catch (SQLException | IOException e) {
@@ -203,7 +203,7 @@ public class AlbumBean implements AlbumBeanLocal {
 	@Override
 	public ImageInputStream fetchPhotoThumbnailData(long userid, long photoid, int flags) {
 		try {
-			PhotoDTO photoDTO = albumDAO.fetchPhoto(photoid);
+			PhotoDTO photoDTO = albumDAO.fetchPhoto(userid, photoid);
 			String source = AlbumFileManager.ThumbnailStorageLocation + photoDTO.getSource();
 			return ImageIO.createImageInputStream(new File(source));
 		} catch (SQLException | IOException e) {

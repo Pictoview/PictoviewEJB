@@ -433,9 +433,24 @@ public class SQLAlbumDAO implements AlbumDAO {
 	}
 
 	@Override
-	public PhotoDTO fetchPhoto(long photoid) throws SQLException {
-		// TODO Auto-generated method stub
-		return null;
+	public PhotoDTO fetchPhoto(long userid, long photoid) throws SQLException {
+		Connection conn = SQLConnector.connect();
+
+		// Create Statement
+		String selectPhotos = "SELECT Photos.id, Photos.name, Photos.ext, Photos.albumid FROM Photos"
+				+ " WHERE Photos.owner = ? AND Photos.id = ?";
+		PreparedStatement stmt = conn.prepareStatement(selectPhotos);
+		stmt.setLong(1, userid);
+		stmt.setLong(2, photoid);
+
+		// Execute Statement
+		PhotoDTO photo = null;
+		ResultSet rs = stmt.executeQuery();
+		while (rs.next()) {
+			photo = new PhotoDTO(rs.getLong(1), rs.getString(2), rs.getString(3), rs.getLong(4), userid);
+		}
+		// conn.close();
+		return photo;
 	}
 
 	/** Category & Tag Methods **/
@@ -538,11 +553,9 @@ public class SQLAlbumDAO implements AlbumDAO {
 
 		// Get Id
 		PhotoDTO photo = null;
-		int id = stmt.executeUpdate();
+		stmt.executeUpdate();
 		ResultSet rs = stmt.getGeneratedKeys();
-		if (rs.next()) {
-			photo = new PhotoDTO(rs.getLong(1), name, ext, albumId, userid);
-		}
+		if (rs.next()) photo = new PhotoDTO(rs.getLong(1), name, ext, albumId, userid);
 		stmt.close();
 		// conn.close();
 		return photo;

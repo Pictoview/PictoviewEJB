@@ -62,7 +62,7 @@ public interface AlbumDAO {
 
 	public List<PhotoDTO> fetchUserAlbumPhotos(long userid, long albumid) throws SQLException;
 
-	public PhotoDTO fetchPhoto(long photoid) throws SQLException;
+	public PhotoDTO fetchPhoto(long userid, long photoid) throws SQLException;
 
 	public List<String> fetchAllCategories(String visibility) throws SQLException;
 

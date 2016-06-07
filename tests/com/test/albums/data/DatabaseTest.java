@@ -210,6 +210,10 @@ public class DatabaseTest {
 			PhotoDTO photoId1U2 = albumDAO.insertPhoto(userIds.get(mockUser1), albumId2, "jpg", "A1-1(P2)");
 			PhotoDTO photoId1U3 = albumDAO.insertPhoto(userIds.get(mockUser1), albumId2, "jpg", "A1-1(P3)");
 			PhotoDTO photoId1U4 = albumDAO.insertPhoto(userIds.get(mockUser1), albumId3, "jpg", "A1-1-1(P4)");
+			
+			albumDAO.setAlbumCoverPhoto(userIds.get(mockUser1), albumId1, photoId1U1.getId());
+			albumDAO.setAlbumCoverPhoto(userIds.get(mockUser1), albumId2, photoId1U2.getId());
+			albumDAO.setAlbumCoverPhoto(userIds.get(mockUser1), albumId3, photoId1U4.getId());
 
 			long albumId4 = albumDAO.createAlbum(userIds.get(mockUser2), "Album2", "User2 Album1", "AlbumDescription", "LIMITED");
 			long albumId5 = albumDAO.createAlbum(userIds.get(mockUser2), "Album2-1", "User2 Album", "AlbumDescription", albumId4);
@@ -217,6 +221,10 @@ public class DatabaseTest {
 			PhotoDTO photoId2U1 = albumDAO.insertPhoto(userIds.get(mockUser2), albumId4, "jpg", "A2(P5)");
 			PhotoDTO photoId2U2 = albumDAO.insertPhoto(userIds.get(mockUser2), albumId5, "jpg", "A2-1(P6)");
 			PhotoDTO photoId2U3 = albumDAO.insertPhoto(userIds.get(mockUser2), albumId6, "jpg", "A2-1-1(P7)");
+			
+			albumDAO.setAlbumCoverPhoto(userIds.get(mockUser2), albumId4, photoId2U1.getId());
+			albumDAO.setAlbumCoverPhoto(userIds.get(mockUser2), albumId5, photoId2U2.getId());
+			albumDAO.setAlbumCoverPhoto(userIds.get(mockUser2), albumId6, photoId2U3.getId());
 
 			long albumId7 = albumDAO.createAlbum(userIds.get(mockUser3), "Album3", "User3 Album1", "AlbumDescription", "PRIVATE");
 			long albumId8 = albumDAO.createAlbum(userIds.get(mockUser3), "Album3-1", "User3 Album (PRIVATE)", "AlbumDescription", albumId7);
@@ -224,6 +232,10 @@ public class DatabaseTest {
 			PhotoDTO photoId3U1 = albumDAO.insertPhoto(userIds.get(mockUser3), albumId7, "jpg", "A3(P8)");
 			PhotoDTO photoId3U2 = albumDAO.insertPhoto(userIds.get(mockUser3), albumId8, "jpg", "A3-1(P9)");
 			PhotoDTO photoId3U3 = albumDAO.insertPhoto(userIds.get(mockUser3), albumId9, "jpg", "A3-1-1(P10)");
+			
+			albumDAO.setAlbumCoverPhoto(userIds.get(mockUser3), albumId7, photoId3U1.getId());
+			albumDAO.setAlbumCoverPhoto(userIds.get(mockUser3), albumId8, photoId3U2.getId());
+			albumDAO.setAlbumCoverPhoto(userIds.get(mockUser3), albumId9, photoId3U3.getId());
 
 			List<String> allowedUsers = new ArrayList<String>();
 			allowedUsers.add(mockUser1);
@@ -263,6 +275,18 @@ public class DatabaseTest {
 			List<PhotoDTO> user3PhotosA7 = albumDAO.fetchUserAlbumPhotos(userIds.get(mockUser3), albumId7);
 			List<PhotoDTO> user3PhotosA8 = albumDAO.fetchUserAlbumPhotos(userIds.get(mockUser3), albumId8);
 			List<PhotoDTO> user3PhotosA9 = albumDAO.fetchUserAlbumPhotos(userIds.get(mockUser3), albumId9);
+			
+			// Check Album Cover photos
+			PhotoDTO coverPhoto1 = albumDAO.fetchAlbumCoverPhoto(userIds.get(mockUser1), albumId1);
+			PhotoDTO coverPhoto2 = albumDAO.fetchAlbumCoverPhoto(userIds.get(mockUser1), albumId2);
+			PhotoDTO coverPhoto3 = albumDAO.fetchAlbumCoverPhoto(userIds.get(mockUser1), albumId3);
+			PhotoDTO coverPhoto4 = albumDAO.fetchAlbumCoverPhoto(userIds.get(mockUser2), albumId4);
+			PhotoDTO coverPhoto5 = albumDAO.fetchAlbumCoverPhoto(userIds.get(mockUser2), albumId5);
+			PhotoDTO coverPhoto6 = albumDAO.fetchAlbumCoverPhoto(userIds.get(mockUser2), albumId6);
+			PhotoDTO coverPhoto7 = albumDAO.fetchAlbumCoverPhoto(userIds.get(mockUser3), albumId7);
+			PhotoDTO coverPhoto8 = albumDAO.fetchAlbumCoverPhoto(userIds.get(mockUser3), albumId8);
+			PhotoDTO coverPhoto9 = albumDAO.fetchAlbumCoverPhoto(userIds.get(mockUser3), albumId9);
+			
 
 			// Delete All Albums
 			albumDAO.deleteAlbum(userIds.get(mockUser1), albumId1);
@@ -275,7 +299,7 @@ public class DatabaseTest {
 			albumDAO.deleteAlbum(userIds.get(mockUser3), albumId8);
 			albumDAO.deleteAlbum(userIds.get(mockUser3), albumId9);
 
-			// Check Assertions
+			// Check Album AL Assertions
 			checkCorrectPhotoIDs(user1PhotosA1, photoId1U1.getId()); // User 1
 			checkCorrectPhotoIDs(user1PhotosA2, photoId1U2.getId(), photoId1U3.getId());
 			checkCorrectPhotoIDs(user1PhotosA3, photoId1U4.getId());
@@ -305,6 +329,17 @@ public class DatabaseTest {
 			checkCorrectPhotoIDs(user3PhotosA7, photoId3U1.getId());
 			checkCorrectPhotoIDs(user3PhotosA8, photoId3U2.getId());
 			checkCorrectPhotoIDs(user3PhotosA9, photoId3U3.getId());
+			
+			// Check Cover Photo Assertions
+			checkCorrectCoverID(coverPhoto1, albumId1, photoId1U1.getId());
+			checkCorrectCoverID(coverPhoto2, albumId2, photoId1U2.getId());
+			checkCorrectCoverID(coverPhoto3, albumId3, photoId1U4.getId());
+			checkCorrectCoverID(coverPhoto4, albumId4, photoId2U1.getId());
+			checkCorrectCoverID(coverPhoto5, albumId5, photoId2U2.getId());
+			checkCorrectCoverID(coverPhoto6, albumId6, photoId2U3.getId());
+			checkCorrectCoverID(coverPhoto7, albumId7, photoId3U1.getId());
+			checkCorrectCoverID(coverPhoto8, albumId8, photoId3U2.getId());
+			checkCorrectCoverID(coverPhoto9, albumId9, photoId3U3.getId());
 
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -327,6 +362,12 @@ public class DatabaseTest {
 			Assert.assertTrue(correctIds.contains(dto.getId()));
 			correctIds.remove(dto.getId());
 		}
+	}
+	
+	private void checkCorrectCoverID(PhotoDTO cover, long albumId, long coverid) {
+		Assert.assertNotNull(cover);
+		Assert.assertEquals(cover.getAlbumId(), albumId);
+		Assert.assertEquals(cover.getId(), coverid);
 	}
 
 	private Set<Long> createIdSets(long... ids) {

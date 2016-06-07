@@ -414,11 +414,10 @@ public class SQLAlbumDAO implements AlbumDAO {
 		Connection conn = SQLConnector.connect();
 
 		// Create Statement
-		String selectPhotos = "SELECT MIN(Photos.id), Photos.name, Albums.id, Photos.ext FROM Photos"
-				+ " LEFT JOIN Albums ON Photos.albumid = Albums.id"
-				+ " LEFT JOIN AlbumAccess ON AlbumAccess.albumid = Albums.id AND AlbumAccess.visitor = Users.uid"
-				+ " WHERE (AlbumAccess.visitor = ? OR Albums.permission = 'PUBLIC') AND Photos.albumid = ? " + " GROUP BY AlbumId"
-				+ " ORDER BY Photos.name";
+		String selectPhotos = "SELECT Albums.coverid, Photos.name, Albums.id, Photos.ext FROM Albums"
+				+ " LEFT JOIN Photos ON Photos.id = Albums.coverid"
+				+ " LEFT JOIN AlbumAccess ON AlbumAccess.albumid = Albums.id"
+				+ " WHERE (AlbumAccess.visitor = ? OR Albums.permission = 'PUBLIC') AND Photos.albumid = ? ";
 		PreparedStatement stmt = conn.prepareStatement(selectPhotos);
 		stmt.setLong(1, userid);
 		stmt.setLong(2, albumid);

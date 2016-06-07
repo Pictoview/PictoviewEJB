@@ -414,7 +414,7 @@ public class SQLAlbumDAO implements AlbumDAO {
 		Connection conn = SQLConnector.connect();
 
 		// Create Statement
-		String selectPhotos = "SELECT Albums.coverid, Photos.name, Albums.id, Photos.ext FROM Albums"
+		String selectPhotos = "SELECT Albums.coverid, Photos.name, Photos.ext FROM Albums"
 				+ " LEFT JOIN Photos ON Photos.id = Albums.coverid"
 				+ " LEFT JOIN AlbumAccess ON AlbumAccess.albumid = Albums.id"
 				+ " WHERE (AlbumAccess.visitor = ? OR Albums.permission = 'PUBLIC') AND Photos.albumid = ? ";

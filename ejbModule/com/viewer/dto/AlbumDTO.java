@@ -7,6 +7,7 @@ public class AlbumDTO {
 	private String name;
 	private String subtitle;
 	private long parentId;
+	private String description;
 
 	public AlbumDTO(long id, long ownerid, String name) {
 		this.id = id;
@@ -60,5 +61,13 @@ public class AlbumDTO {
 
 	public void setParentId(long parentId) {
 		this.parentId = parentId;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
 	}
 }

@@ -144,17 +144,19 @@ public class SQLAlbumDAO implements AlbumDAO {
 		Connection conn = SQLConnector.connect();
 
 		// Create Statement
-		String sql = "SELECT Albums.id, Albums.owner, Albums.name, Albums.subtitle, Albums.parent FROM AlbumAccess"
+		String sql = "SELECT Albums.id, Albums.owner, Albums.name, Albums.subtitle, Albums.parent, Albums.description FROM AlbumAccess"
 				+ " LEFT JOIN Albums ON Albums.owner = AlbumAccess.owner AND Albums.id = AlbumAccess.albumid"
 				+ " WHERE (AlbumAccess.visitor = ? OR Albums.permission = 'PUBLIC') AND Albums.id = ?";
 		PreparedStatement stmt = conn.prepareStatement(sql);
 		stmt.setLong(1, userid);
+		stmt.setLong(2, albumid);
 
 		// Execute Statement
 		ResultSet rs = stmt.executeQuery();
 		AlbumDTO album = null;
 		if (rs.next()) {
 			album = new AlbumDTO(rs.getLong(1), rs.getLong(2), rs.getString(3), rs.getString(4), rs.getLong(5));
+			album.setDescription(rs.getString(6));
 		}
 		// conn.close();
 		return album;
@@ -485,7 +487,7 @@ public class SQLAlbumDAO implements AlbumDAO {
 
 		// Create Statement
 		String sql = "SELECT AlbumTags.id, AlbumTags.name, TagCategory.name FROM AlbumTags"
-				+ " INNER JOIN TagCategory ON AlbumTags.cateid = Category.id"
+				+ " INNER JOIN TagCategory ON AlbumTags.cateid = TagCategory.id"
 				+ " LEFT JOIN Albums ON Albums.id = AlbumTags.albumid"
 				+ " WHERE Albums.owner = ? AND AlbumTags.albumid = ?";
 		PreparedStatement stmt = conn.prepareStatement(sql);

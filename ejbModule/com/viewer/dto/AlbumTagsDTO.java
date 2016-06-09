@@ -17,13 +17,13 @@ public class AlbumTagsDTO {
 		return albumid;
 	}
 
-	public void insertTag(long id, String tagName, String category) {
+	public void insertTag(long id, String tagName, String category, int relevance) {
 		if (!tags.containsKey(category)) {
 			List<TagsDTO> tagList = new ArrayList<TagsDTO>();
-			tagList.add(new TagsDTO(id,tagName));
+			tagList.add(new TagsDTO(id,tagName, 1));
 			tags.put(category, tagList);
 		} else {
-			tags.get(category).add(new TagsDTO(id, tagName));
+			tags.get(category).add(new TagsDTO(id, tagName, relevance));
 		}
 	}
 

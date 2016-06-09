@@ -253,6 +253,16 @@ public class AlbumBean implements AlbumBeanLocal {
 		}
 		return false;
 	}
+	
+	@Override
+	public boolean tagRelevanceAlbum(long tagId) {
+		try {
+			return albumDAO.tagRelevanceAlbum(tagId);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
 
 	@Override
 	public boolean clearAlbumTag(long userid, long albumid) {

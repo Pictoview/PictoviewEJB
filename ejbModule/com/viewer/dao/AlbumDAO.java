@@ -55,6 +55,8 @@ public interface AlbumDAO {
 	public int createCategory(long userid, String name) throws SQLException;
 
 	public AlbumTagsDTO fetchUserAlbumTags(long userid, long albumid) throws SQLException;
+	
+	public boolean tagRelevanceAlbum(long tagId) throws SQLException;
 
 	// Photo Methods
 	

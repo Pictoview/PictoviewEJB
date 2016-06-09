@@ -454,17 +454,51 @@ public class SQLAlbumDAO implements AlbumDAO {
 		// conn.close();
 		return photo;
 	}
+	
+	@Override
+	public PhotoDTO insertPhoto(long userid, long albumId, String name, String ext) throws SQLException {
+		Connection conn = SQLConnector.connect();
+
+		// Create Statement
+		String sql = "INSERT INTO Photos VALUES (NULL, ?, ?, ?, ?, ?)";
+		PreparedStatement stmt = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
+		stmt.setString(1, name);
+		stmt.setString(2, ext);
+		stmt.setLong(3, albumId);
+		stmt.setLong(4, userid);
+		stmt.setTimestamp(5, new Timestamp(System.currentTimeMillis()));
+
+		// Get Id
+		PhotoDTO photo = null;
+		stmt.executeUpdate();
+		ResultSet rs = stmt.getGeneratedKeys();
+		if (rs.next()) photo = new PhotoDTO(rs.getLong(1), name, ext, albumId, userid);
+		stmt.close();
+		// conn.close();
+		return photo;
+	}
 
 	/** Category & Tag Methods **/
 
 	@Override
 	public boolean tagAlbum(long userid, String name, long albumid, String category) throws SQLException {
 		Connection conn = SQLConnector.connect();
-		String sql = "INSERT INTO AlbumTags VALUES (NULL, ?, (SELECT TagCategory.id FROM TagCategory WHERE TagCategory.name = ?), ?)";
+		String sql = "INSERT INTO AlbumTags VALUES (NULL, ?, ?, (SELECT TagCategory.id FROM TagCategory WHERE TagCategory.name = ?), 1)";
 		PreparedStatement stmt = conn.prepareStatement(sql);
 		stmt.setString(1, name);
-		stmt.setString(2, category);
-		stmt.setLong(3, albumid);
+		stmt.setLong(2, albumid);
+		stmt.setString(3, category);
+		stmt.executeUpdate();
+		// conn.close();
+		return true;
+	}
+	
+	@Override
+	public boolean tagRelevanceAlbum(long tagId) throws SQLException {
+		Connection conn = SQLConnector.connect();
+		String sql = "UPDATE AlbumTags SET relevance = relevance + 1 WHERE id = ?";
+		PreparedStatement stmt = conn.prepareStatement(sql);
+		stmt.setLong(1, tagId);
 		stmt.executeUpdate();
 		// conn.close();
 		return true;
@@ -486,7 +520,7 @@ public class SQLAlbumDAO implements AlbumDAO {
 		Connection conn = SQLConnector.connect();
 
 		// Create Statement
-		String sql = "SELECT AlbumTags.id, AlbumTags.name, TagCategory.name FROM AlbumTags"
+		String sql = "SELECT AlbumTags.id, AlbumTags.name, TagCategory.name, AlbumTags.relevance FROM AlbumTags"
 				+ " INNER JOIN TagCategory ON AlbumTags.cateid = TagCategory.id"
 				+ " LEFT JOIN Albums ON Albums.id = AlbumTags.albumid"
 				+ " WHERE Albums.owner = ? AND AlbumTags.albumid = ?";
@@ -498,7 +532,7 @@ public class SQLAlbumDAO implements AlbumDAO {
 		ResultSet rs = stmt.executeQuery();
 		AlbumTagsDTO tags = new AlbumTagsDTO(albumid);
 		while (rs.next()) {
-			tags.insertTag(rs.getLong(1), rs.getString(2), rs.getString(3));
+			tags.insertTag(rs.getLong(1), rs.getString(2), rs.getString(3), rs.getInt(4));
 		}
 		stmt.close();
 		// conn.close();
@@ -538,28 +572,5 @@ public class SQLAlbumDAO implements AlbumDAO {
 		stmt.close();
 		// conn.close();
 		return categories;
-	}
-
-	@Override
-	public PhotoDTO insertPhoto(long userid, long albumId, String name, String ext) throws SQLException {
-		Connection conn = SQLConnector.connect();
-
-		// Create Statement
-		String sql = "INSERT INTO Photos VALUES (NULL, ?, ?, ?, ?, ?)";
-		PreparedStatement stmt = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
-		stmt.setString(1, name);
-		stmt.setString(2, ext);
-		stmt.setLong(3, albumId);
-		stmt.setLong(4, userid);
-		stmt.setTimestamp(5, new Timestamp(System.currentTimeMillis()));
-
-		// Get Id
-		PhotoDTO photo = null;
-		stmt.executeUpdate();
-		ResultSet rs = stmt.getGeneratedKeys();
-		if (rs.next()) photo = new PhotoDTO(rs.getLong(1), name, ext, albumId, userid);
-		stmt.close();
-		// conn.close();
-		return photo;
 	}
 }

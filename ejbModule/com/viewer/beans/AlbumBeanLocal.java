@@ -270,4 +270,6 @@ public interface AlbumBeanLocal {
 	 * @return Success status of action
 	 */
 	boolean clearAlbumTag(long userid, long albumid);
+
+	public boolean tagRelevanceAlbum(long tagId);
 }

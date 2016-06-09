@@ -194,7 +194,6 @@ public class DatabaseTest {
 			checkCorrectAlbumsIDs(limitedAlbums1, albumId1$1, albumId2$1, albumId2$3);
 
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -345,6 +344,8 @@ public class DatabaseTest {
 			e.printStackTrace();
 		}
 	}
+	
+	/***** UTILS *****/
 
 	private void checkCorrectAlbumsIDs(List<AlbumDTO> albums, long... ids) {
 		Assert.assertEquals(ids.length, albums.size());

@@ -255,6 +255,16 @@ public class AlbumBean implements AlbumBeanLocal {
 	}
 	
 	@Override
+	public boolean tagUserAlbum(long userid, long albumid, List<String> tag, String category) {
+		try {
+			return albumDAO.tagAlbum(userid, tag, albumid, category);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+	
+	@Override
 	public boolean tagRelevanceAlbum(long tagId) {
 		try {
 			return albumDAO.tagRelevanceAlbum(tagId);

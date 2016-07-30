@@ -244,6 +244,8 @@ public interface AlbumBeanLocal {
 	 * @return Success status of action
 	 */
 	boolean tagUserAlbum(long userid, long albumid, String tag, String category);
+	
+	boolean tagUserAlbum(long userid, long albumid, List<String> tag, String category);
 
 	/**
 	 * Creates an category and associates it with the user

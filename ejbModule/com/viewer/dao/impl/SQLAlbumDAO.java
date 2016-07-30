@@ -494,6 +494,35 @@ public class SQLAlbumDAO implements AlbumDAO {
 	}
 	
 	@Override
+	public boolean tagAlbum(long userid, List<String> names, long albumid, String category) throws SQLException {
+		if (names == null || names.isEmpty()) return false;
+		Connection conn = SQLConnector.connect();
+		String categorySQL = "SELECT TagCategory.id FROM TagCategory WHERE TagCategory.name = ?";
+		PreparedStatement categoryStmt = conn.prepareStatement(categorySQL);
+		categoryStmt.setString(1, category);
+		ResultSet categorySet = categoryStmt.executeQuery();
+
+		if (categorySet.next()) {
+			long cateId = categorySet.getLong(1);
+
+			String sql = "INSERT INTO AlbumTags VALUES (NULL, ?, ?, ?, 1)";
+			PreparedStatement stmt = conn.prepareStatement(sql);
+
+			for (String name : names) {
+				stmt.setString(1, name);
+				stmt.setLong(2, albumid);
+				stmt.setLong(3, cateId);
+				stmt.addBatch();
+			}
+			stmt.executeBatch();
+		} else {
+			return false;
+		}
+		// conn.close();
+		return true;
+	}
+	
+	@Override
 	public boolean tagRelevanceAlbum(long tagId) throws SQLException {
 		Connection conn = SQLConnector.connect();
 		String sql = "UPDATE AlbumTags SET relevance = relevance + 1 WHERE id = ?";
@@ -521,9 +550,10 @@ public class SQLAlbumDAO implements AlbumDAO {
 
 		// Create Statement
 		String sql = "SELECT AlbumTags.id, AlbumTags.name, TagCategory.name, AlbumTags.relevance FROM AlbumTags"
-				+ " INNER JOIN TagCategory ON AlbumTags.cateid = TagCategory.id"
+				+ " LEFT JOIN TagCategory ON AlbumTags.cateid = TagCategory.id"
 				+ " LEFT JOIN Albums ON Albums.id = AlbumTags.albumid"
-				+ " WHERE Albums.owner = ? AND AlbumTags.albumid = ?";
+				+ " LEFT JOIN AlbumAccess ON Albums.owner = AlbumAccess.owner AND Albums.id = AlbumAccess.albumid"
+				+ " WHERE (AlbumAccess.visitor = ? OR Albums.permission = 'PUBLIC') AND Albums.id = ?";
 		PreparedStatement stmt = conn.prepareStatement(sql);
 		stmt.setLong(1, userid);
 		stmt.setLong(2, albumid);
@@ -542,7 +572,7 @@ public class SQLAlbumDAO implements AlbumDAO {
 	@Override
 	public int createCategory(long userid, String name) throws SQLException {
 		Connection conn = SQLConnector.connect();
-		String sql = "INSERT OR IGNORE INTO TagCategory VALUES (NULL, ?)";
+		String sql = "INSERT OR IGNORE INTO TagCategory VALUES (NULL, ?, 'PUBLIC')";
 		PreparedStatement stmt = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
 		stmt.setString(1, name);
 		int id = stmt.executeUpdate();

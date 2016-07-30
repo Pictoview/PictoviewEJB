@@ -52,14 +52,16 @@ public interface AlbumDAO {
 
 	public boolean tagAlbum(long userid, String name, long albumid, String category) throws SQLException;
 
+	public boolean tagAlbum(long userid, List<String> name, long albumid, String category) throws SQLException;
+
 	public int createCategory(long userid, String name) throws SQLException;
 
 	public AlbumTagsDTO fetchUserAlbumTags(long userid, long albumid) throws SQLException;
-	
+
 	public boolean tagRelevanceAlbum(long tagId) throws SQLException;
 
 	// Photo Methods
-	
+
 	public PhotoDTO fetchAlbumCoverPhoto(long userid, long albumId) throws SQLException;
 
 	public List<PhotoDTO> fetchUserAlbumPhotos(long userid, long albumid) throws SQLException;

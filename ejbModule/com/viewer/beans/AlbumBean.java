@@ -54,7 +54,7 @@ public class AlbumBean implements AlbumBeanLocal {
 	@Override
 	public List<AlbumDTO> fetchUserSubscriptions(long userid, long parentId) {
 		try {
-			return albumDAO.fetchViewableAlbums(userid, parentId);
+			return albumDAO.fetchAllSubscribedAlbums(userid, parentId);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

@@ -79,7 +79,8 @@ albumid INTEGER,
 cateid INTEGER,
 relevance INTEGER,
 FOREIGN KEY(albumid) REFERENCES Albums(id),
-FOREIGN KEY(cateid) REFERENCES Category(id)
+FOREIGN KEY(cateid) REFERENCES Category(id),
+UNIQUE (albumid, name) ON CONFLICT IGNORE
 );
 
 CREATE TABLE TagCategory (

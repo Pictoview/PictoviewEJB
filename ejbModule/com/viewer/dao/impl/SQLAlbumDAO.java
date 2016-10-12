@@ -483,7 +483,8 @@ public class SQLAlbumDAO implements AlbumDAO {
 		Connection conn = SQLConnector.connect();
 
 		// Create Statement
-		String sql = "INSERT OR REPLACE INTO AlbumRatings SELECT NULL, ?, ?, ? WHERE EXISTS (SELECT 1 FROM AlbumAccess WHERE AlbumAccess.albumid = ? AND (AlbumAccess.visitor = ? OR Albums.permission = 'PUBLIC'))";
+		String sql = "INSERT OR REPLACE INTO AlbumRatings SELECT NULL, ?, ?, ? "
+				+ " WHERE EXISTS (SELECT 1 FROM AlbumAccess WHERE AlbumAccess.albumid = ? AND (AlbumAccess.visitor = ? OR Albums.permission = 'PUBLIC'))";
 		PreparedStatement stmt = conn.prepareStatement(sql);
 		stmt.setInt(1, rating);
 		stmt.setLong(2, albumId);
@@ -504,7 +505,9 @@ public class SQLAlbumDAO implements AlbumDAO {
 		int rating = -1;
 
 		// Create Statement
-		String sql = "SELECT AVG(rating) FROM AlbumRatings WHERE albumid = ? GROUP BY albumid";
+		String sql = "SELECT AVG(rating) FROM AlbumRatings WHERE albumid = ?" + " AND EXISTS ("
+				+ "SELECT 1 FROM AlbumAccess WHERE AlbumAccess.albumid = ? AND (AlbumAccess.visitor = ? OR Albums.permission = 'PUBLIC')" + ")"
+				+ " GROUP BY albumid";
 		PreparedStatement stmt = conn.prepareStatement(sql);
 		stmt.setLong(1, albumId);
 		stmt.setLong(2, userid);

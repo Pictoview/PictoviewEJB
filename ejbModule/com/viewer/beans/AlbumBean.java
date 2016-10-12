@@ -130,6 +130,38 @@ public class AlbumBean implements AlbumBeanLocal {
 		}
 	}
 
+	// Album Ratings
+
+	@Override
+	public int fetchAlbumAverageRating(long userid, long albumId) {
+		try {
+			return albumDAO.fetchAlbumAverageRating(userid, albumId);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return -1;
+	}
+
+	@Override
+	public boolean voteAlbumRating(long userid, long albumId, int rating) {
+		try {
+			return albumDAO.voteAlbumRating(userid, albumId, rating);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+
+	@Override
+	public int fetchAlbumUserRating(long userid, long albumId) {
+		try {
+			return albumDAO.fetchAlbumUserRating(userid, albumId);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return -1;
+	}
+
 	// Album Updates
 
 	@Override
@@ -151,11 +183,11 @@ public class AlbumBean implements AlbumBeanLocal {
 		}
 		return -1;
 	}
-	
+
 	@Override
 	public void setAlbumCoverPhoto(long userid, long albumid, long photoid) {
 		try {
-			albumDAO.setAlbumCoverPhoto(userid, albumid,  photoid);
+			albumDAO.setAlbumCoverPhoto(userid, albumid, photoid);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -211,7 +243,7 @@ public class AlbumBean implements AlbumBeanLocal {
 		}
 		return null;
 	}
-	
+
 	@Override
 	public ImageInputStream fetchAlbumCoverThumbnail(long userid, long albumid, int flags) {
 		try {
@@ -253,7 +285,7 @@ public class AlbumBean implements AlbumBeanLocal {
 		}
 		return false;
 	}
-	
+
 	@Override
 	public boolean tagUserAlbum(long userid, long albumid, List<String> tag, String category) {
 		try {
@@ -263,7 +295,7 @@ public class AlbumBean implements AlbumBeanLocal {
 		}
 		return false;
 	}
-	
+
 	@Override
 	public boolean tagRelevanceAlbum(long tagId) {
 		try {

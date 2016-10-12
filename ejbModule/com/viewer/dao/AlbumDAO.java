@@ -31,11 +31,11 @@ public interface AlbumDAO {
 	public long createAlbum(long userid, String name, String subtitle, String description, String permission) throws SQLException;
 
 	public long createAlbum(long userid, String name, String subtitle, String description, long parentId) throws SQLException;
-	
+
 	public void setAlbumCoverPhoto(long userid, long albumid, long photoid) throws SQLException;
 
 	public boolean deleteAlbum(long userid, long albumId) throws SQLException;
-	
+
 	// Permission Operations
 
 	public boolean subscribeToAlbum(long userid, long albumId) throws SQLException;
@@ -47,6 +47,14 @@ public interface AlbumDAO {
 	public void addPermissionToAlbum(long ownerid, long albumId, List<String> users) throws SQLException;
 
 	public void revokePermissionToAlbum(long ownerid, long albumId, List<String> users) throws SQLException;
+
+	// Ratings
+
+	public int fetchAlbumAverageRating(long userid, long albumId) throws SQLException;
+
+	public boolean voteAlbumRating(long userid, long albumId, int rating) throws SQLException;
+
+	public int fetchAlbumUserRating(long userid, long albumId) throws SQLException;
 
 	// Tags & Categories
 

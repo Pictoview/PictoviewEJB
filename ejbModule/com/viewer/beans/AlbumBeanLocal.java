@@ -1,6 +1,7 @@
 package com.viewer.beans;
 
 import java.io.InputStream;
+import java.sql.SQLException;
 import java.util.List;
 
 import javax.ejb.Local;
@@ -125,6 +126,37 @@ public interface AlbumBeanLocal {
 	 */
 	public void revokePermissionToAlbum(long userid, long albumId, List<String> users);
 
+	// Album Ratings
+
+	/**
+	 * Fetch average rating for this album
+	 * 
+	 * @param userid
+	 * @param albumId
+	 * @return
+	 */
+	public int fetchAlbumAverageRating(long userid, long albumId);
+
+	/**
+	 * Assigns one rating for this album for a given user if they have
+	 * permission to view this file
+	 * 
+	 * @param userid
+	 * @param albumId
+	 * @param rating
+	 * @return
+	 */
+	public boolean voteAlbumRating(long userid, long albumId, int rating);
+
+	/**
+	 * Fetch the user's rating for this album
+	 * 
+	 * @param userid
+	 * @param albumId
+	 * @return
+	 */
+	public int fetchAlbumUserRating(long userid, long albumId);
+
 	// Album Updates
 
 	/**
@@ -244,7 +276,7 @@ public interface AlbumBeanLocal {
 	 * @return Success status of action
 	 */
 	boolean tagUserAlbum(long userid, long albumid, String tag, String category);
-	
+
 	boolean tagUserAlbum(long userid, long albumid, List<String> tag, String category);
 
 	/**

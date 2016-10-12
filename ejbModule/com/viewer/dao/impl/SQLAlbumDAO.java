@@ -26,8 +26,7 @@ public class SQLAlbumDAO implements AlbumDAO {
 
 		// Create Statement
 		String sql = "SELECT Albums.id, Albums.owner, Albums.name, Albums.subtitle FROM Albums"
-				+ " WHERE Albums.permission = 'PUBLIC' AND Albums.parent = 0 GROUP BY Albums.id LIMIT " + limit + " OFFSET "
-				+ offset;
+				+ " WHERE Albums.permission = 'PUBLIC' AND Albums.parent = 0 GROUP BY Albums.id LIMIT " + limit + " OFFSET " + offset;
 		PreparedStatement stmt = conn.prepareStatement(sql);
 
 		// Execute Statement
@@ -75,8 +74,7 @@ public class SQLAlbumDAO implements AlbumDAO {
 		String selectSubscribed = "SELECT Albums.id, Albums.owner, Albums.name, Albums.subtitle FROM AlbumAccess"
 				+ " LEFT JOIN Albums ON Albums.owner = AlbumAccess.owner AND Albums.id = AlbumAccess.albumid"
 				+ " LEFT JOIN UserSubscriptions ON AlbumAccess.visitor = UserSubscriptions.uid AND Albums.id = UserSubscriptions.albumid"
-				+ " WHERE (AlbumAccess.visitor = ? OR Albums.permission = 'PUBLIC') AND Albums.parent = ?"
-				+ " AND UserSubscriptions.uid = ?";
+				+ " WHERE (AlbumAccess.visitor = ? OR Albums.permission = 'PUBLIC') AND Albums.parent = ?" + " AND UserSubscriptions.uid = ?";
 		PreparedStatement stmt = conn.prepareStatement(selectSubscribed);
 		stmt.setLong(1, userid);
 		stmt.setLong(2, parentId);
@@ -192,8 +190,7 @@ public class SQLAlbumDAO implements AlbumDAO {
 		Connection conn = SQLConnector.connect();
 
 		// Create Statement
-		String sql = "DELETE FROM UserSubscriptions WHERE UserSubscriptions.albumid IN ("
-				+ "SELECT UserSubscriptions.albumid FROM UserSubscriptions"
+		String sql = "DELETE FROM UserSubscriptions WHERE UserSubscriptions.albumid IN (" + "SELECT UserSubscriptions.albumid FROM UserSubscriptions"
 				+ " WHERE UserSubscriptions.uid = ? AND UserSubscriptions.albumid = ?" + ")";
 		PreparedStatement stmt = conn.prepareStatement(sql);
 		stmt.setLong(1, userid);
@@ -283,8 +280,7 @@ public class SQLAlbumDAO implements AlbumDAO {
 	/** Create Albums **/
 
 	@Override
-	public long createAlbum(long userid, String name, String subtitle, String description, String permission)
-			throws SQLException {
+	public long createAlbum(long userid, String name, String subtitle, String description, String permission) throws SQLException {
 		Connection conn = SQLConnector.connect();
 
 		String sql = "INSERT INTO Albums VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?)";
@@ -400,8 +396,7 @@ public class SQLAlbumDAO implements AlbumDAO {
 		Connection conn = SQLConnector.connect();
 
 		// Create Statement
-		String selectPhotos = "SELECT Photos.id, Photos.name, Albums.id FROM Photos"
-				+ " LEFT JOIN Albums ON Photos.albumid = Albums.id"
+		String selectPhotos = "SELECT Photos.id, Photos.name, Albums.id FROM Photos" + " LEFT JOIN Albums ON Photos.albumid = Albums.id"
 				+ " LEFT JOIN AlbumAccess ON AlbumAccess.albumid = Albums.id AND AlbumAccess.owner = Albums.owner"
 				+ " WHERE (AlbumAccess.visitor = ? OR Albums.permission = 'PUBLIC') AND Photos.albumid = ? ORDER BY Photos.name";
 		PreparedStatement stmt = conn.prepareStatement(selectPhotos);
@@ -421,8 +416,7 @@ public class SQLAlbumDAO implements AlbumDAO {
 		Connection conn = SQLConnector.connect();
 
 		// Create Statement
-		String selectPhotos = "SELECT Albums.coverid, Photos.name, Photos.ext FROM Albums"
-				+ " LEFT JOIN Photos ON Photos.id = Albums.coverid"
+		String selectPhotos = "SELECT Albums.coverid, Photos.name, Photos.ext FROM Albums" + " LEFT JOIN Photos ON Photos.id = Albums.coverid"
 				+ " LEFT JOIN AlbumAccess ON AlbumAccess.albumid = Albums.id"
 				+ " WHERE (AlbumAccess.visitor = ? OR Albums.permission = 'PUBLIC') AND Photos.albumid = ? ";
 		PreparedStatement stmt = conn.prepareStatement(selectPhotos);
@@ -444,8 +438,7 @@ public class SQLAlbumDAO implements AlbumDAO {
 		Connection conn = SQLConnector.connect();
 
 		// Create Statement
-		String selectPhotos = "SELECT Photos.id, Photos.name, Photos.ext, Photos.albumid FROM Photos"
-				+ " WHERE Photos.owner = ? AND Photos.id = ?";
+		String selectPhotos = "SELECT Photos.id, Photos.name, Photos.ext, Photos.albumid FROM Photos" + " WHERE Photos.owner = ? AND Photos.id = ?";
 		PreparedStatement stmt = conn.prepareStatement(selectPhotos);
 		stmt.setLong(1, userid);
 		stmt.setLong(2, photoid);
@@ -459,7 +452,7 @@ public class SQLAlbumDAO implements AlbumDAO {
 		// conn.close();
 		return photo;
 	}
-	
+
 	@Override
 	public PhotoDTO insertPhoto(long userid, long albumId, String name, String ext) throws SQLException {
 		Connection conn = SQLConnector.connect();
@@ -486,6 +479,62 @@ public class SQLAlbumDAO implements AlbumDAO {
 	/** Category & Tag Methods **/
 
 	@Override
+	public boolean voteAlbumRating(long userid, long albumId, int rating) throws SQLException {
+		Connection conn = SQLConnector.connect();
+
+		// Create Statement
+		String sql = "INSERT OR REPLACE INTO AlbumRatings SELECT NULL, ?, ?, ? WHERE EXISTS (SELECT 1 FROM AlbumAccess WHERE AlbumAccess.albumid = ? AND (AlbumAccess.visitor = ? OR Albums.permission = 'PUBLIC'))";
+		PreparedStatement stmt = conn.prepareStatement(sql);
+		stmt.setInt(1, rating);
+		stmt.setLong(2, albumId);
+		stmt.setLong(3, userid);
+
+		stmt.setLong(4, albumId);
+		stmt.setLong(5, userid);
+
+		int row = stmt.executeUpdate();
+		stmt.close();
+		// conn.close();
+		return row > 0;
+	}
+
+	@Override
+	public int fetchAlbumAverageRating(long userid, long albumId) throws SQLException {
+		Connection conn = SQLConnector.connect();
+		int rating = -1;
+
+		// Create Statement
+		String sql = "SELECT AVG(rating) FROM AlbumRatings WHERE albumid = ? GROUP BY albumid";
+		PreparedStatement stmt = conn.prepareStatement(sql);
+		stmt.setLong(1, albumId);
+		stmt.setLong(2, userid);
+
+		ResultSet rs = stmt.executeQuery();
+		if (rs.next()) rating = rs.getInt(1);
+		stmt.close();
+		// conn.close();
+		return rating;
+	}
+
+	@Override
+	public int fetchAlbumUserRating(long userid, long albumId) throws SQLException {
+		Connection conn = SQLConnector.connect();
+		int rating = -1;
+
+		// Create Statement
+		String sql = "SELECT rating FROM AlbumRatings WHERE albumid = ? AND userid = ?";
+		PreparedStatement stmt = conn.prepareStatement(sql);
+		stmt.setLong(1, albumId);
+		stmt.setLong(2, userid);
+
+		ResultSet rs = stmt.executeQuery();
+		if (rs.next()) rating = rs.getInt(1);
+		stmt.close();
+		// conn.close();
+		return rating;
+	}
+
+	@Override
 	public boolean tagAlbum(long userid, String name, long albumid, String category) throws SQLException {
 		Connection conn = SQLConnector.connect();
 		String sql = "INSERT INTO AlbumTags VALUES (NULL, ?, ?, (SELECT TagCategory.id FROM TagCategory WHERE TagCategory.name = ?), 1)";
@@ -497,7 +546,7 @@ public class SQLAlbumDAO implements AlbumDAO {
 		// conn.close();
 		return true;
 	}
-	
+
 	@Override
 	public boolean tagAlbum(long userid, List<String> names, long albumid, String category) throws SQLException {
 		if (names == null || names.isEmpty()) return false;
@@ -526,7 +575,7 @@ public class SQLAlbumDAO implements AlbumDAO {
 		// conn.close();
 		return true;
 	}
-	
+
 	@Override
 	public boolean tagRelevanceAlbum(long tagId) throws SQLException {
 		Connection conn = SQLConnector.connect();
@@ -555,8 +604,7 @@ public class SQLAlbumDAO implements AlbumDAO {
 
 		// Create Statement
 		String sql = "SELECT AlbumTags.id, AlbumTags.name, TagCategory.name, AlbumTags.relevance FROM AlbumTags"
-				+ " LEFT JOIN TagCategory ON AlbumTags.cateid = TagCategory.id"
-				+ " LEFT JOIN Albums ON Albums.id = AlbumTags.albumid"
+				+ " LEFT JOIN TagCategory ON AlbumTags.cateid = TagCategory.id" + " LEFT JOIN Albums ON Albums.id = AlbumTags.albumid"
 				+ " LEFT JOIN AlbumAccess ON Albums.owner = AlbumAccess.owner AND Albums.id = AlbumAccess.albumid"
 				+ " WHERE (AlbumAccess.visitor = ? OR Albums.permission = 'PUBLIC') AND Albums.id = ?";
 		PreparedStatement stmt = conn.prepareStatement(sql);

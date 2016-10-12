@@ -2,6 +2,7 @@ DROP TABLE Users;
 DROP TABLE Albums;
 DROP TABLE Photos;
 DROP TABLE UserInfo;
+DROP TABLE AlbumRatings;
 DROP TABLE AlbumAccess;
 DROP TABLE AlbumTags;
 DROP TABLE TagCategory;
@@ -81,6 +82,15 @@ relevance INTEGER,
 FOREIGN KEY(albumid) REFERENCES Albums(id),
 FOREIGN KEY(cateid) REFERENCES Category(id),
 UNIQUE (albumid, name) ON CONFLICT IGNORE
+);
+
+CREATE TABLE AlbumRatings (
+id INTEGER PRIMARY KEY,
+rating INTEGER,
+albumid INTEGER,
+userid INTEGER,
+FOREIGN KEY(albumid) REFERENCES Albums(id),
+FOREIGN KEY(userid) REFERENCES Users(uid)
 );
 
 CREATE TABLE TagCategory (

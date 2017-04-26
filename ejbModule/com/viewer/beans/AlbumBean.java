@@ -62,16 +62,6 @@ public class AlbumBean implements AlbumBeanLocal {
 	}
 
 	@Override
-	public AlbumDTO fetchUserAlbumInfo(long userid, long albumid) {
-		try {
-			return albumDAO.fetchUserAlbumInfo(userid, albumid);
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
-
-	@Override
 	public long albumExist(long userid, String name, long parentId) {
 		try {
 			return albumDAO.albumExist(userid, name, parentId);
@@ -257,7 +247,27 @@ public class AlbumBean implements AlbumBeanLocal {
 	}
 
 	@Override
-	public List<AlbumDTO> fetchSearchedUserAlbums(long userid, SearchQueryDTO searchQuery) {
+	public List<AlbumDTO> fetchSearchUserSubscribedAlbums(long userid, SearchQueryDTO searchQuery) {
+		try {
+			return albumDAO.fetchSearchUserSubscribedAlbums(userid, searchQuery);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	@Override
+	public List<AlbumDTO> fetchSearchUserViewableAlbums(long userid, SearchQueryDTO searchQuery) {
+		try {
+			return albumDAO.fetchSearchUserViewableAlbums(userid, searchQuery);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	@Override
+	public List<AlbumDTO> fetchSearchUserAlbums(long userid, SearchQueryDTO searchQuery) {
 		try {
 			return albumDAO.fetchSearchUserAlbums(userid, searchQuery);
 		} catch (SQLException e) {

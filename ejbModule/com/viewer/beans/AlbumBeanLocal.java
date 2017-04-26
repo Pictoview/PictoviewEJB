@@ -1,7 +1,6 @@
 package com.viewer.beans;
 
 import java.io.InputStream;
-import java.sql.SQLException;
 import java.util.List;
 
 import javax.ejb.Local;
@@ -58,16 +57,18 @@ public interface AlbumBeanLocal {
 	 *            includes the name and list of category tag associations.
 	 * @return List of DTO encapsulating information regarding album
 	 */
-	public List<AlbumDTO> fetchSearchedUserAlbums(long userid, SearchQueryDTO searchQuery);
-
+	public List<AlbumDTO> fetchSearchUserSubscribedAlbums(long userid, SearchQueryDTO searchQuery);
+	
 	/**
-	 * Fetches a single Album associated with user
-	 * 
+	 * Fetches all albums matching search criteria for user
 	 * @param userid
-	 * @param albumid
-	 * @return List of DTO encapsulating information regarding album
+	 * @param parentId
+	 * @param searchQuery
+	 * @return
 	 */
-	public AlbumDTO fetchUserAlbumInfo(long userid, long albumid);
+	public List<AlbumDTO> fetchSearchUserAlbums(long userid, SearchQueryDTO searchQuery);
+	
+	public List<AlbumDTO> fetchSearchUserViewableAlbums(long userid, SearchQueryDTO searchQuery);
 
 	/**
 	 * Check if album with name exists within parent album

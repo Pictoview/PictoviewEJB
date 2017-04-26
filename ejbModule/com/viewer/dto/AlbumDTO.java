@@ -16,13 +16,14 @@ public class AlbumDTO {
 		this.ownerid = ownerid;
 		this.name = name;
 	}
-
-	public AlbumDTO(long id, long ownerid, String name, String subtitle, long parentId, boolean isSubscribed) {
+	
+	public AlbumDTO(long id, long ownerid, String name, String subtitle, long parentId, String description, boolean isSubscribed) {
 		this.id = id;
 		this.ownerid = ownerid;
 		this.name = name;
 		this.subtitle = subtitle;
 		this.parentId = parentId;
+		this.description = description;
 		this.isSubscribed = isSubscribed;
 	}
 

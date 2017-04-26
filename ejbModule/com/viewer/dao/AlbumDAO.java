@@ -20,9 +20,11 @@ public interface AlbumDAO {
 
 	public List<AlbumDTO> fetchAllSubscribedAlbums(long userid, long parentId) throws SQLException;
 
-	public List<AlbumDTO> fetchSearchUserAlbums(long userid, SearchQueryDTO searchQuery) throws SQLException;
+	public List<AlbumDTO> fetchSearchUserViewableAlbums(long userid, SearchQueryDTO searchQuery) throws SQLException;
 
-	public AlbumDTO fetchUserAlbumInfo(long userid, long albumid) throws SQLException;
+	public List<AlbumDTO> fetchSearchUserSubscribedAlbums(long userid, SearchQueryDTO searchQuery) throws SQLException;
+
+	public List<AlbumDTO> fetchSearchUserAlbums(long userid, SearchQueryDTO searchQuery) throws SQLException;
 
 	// Update Methods
 
@@ -81,4 +83,5 @@ public interface AlbumDAO {
 	public PhotoDTO insertPhoto(long userid, long albumId, String name, String ext) throws SQLException;
 
 	public boolean clearAlbumTag(long albumid) throws SQLException;
+
 }

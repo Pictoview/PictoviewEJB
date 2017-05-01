@@ -28,7 +28,15 @@ public interface AlbumBeanLocal {
 	 * @return
 	 */
 	public List<AlbumDTO> fetchAllPublicAlbums(int limit, int offset);
-
+	
+	/**
+	 * Fetches all Albums belonging to the user
+	 * @param userid
+	 * @param parentId
+	 * @return
+	 */
+	public List<AlbumDTO> fetchUserAlbums(long userid, long parentId);
+	
 	/**
 	 * Fetches all Albums viewable by the user
 	 * 

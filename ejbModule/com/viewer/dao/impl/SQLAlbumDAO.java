@@ -69,6 +69,30 @@ public class SQLAlbumDAO implements AlbumDAO {
 		// conn.close();
 		return dto;
 	}
+	
+	@Override
+	public List<AlbumDTO> fetchUserAlbums(long userid, long parentId) throws SQLException {
+		List<AlbumDTO> dto = new ArrayList<AlbumDTO>();
+		Connection conn = SQLConnector.connect();
+
+		// Create Statement
+		String selectViewable = "SELECT " + ALBUM_BASIC_USER_PROJECTION + " FROM Albums"
+				+ " LEFT JOIN UserSubscriptions ON Albums.owner = UserSubscriptions.uid AND Albums.id = UserSubscriptions.albumid"
+				+ " WHERE Albums.owner = ? AND Albums.parent = ?";
+		PreparedStatement stmt = conn.prepareStatement(selectViewable);
+		stmt.setLong(1, userid);
+		stmt.setLong(2, parentId);
+
+		// Execute Statement
+		ResultSet rs = stmt.executeQuery();
+		while (rs.next()) {
+			AlbumDTO album = new AlbumDTO(rs.getLong(1), rs.getLong(2), rs.getString(3), rs.getString(4), 0, rs.getString(5),
+					rs.getString(6) != null);
+			dto.add(album);
+		}
+		// conn.close();
+		return dto;
+	}
 
 	@Override
 	public List<AlbumDTO> fetchAllSubscribedAlbums(long userid, long parentId) throws SQLException {
@@ -114,6 +138,8 @@ public class SQLAlbumDAO implements AlbumDAO {
 			}
 			sql += ")";
 		}
+		sql += " GROUP BY Albums.id";
+		System.out.println(sql);
 		PreparedStatement stmt = conn.prepareStatement(sql);
 
 		// Set Statement
@@ -146,28 +172,33 @@ public class SQLAlbumDAO implements AlbumDAO {
 
 	@Override
 	public List<AlbumDTO> fetchSearchUserViewableAlbums(long userid, SearchQueryDTO searchQuery) throws SQLException {
-		String selectViewable = "SELECT " + ALBUM_BASIC_USER_PROJECTION + ", Albums.parentId FROM AlbumAccess"
+		String selectViewable = "SELECT " + ALBUM_BASIC_USER_PROJECTION + ", Albums.parent FROM AlbumAccess"
 				+ " LEFT JOIN Albums ON Albums.owner = AlbumAccess.owner AND Albums.id = AlbumAccess.albumid"
 				+ " LEFT JOIN UserSubscriptions ON AlbumAccess.visitor = UserSubscriptions.uid AND Albums.id = UserSubscriptions.albumid"
-				+ " WHERE (AlbumAccess.visitor = ? AND AlbumAccess.visitor = ? OR Albums.permission = 'PUBLIC')";
+				+ " LEFT JOIN AlbumTags ON AlbumTags.albumid = Albums.id"
+				+ " LEFT JOIN TagCategory ON AlbumTags.cateid = TagCategory.id"
+				+ " WHERE (AlbumAccess.visitor = ? OR AlbumAccess.owner = ? OR Albums.permission = 'PUBLIC')";
 		return fetchSearchAlbums(userid, searchQuery, selectViewable);
 	}
 
 	@Override
 	public List<AlbumDTO> fetchSearchUserAlbums(long userid, SearchQueryDTO searchQuery) throws SQLException {
-		String sql = "SELECT " + ALBUM_BASIC_USER_PROJECTION + ", Albums.parentId FROM AlbumAccess"
-				+ " LEFT JOIN Albums ON Albums.owner = AlbumAccess.owner AND AlbumAccess.owner <> ? AND Albums.id = AlbumAccess.albumid"
-				+ " LEFT JOIN UserSubscriptions ON AlbumAccess.visitor = UserSubscriptions.uid AND Albums.id = UserSubscriptions.albumid"
-				+ " WHERE (AlbumAccess.visitor = ? OR Albums.permission = 'PUBLIC')";
+		String sql = "SELECT " + ALBUM_BASIC_USER_PROJECTION + ", Albums.parent FROM Albums"
+				+ " LEFT JOIN UserSubscriptions ON Albums.owner = UserSubscriptions.uid AND Albums.id = UserSubscriptions.albumid"
+				+ " LEFT JOIN AlbumTags ON AlbumTags.albumid = Albums.id"
+				+ " LEFT JOIN TagCategory ON AlbumTags.cateid = TagCategory.id"
+				+ " WHERE (Albums.owner = ? AND Albums.owner = ? OR Albums.permission = 'PUBLIC')";
 		return fetchSearchAlbums(userid, searchQuery, sql);
 	}
 
 	@Override
 	public List<AlbumDTO> fetchSearchUserSubscribedAlbums(long userid, SearchQueryDTO searchQuery) throws SQLException {
-		String sql = "SELECT " + ALBUM_BASIC_USER_PROJECTION + ", Albums.parentId FROM AlbumAccess"
+		String sql = "SELECT " + ALBUM_BASIC_USER_PROJECTION + ", Albums.parent FROM AlbumAccess"
 				+ " LEFT JOIN Albums ON Albums.owner = AlbumAccess.owner AND Albums.id = AlbumAccess.albumid"
 				+ " LEFT JOIN UserSubscriptions ON AlbumAccess.visitor = UserSubscriptions.uid AND Albums.id = UserSubscriptions.albumid"
-				+ " AND UserSubscriptions.uid = ?" + " WHERE (AlbumAccess.visitor = ? OR Albums.permission = 'PUBLIC')";
+				+ " LEFT JOIN AlbumTags ON AlbumTags.albumid = Albums.id"
+				+ " LEFT JOIN TagCategory ON AlbumTags.cateid = TagCategory.id"
+				+ " WHERE (AlbumAccess.visitor = ? AND AlbumAccess.owner = ? OR Albums.permission = 'PUBLIC')";
 		return fetchSearchAlbums(userid, searchQuery, sql);
 	}
 
@@ -335,6 +366,7 @@ public class SQLAlbumDAO implements AlbumDAO {
 
 		// Add Permission
 		addOwnerPermissionToAlbum(userid, albumid, conn);
+		tagAlbum(userid, new ArrayList<String>(), albumid, "tags");
 
 		// conn.close();
 		return albumid;
@@ -570,7 +602,7 @@ public class SQLAlbumDAO implements AlbumDAO {
 		categoryStmt.setString(1, category);
 		ResultSet categorySet = categoryStmt.executeQuery();
 
-		if (categorySet.next()) {
+		if (categorySet.next() && !names.isEmpty()) {
 			long cateId = categorySet.getLong(1);
 
 			String sql = "INSERT INTO AlbumTags VALUES (NULL, ?, ?, ?, 1)";

@@ -16,6 +16,8 @@ public interface AlbumDAO {
 
 	public List<AlbumDTO> fetchAllPublicAlbums(int limit, int offset) throws SQLException;
 
+	public List<AlbumDTO> fetchUserAlbums(long userid, long parentId) throws SQLException;
+
 	public List<AlbumDTO> fetchViewableAlbums(long userid, long parentId) throws SQLException;
 
 	public List<AlbumDTO> fetchAllSubscribedAlbums(long userid, long parentId) throws SQLException;
@@ -30,7 +32,8 @@ public interface AlbumDAO {
 
 	public long albumExist(long userid, String name, long parentId) throws SQLException;
 
-	public long createAlbum(long userid, String name, String subtitle, String description, String permission) throws SQLException;
+	public long createAlbum(long userid, String name, String subtitle, String description, String permission)
+			throws SQLException;
 
 	public long createAlbum(long userid, String name, String subtitle, String description, long parentId) throws SQLException;
 

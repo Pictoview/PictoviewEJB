@@ -35,7 +35,7 @@ public interface AlbumBeanLocal {
 	 * @param parentId
 	 * @return
 	 */
-	public List<AlbumDTO> fetchUserAlbums(long userid, long parentId);
+	public List<AlbumDTO> fetchUserAlbums(long userid, long parentId, int ordering, int limit, int offset);
 	
 	/**
 	 * Fetches all Albums viewable by the user
@@ -44,7 +44,7 @@ public interface AlbumBeanLocal {
 	 * @param parentId
 	 * @return List of DTO encapsulating information regarding album
 	 */
-	public List<AlbumDTO> fetchViewableAlbums(long userid, long parentId);
+	public List<AlbumDTO> fetchViewableAlbums(long userid, long parentId, int ordering, int limit, int offset);
 
 	/**
 	 * Fetches all viewable albums subscribed by the user
@@ -53,7 +53,7 @@ public interface AlbumBeanLocal {
 	 * @param parentId
 	 * @return List of DTO encapsulating information regarding album
 	 */
-	public List<AlbumDTO> fetchUserSubscriptions(long userid, long parentId);
+	public List<AlbumDTO> fetchUserSubscriptions(long userid, long parentId, int ordering, int limit, int offset);
 
 	/**
 	 * Fetches all albums matching search criteria (Regardless of file hierarchy

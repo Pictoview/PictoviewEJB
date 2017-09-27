@@ -8,6 +8,8 @@ public class SearchQueryDTO {
 
 	private List<String> names;
 	private HashMap<String, List<String>> tags;
+	private int limit;
+	private int offset;
 
 	public SearchQueryDTO() {
 		this.names = new ArrayList<String>();
@@ -26,7 +28,7 @@ public class SearchQueryDTO {
 		}
 		tagList.add(value);
 	}
-	
+
 	public void insertTag(String category, List<String> value) {
 		List<String> tagList = tags.get(category);
 		if (tagList == null) {
@@ -39,7 +41,7 @@ public class SearchQueryDTO {
 	public List<String> getTagList(String category) {
 		return tags.get(category);
 	}
-	
+
 	public List<CategoryDTO> getAllTags() {
 		List<CategoryDTO> allCategories = new ArrayList<CategoryDTO>();
 		for (String c : tags.keySet()) {
@@ -56,4 +58,21 @@ public class SearchQueryDTO {
 	public void setNames(List<String> names) {
 		this.names = names;
 	}
+
+	public int getLimit() {
+		return limit;
+	}
+
+	public void setLimit(int limit) {
+		this.limit = limit;
+	}
+
+	public int getOffset() {
+		return offset;
+	}
+
+	public void setOffset(int offset) {
+		this.offset = offset;
+	}
+
 }

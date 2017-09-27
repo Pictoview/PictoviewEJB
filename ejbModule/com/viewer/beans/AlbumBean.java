@@ -42,9 +42,9 @@ public class AlbumBean implements AlbumBeanLocal {
 	}
 
 	@Override
-	public List<AlbumDTO> fetchViewableAlbums(long userid, long parentId) {
+	public List<AlbumDTO> fetchViewableAlbums(long userid, long parentId, int ordering, int limit, int offset) {
 		try {
-			return albumDAO.fetchViewableAlbums(userid, parentId);
+			return albumDAO.fetchViewableAlbums(userid, parentId, ordering, limit, offset);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -52,9 +52,9 @@ public class AlbumBean implements AlbumBeanLocal {
 	}
 	
 	@Override
-	public List<AlbumDTO> fetchUserAlbums(long userid, long parentId) {
+	public List<AlbumDTO> fetchUserAlbums(long userid, long parentId, int ordering, int limit, int offset) {
 		try {
-			return albumDAO.fetchUserAlbums(userid, parentId);
+			return albumDAO.fetchUserAlbums(userid, parentId, ordering, limit, offset);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -62,9 +62,9 @@ public class AlbumBean implements AlbumBeanLocal {
 	}
 
 	@Override
-	public List<AlbumDTO> fetchUserSubscriptions(long userid, long parentId) {
+	public List<AlbumDTO> fetchUserSubscriptions(long userid, long parentId, int ordering, int limit, int offset) {
 		try {
-			return albumDAO.fetchAllSubscribedAlbums(userid, parentId);
+			return albumDAO.fetchAllSubscribedAlbums(userid, parentId, ordering, limit, offset);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

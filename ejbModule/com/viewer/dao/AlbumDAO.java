@@ -16,11 +16,11 @@ public interface AlbumDAO {
 
 	public List<AlbumDTO> fetchAllPublicAlbums(int limit, int offset) throws SQLException;
 
-	public List<AlbumDTO> fetchUserAlbums(long userid, long parentId) throws SQLException;
+	public List<AlbumDTO> fetchUserAlbums(long userid, long parentId, int ordering, int limit, int offset) throws SQLException;
 
-	public List<AlbumDTO> fetchViewableAlbums(long userid, long parentId) throws SQLException;
+	public List<AlbumDTO> fetchViewableAlbums(long userid, long parentId, int ordering, int limit, int offset) throws SQLException;
 
-	public List<AlbumDTO> fetchAllSubscribedAlbums(long userid, long parentId) throws SQLException;
+	public List<AlbumDTO> fetchAllSubscribedAlbums(long userid, long parentId, int ordering, int limit, int offset) throws SQLException;
 
 	public List<AlbumDTO> fetchSearchUserViewableAlbums(long userid, SearchQueryDTO searchQuery) throws SQLException;
 

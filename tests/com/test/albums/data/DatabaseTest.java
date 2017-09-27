@@ -113,14 +113,14 @@ public class DatabaseTest {
 			List<AlbumDTO> publicAlbums = albumDAO.fetchAllPublicAlbums(25, 0);
 
 			// Fetch viewable albums
-			List<AlbumDTO> limitedAlbums1 = albumDAO.fetchViewableAlbums(userIds.get(mockUser1), 0);
-			List<AlbumDTO> limitedAlbums2 = albumDAO.fetchViewableAlbums(userIds.get(mockUser1), albumId1$1);
+			List<AlbumDTO> limitedAlbums1 = albumDAO.fetchViewableAlbums(userIds.get(mockUser1), 0, 0, 50, 0);
+			List<AlbumDTO> limitedAlbums2 = albumDAO.fetchViewableAlbums(userIds.get(mockUser1), albumId1$1, 0, 50, 0);
 
-			List<AlbumDTO> limitedAlbums3 = albumDAO.fetchViewableAlbums(userIds.get(mockUser2), 0);
+			List<AlbumDTO> limitedAlbums3 = albumDAO.fetchViewableAlbums(userIds.get(mockUser2), 0, 0, 50, 0);
 
-			List<AlbumDTO> limitedAlbums4 = albumDAO.fetchViewableAlbums(userIds.get(mockUser3), 0);
-			List<AlbumDTO> limitedAlbums5 = albumDAO.fetchViewableAlbums(userIds.get(mockUser3), albumId3$1);
-			List<AlbumDTO> limitedAlbums6 = albumDAO.fetchViewableAlbums(userIds.get(mockUser3), albumId3$2);
+			List<AlbumDTO> limitedAlbums4 = albumDAO.fetchViewableAlbums(userIds.get(mockUser3), 0, 0, 50, 0);
+			List<AlbumDTO> limitedAlbums5 = albumDAO.fetchViewableAlbums(userIds.get(mockUser3), albumId3$1, 0, 50, 0);
+			List<AlbumDTO> limitedAlbums6 = albumDAO.fetchViewableAlbums(userIds.get(mockUser3), albumId3$2, 0, 50, 0);
 
 			// Delete All Albums
 			albumDAO.deleteAlbum(userIds.get(mockUser1), albumId1$1);
@@ -174,7 +174,7 @@ public class DatabaseTest {
 			albumDAO.subscribeToAlbum(userIds.get(mockUser1), albumId2$2);
 
 			// Fetch subscribed albums
-			List<AlbumDTO> limitedAlbums1 = albumDAO.fetchAllSubscribedAlbums(userIds.get(mockUser1), 0);
+			List<AlbumDTO> limitedAlbums1 = albumDAO.fetchAllSubscribedAlbums(userIds.get(mockUser1), 0, 0, 50, 0);
 
 			// Delete Subscriptions
 			albumDAO.unsubscribeToAlbum(userIds.get(mockUser1), albumId2$1);

@@ -21,6 +21,14 @@ public class SQLAlbumDAO implements AlbumDAO {
 	private static final String ALBUM_BASIC_USER_PROJECTION = "Albums.id, Albums.owner, Albums.name, Albums.subtitle, Albums.description, UserSubscriptions.id";
 
 	/** Album Fetch Methods **/
+	
+	private String fetchOrdering(int ordering) {
+		switch (ordering) {
+		case 1 : return "name";
+		default : return "lastModifiedDate";
+		}
+	}
+	
 	@Override
 	public List<AlbumDTO> fetchAllPublicAlbums(int limit, int offset) throws SQLException {
 		List<AlbumDTO> dto = new ArrayList<AlbumDTO>();
@@ -46,7 +54,7 @@ public class SQLAlbumDAO implements AlbumDAO {
 	}
 
 	@Override
-	public List<AlbumDTO> fetchViewableAlbums(long userid, long parentId) throws SQLException {
+	public List<AlbumDTO> fetchViewableAlbums(long userid, long parentId, int ordering, int limit, int offset) throws SQLException {
 		List<AlbumDTO> dto = new ArrayList<AlbumDTO>();
 		Connection conn = SQLConnector.connect();
 
@@ -54,10 +62,14 @@ public class SQLAlbumDAO implements AlbumDAO {
 		String selectViewable = "SELECT " + ALBUM_BASIC_USER_PROJECTION + " FROM AlbumAccess"
 				+ " LEFT JOIN Albums ON Albums.owner = AlbumAccess.owner AND Albums.id = AlbumAccess.albumid"
 				+ " LEFT JOIN UserSubscriptions ON AlbumAccess.visitor = UserSubscriptions.uid AND Albums.id = UserSubscriptions.albumid"
-				+ " WHERE (AlbumAccess.visitor = ? OR Albums.permission = 'PUBLIC') AND Albums.parent = ?";
+				+ " WHERE (AlbumAccess.visitor = ? OR Albums.permission = 'PUBLIC') AND Albums.parent = ?"
+				+ " ORDER BY Albums."+ fetchOrdering(ordering) +" DESC"
+				+ " LIMIT ? OFFSET ?";
 		PreparedStatement stmt = conn.prepareStatement(selectViewable);
 		stmt.setLong(1, userid);
 		stmt.setLong(2, parentId);
+		stmt.setLong(3, limit);
+		stmt.setLong(4, offset);
 
 		// Execute Statement
 		ResultSet rs = stmt.executeQuery();
@@ -71,17 +83,21 @@ public class SQLAlbumDAO implements AlbumDAO {
 	}
 	
 	@Override
-	public List<AlbumDTO> fetchUserAlbums(long userid, long parentId) throws SQLException {
+	public List<AlbumDTO> fetchUserAlbums(long userid, long parentId, int ordering, int limit, int offset) throws SQLException {
 		List<AlbumDTO> dto = new ArrayList<AlbumDTO>();
 		Connection conn = SQLConnector.connect();
 
 		// Create Statement
 		String selectViewable = "SELECT " + ALBUM_BASIC_USER_PROJECTION + " FROM Albums"
 				+ " LEFT JOIN UserSubscriptions ON Albums.owner = UserSubscriptions.uid AND Albums.id = UserSubscriptions.albumid"
-				+ " WHERE Albums.owner = ? AND Albums.parent = ?";
+				+ " WHERE Albums.owner = ? AND Albums.parent = ?"
+				+ " ORDER BY Albums." + fetchOrdering(ordering) + " DESC"
+				+ " LIMIT ? OFFSET ?";
 		PreparedStatement stmt = conn.prepareStatement(selectViewable);
 		stmt.setLong(1, userid);
 		stmt.setLong(2, parentId);
+		stmt.setLong(3, limit);
+		stmt.setLong(4, offset);
 
 		// Execute Statement
 		ResultSet rs = stmt.executeQuery();
@@ -95,7 +111,7 @@ public class SQLAlbumDAO implements AlbumDAO {
 	}
 
 	@Override
-	public List<AlbumDTO> fetchAllSubscribedAlbums(long userid, long parentId) throws SQLException {
+	public List<AlbumDTO> fetchAllSubscribedAlbums(long userid, long parentId, int ordering, int limit, int offset) throws SQLException {
 		List<AlbumDTO> dto = new ArrayList<AlbumDTO>();
 		Connection conn = SQLConnector.connect();
 
@@ -104,11 +120,15 @@ public class SQLAlbumDAO implements AlbumDAO {
 				+ " LEFT JOIN Albums ON Albums.owner = AlbumAccess.owner AND Albums.id = AlbumAccess.albumid"
 				+ " LEFT JOIN UserSubscriptions ON AlbumAccess.visitor = UserSubscriptions.uid AND Albums.id = UserSubscriptions.albumid"
 				+ " WHERE (AlbumAccess.visitor = ? OR Albums.permission = 'PUBLIC') AND Albums.parent = ?"
-				+ " AND UserSubscriptions.uid = ?";
+				+ " AND UserSubscriptions.uid = ?"
+				+ " ORDER BY Albums." + fetchOrdering(ordering) + " DESC"
+				+ " LIMIT ? OFFSET ?";
 		PreparedStatement stmt = conn.prepareStatement(selectSubscribed);
 		stmt.setLong(1, userid);
 		stmt.setLong(2, parentId);
 		stmt.setLong(3, userid);
+		stmt.setLong(4, limit);
+		stmt.setLong(5, offset);
 
 		// Execute Statement
 		ResultSet rs = stmt.executeQuery();
@@ -139,7 +159,8 @@ public class SQLAlbumDAO implements AlbumDAO {
 			sql += ")";
 		}
 		sql += " GROUP BY Albums.id";
-		System.out.println(sql);
+		sql += " ORDER BY Albums.lastModifiedDate";
+		sql += " LIMIT ? OFFSET ?";
 		PreparedStatement stmt = conn.prepareStatement(sql);
 
 		// Set Statement
@@ -158,6 +179,8 @@ public class SQLAlbumDAO implements AlbumDAO {
 				index++;
 			}
 		}
+		stmt.setLong(index++, searchQuery.getLimit());
+		stmt.setLong(index++, searchQuery.getOffset());
 
 		// Execute Statement
 		ResultSet rs = stmt.executeQuery();

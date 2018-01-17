@@ -8,6 +8,7 @@ public class AlbumDTO {
 	private String subtitle;
 	private long parentId;
 	private String description;
+	private double rating;
 	
 	private boolean isSubscribed;
 
@@ -28,7 +29,7 @@ public class AlbumDTO {
 	}
 
 	public String toString() {
-		return id + ": " + name + " [" + subtitle + "] " + " Parent: " + parentId + ", isSubbed: " + isSubscribed;
+		return id + ": " + name + " [" + subtitle + "] " + " Parent: " + parentId + " isSubbed: " + isSubscribed + " Rating: " + rating;
 	}
 
 	public long getId() {
@@ -82,4 +83,13 @@ public class AlbumDTO {
 	public void setSubscribed(boolean isSubscribed) {
 		this.isSubscribed = isSubscribed;
 	}
+
+	public double getRating() {
+		return rating;
+	}
+
+	public void setRating(double rating) {
+		this.rating = rating;
+	}
+	
 }

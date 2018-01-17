@@ -59,12 +59,15 @@ public class SQLAlbumDAO implements AlbumDAO {
 		Connection conn = SQLConnector.connect();
 
 		// Create Statement
-		String selectViewable = "SELECT " + ALBUM_BASIC_USER_PROJECTION + " FROM AlbumAccess"
+		String selectViewable = "SELECT " + ALBUM_BASIC_USER_PROJECTION + ", AVG(AlbumRatings.rating)" + " FROM AlbumAccess"
 				+ " LEFT JOIN Albums ON Albums.owner = AlbumAccess.owner AND Albums.id = AlbumAccess.albumid"
-				+ " LEFT JOIN UserSubscriptions ON AlbumAccess.visitor = UserSubscriptions.uid AND Albums.id = UserSubscriptions.albumid"
+				+ " LEFT JOIN UserSubscriptions ON (AlbumAccess.visitor = UserSubscriptions.uid OR Albums.permission = 'PUBLIC' ) AND Albums.id = UserSubscriptions.albumid"
+				+ " LEFT JOIN AlbumRatings ON Albums.id = AlbumRatings.albumid"
 				+ " WHERE (AlbumAccess.visitor = ? OR Albums.permission = 'PUBLIC') AND Albums.parent = ?"
+				+ " GROUP BY Albums.id"
 				+ " ORDER BY Albums."+ fetchOrdering(ordering) +" DESC"
 				+ " LIMIT ? OFFSET ?";
+		System.out.println(selectViewable);
 		PreparedStatement stmt = conn.prepareStatement(selectViewable);
 		stmt.setLong(1, userid);
 		stmt.setLong(2, parentId);
@@ -76,6 +79,7 @@ public class SQLAlbumDAO implements AlbumDAO {
 		while (rs.next()) {
 			AlbumDTO album = new AlbumDTO(rs.getLong(1), rs.getLong(2), rs.getString(3), rs.getString(4), 0, rs.getString(5),
 					rs.getString(6) != null);
+			album.setRating(rs.getDouble(7));
 			dto.add(album);
 		}
 		// conn.close();
@@ -88,9 +92,11 @@ public class SQLAlbumDAO implements AlbumDAO {
 		Connection conn = SQLConnector.connect();
 
 		// Create Statement
-		String selectViewable = "SELECT " + ALBUM_BASIC_USER_PROJECTION + " FROM Albums"
+		String selectViewable = "SELECT " + ALBUM_BASIC_USER_PROJECTION  + ", AVG(AlbumRatings.rating)" + " FROM Albums"
 				+ " LEFT JOIN UserSubscriptions ON Albums.owner = UserSubscriptions.uid AND Albums.id = UserSubscriptions.albumid"
+				+ " LEFT JOIN AlbumRatings ON Albums.id = AlbumRatings.albumid"
 				+ " WHERE Albums.owner = ? AND Albums.parent = ?"
+				+ " GROUP BY Albums.id"
 				+ " ORDER BY Albums." + fetchOrdering(ordering) + " DESC"
 				+ " LIMIT ? OFFSET ?";
 		PreparedStatement stmt = conn.prepareStatement(selectViewable);
@@ -116,11 +122,13 @@ public class SQLAlbumDAO implements AlbumDAO {
 		Connection conn = SQLConnector.connect();
 
 		// Create Statement
-		String selectSubscribed = "SELECT " + ALBUM_BASIC_USER_PROJECTION + " FROM AlbumAccess"
+		String selectSubscribed = "SELECT " + ALBUM_BASIC_USER_PROJECTION + ", AVG(AlbumRatings.rating)" + " FROM AlbumAccess"
 				+ " LEFT JOIN Albums ON Albums.owner = AlbumAccess.owner AND Albums.id = AlbumAccess.albumid"
-				+ " LEFT JOIN UserSubscriptions ON AlbumAccess.visitor = UserSubscriptions.uid AND Albums.id = UserSubscriptions.albumid"
+				+ " LEFT JOIN UserSubscriptions ON (AlbumAccess.visitor = UserSubscriptions.uid OR Albums.permission = 'PUBLIC' ) AND Albums.id = UserSubscriptions.albumid"
+				+ " LEFT JOIN AlbumRatings ON Albums.id = AlbumRatings.albumid"
 				+ " WHERE (AlbumAccess.visitor = ? OR Albums.permission = 'PUBLIC') AND Albums.parent = ?"
 				+ " AND UserSubscriptions.uid = ?"
+				+ " GROUP BY Albums.id"
 				+ " ORDER BY Albums." + fetchOrdering(ordering) + " DESC"
 				+ " LIMIT ? OFFSET ?";
 		PreparedStatement stmt = conn.prepareStatement(selectSubscribed);
@@ -362,6 +370,7 @@ public class SQLAlbumDAO implements AlbumDAO {
 		}
 		stmt.close();
 		addOwnerPermissionToAlbum(userid, albumid, conn);
+		tagAlbum(userid, new ArrayList<String>(), albumid, "tags");
 		// conn.close();
 		return albumid;
 	}

@@ -39,13 +39,27 @@ public class DatabaseTest {
 	private Map<String, Long> userIds = new HashMap<String, Long>();
 
 	@BeforeClass
-	public static void initialize() {
-		SQLConnector.connect();
+	public static void initialize() throws SQLException {
+		SQLConnector.connectTestDB();
+		clearDB();
 	}
 
 	@AfterClass
 	public static void deInitialize() {
-		SQLConnector.disconnect();
+		SQLConnector.disconnectTestDB();
+	}
+	
+	private static void clearDB() throws SQLException {
+		Connection conn = SQLConnector.connectTestDB();
+		conn.createStatement().executeUpdate("DELETE FROM Users");
+		conn.createStatement().executeUpdate("DELETE FROM Albums");
+		conn.createStatement().executeUpdate("DELETE FROM Photos");
+		conn.createStatement().executeUpdate("DELETE FROM UserInfo");
+		conn.createStatement().executeUpdate("DELETE FROM AlbumRatings");
+		conn.createStatement().executeUpdate("DELETE FROM AlbumAccess");
+		conn.createStatement().executeUpdate("DELETE FROM AlbumTags");
+		conn.createStatement().executeUpdate("DELETE FROM TagCategory");
+		conn.createStatement().executeUpdate("DELETE FROM UserSubscriptions");
 	}
 
 	@Before
@@ -149,53 +163,49 @@ public class DatabaseTest {
 	}
 
 	@Test
-	public void fetchSubscribedAlbums() {
+	public void fetchSubscribedAlbums() throws SQLException {
 
 		// Create albums
-		try {
+		long albumId1$1 = albumDAO.createAlbum(userIds.get(mockUser1), "Album1", "User1 (PUBLIC)", "AlbumDescription", "PUBLIC");
+		long albumId1$2 = albumDAO.createAlbum(userIds.get(mockUser1), "Album1-1", "User1 (PUBLIC)", "AlbumDescription", albumId1$1);
 
-			long albumId1$1 = albumDAO.createAlbum(userIds.get(mockUser1), "Album1", "User1 (PUBLIC)", "AlbumDescription", "PUBLIC");
-			long albumId1$2 = albumDAO.createAlbum(userIds.get(mockUser1), "Album1-1", "User1 (PUBLIC)", "AlbumDescription", albumId1$1);
+		long albumId2$1 = albumDAO.createAlbum(userIds.get(mockUser2), "Album2", "User2 (PUBLIC)", "AlbumDescription", "PUBLIC");
+		long albumId2$2 = albumDAO.createAlbum(userIds.get(mockUser2), "Album3", "User2 (PRIVATE)", "AlbumDescription", "PRIVATE");
+		long albumId2$3 = albumDAO.createAlbum(userIds.get(mockUser2), "Album4", "User2 (LIMITED)", "AlbumDescription", "LIMITED");
 
-			long albumId2$1 = albumDAO.createAlbum(userIds.get(mockUser2), "Album2", "User2 (PUBLIC)", "AlbumDescription", "PUBLIC");
-			long albumId2$2 = albumDAO.createAlbum(userIds.get(mockUser2), "Album3", "User2 (PRIVATE)", "AlbumDescription", "PRIVATE");
-			long albumId2$3 = albumDAO.createAlbum(userIds.get(mockUser2), "Album4", "User2 (LIMITED)", "AlbumDescription", "LIMITED");
+		List<String> allowedUsers2$3 = new ArrayList<String>();
+		allowedUsers2$3.add(mockUser1);
+		albumDAO.addPermissionToAlbum(userIds.get(mockUser2), albumId2$3, allowedUsers2$3);
 
-			List<String> allowedUsers2$3 = new ArrayList<String>();
-			allowedUsers2$3.add(mockUser1);
-			albumDAO.addPermissionToAlbum(userIds.get(mockUser2), albumId2$3, allowedUsers2$3);
+		long albumId3$1 = albumDAO.createAlbum(userIds.get(mockUser3), "Album3", "User3 (PRIVATE)", "AlbumDescription", "PRIVATE");
+		long albumId3$2 = albumDAO.createAlbum(userIds.get(mockUser3), "Album3-1", "User3 (PRIVATE)", "AlbumDescription", albumId3$1);
+		long albumId3$3 = albumDAO.createAlbum(userIds.get(mockUser3), "Album3-1-1", "User3 (PRIVATE)", "AlbumDescription", albumId3$2);
 
-			long albumId3$1 = albumDAO.createAlbum(userIds.get(mockUser3), "Album3", "User3 (PRIVATE)", "AlbumDescription", "PRIVATE");
-			long albumId3$2 = albumDAO.createAlbum(userIds.get(mockUser3), "Album3-1", "User3 (PRIVATE)", "AlbumDescription", albumId3$1);
-			long albumId3$3 = albumDAO.createAlbum(userIds.get(mockUser3), "Album3-1-1", "User3 (PRIVATE)", "AlbumDescription", albumId3$2);
+		// Subscribe to Albums
+		albumDAO.subscribeToAlbum(userIds.get(mockUser1), albumId2$1);
+		albumDAO.subscribeToAlbum(userIds.get(mockUser1), albumId2$3);
 
-			// Subscribe to Albums
-			albumDAO.subscribeToAlbum(userIds.get(mockUser1), albumId2$1);
-			albumDAO.subscribeToAlbum(userIds.get(mockUser1), albumId2$2);
+		// Fetch subscribed albums
+		List<AlbumDTO> albs = albumDAO.fetchViewableAlbums(userIds.get(mockUser1), 0, 0, 50, 0);
+		System.out.println(albs);
+		List<AlbumDTO> limitedAlbums1 = albumDAO.fetchAllSubscribedAlbums(userIds.get(mockUser1), 0, 0, 50, 0);
 
-			// Fetch subscribed albums
-			List<AlbumDTO> limitedAlbums1 = albumDAO.fetchAllSubscribedAlbums(userIds.get(mockUser1), 0, 0, 50, 0);
+		// Delete Subscriptions
+		albumDAO.unsubscribeToAlbum(userIds.get(mockUser1), albumId2$1);
+		albumDAO.unsubscribeToAlbum(userIds.get(mockUser1), albumId2$3);
 
-			// Delete Subscriptions
-			albumDAO.unsubscribeToAlbum(userIds.get(mockUser1), albumId2$1);
-			albumDAO.unsubscribeToAlbum(userIds.get(mockUser1), albumId2$2);
+		// Delete All Albums
+		albumDAO.deleteAlbum(userIds.get(mockUser1), albumId1$1);
+		albumDAO.deleteAlbum(userIds.get(mockUser1), albumId1$2);
+		albumDAO.deleteAlbum(userIds.get(mockUser2), albumId2$1);
+		albumDAO.deleteAlbum(userIds.get(mockUser2), albumId2$2);
+		albumDAO.deleteAlbum(userIds.get(mockUser2), albumId2$3);
+		albumDAO.deleteAlbum(userIds.get(mockUser3), albumId3$1);
+		albumDAO.deleteAlbum(userIds.get(mockUser3), albumId3$2);
+		albumDAO.deleteAlbum(userIds.get(mockUser3), albumId3$3);
 
-			// Delete All Albums
-			albumDAO.deleteAlbum(userIds.get(mockUser1), albumId1$1);
-			albumDAO.deleteAlbum(userIds.get(mockUser1), albumId1$2);
-			albumDAO.deleteAlbum(userIds.get(mockUser2), albumId2$1);
-			albumDAO.deleteAlbum(userIds.get(mockUser2), albumId2$2);
-			albumDAO.deleteAlbum(userIds.get(mockUser2), albumId2$3);
-			albumDAO.deleteAlbum(userIds.get(mockUser3), albumId3$1);
-			albumDAO.deleteAlbum(userIds.get(mockUser3), albumId3$2);
-			albumDAO.deleteAlbum(userIds.get(mockUser3), albumId3$3);
-
-			// Test Assertions
-			checkCorrectAlbumsIDs(limitedAlbums1, albumId1$1, albumId2$1, albumId2$3);
-
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+		// Test Assertions
+		checkCorrectAlbumsIDs(limitedAlbums1, albumId2$1, albumId2$3);
 	}
 
 	@Test

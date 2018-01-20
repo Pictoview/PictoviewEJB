@@ -18,6 +18,7 @@ import com.viewer.beans.AlbumBeanLocal;
 import com.viewer.dao.AccountDAO;
 import com.viewer.dao.AlbumDAO;
 import com.viewer.dao.SQLConnector;
+import com.viewer.dao.impl.PhotoAlbumDAO;
 import com.viewer.dao.impl.SQLAccountDAO;
 import com.viewer.dao.impl.SQLAlbumDAO;
 import com.viewer.dto.PhotoDTO;
@@ -50,7 +51,7 @@ public class FileUploadTest {
 	public void setUp() {
 		// Initialize Global Objects
 		accountDAO = new SQLAccountDAO();
-		albumDAO = new SQLAlbumDAO();
+		albumDAO = new PhotoAlbumDAO();
 		// Creating Mock User
 		mockUserId1 = createMockUser(mockUser1);
 		mockUserId2 = createMockUser(mockUser2);

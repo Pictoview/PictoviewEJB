@@ -11,7 +11,7 @@ import javax.imageio.ImageIO;
 import javax.imageio.stream.ImageInputStream;
 
 import com.viewer.dao.AlbumDAO;
-import com.viewer.dao.impl.SQLAlbumDAO;
+import com.viewer.dao.impl.PhotoAlbumDAO;
 import com.viewer.dto.AlbumDTO;
 import com.viewer.dto.AlbumTagsDTO;
 import com.viewer.dto.PhotoDTO;
@@ -27,7 +27,7 @@ public class AlbumBean implements AlbumBeanLocal {
 	private AlbumDAO albumDAO;
 
 	public AlbumBean() {
-		albumDAO = new SQLAlbumDAO();
+		albumDAO = new PhotoAlbumDAO();
 	}
 
 	// Album Fetch Operations

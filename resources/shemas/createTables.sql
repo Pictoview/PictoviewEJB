@@ -47,6 +47,7 @@ coverid INTEGER,
 parent INTEGER,
 description VARCHAR(1023),
 permission VARCHAR(25),
+mediaType INTEGER,
 lastModifiedDate TIMESTAMP,
 FOREIGN KEY(owner) REFERENCES Users(uid),
 FOREIGN KEY(coverid) REFERENCES Photos(id)

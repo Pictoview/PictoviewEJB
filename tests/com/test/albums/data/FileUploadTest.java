@@ -12,18 +12,15 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.sun.tools.jxc.gen.config.Config;
 import com.viewer.beans.AlbumBean;
 import com.viewer.beans.AlbumBeanLocal;
 import com.viewer.dao.AccountDAO;
 import com.viewer.dao.AlbumDAO;
 import com.viewer.dao.SQLConnector;
-import com.viewer.dao.impl.PhotoAlbumDAO;
 import com.viewer.dao.impl.SQLAccountDAO;
-import com.viewer.dao.impl.SQLAlbumDAO;
+import com.viewer.dao.impl.SQLPhotoAlbumDAO;
 import com.viewer.dto.PhotoDTO;
 import com.viewer.dto.UserDataDTO;
-import com.viewer.file.AlbumFileManager;
 import com.viewer.file.ConfigProperties;
 
 public class FileUploadTest {
@@ -51,7 +48,7 @@ public class FileUploadTest {
 	public void setUp() {
 		// Initialize Global Objects
 		accountDAO = new SQLAccountDAO();
-		albumDAO = new PhotoAlbumDAO();
+		albumDAO = new SQLPhotoAlbumDAO();
 		// Creating Mock User
 		mockUserId1 = createMockUser(mockUser1);
 		mockUserId2 = createMockUser(mockUser2);

@@ -8,7 +8,7 @@ import javax.imageio.stream.ImageInputStream;
 
 import com.viewer.dto.AlbumDTO;
 import com.viewer.dto.AlbumTagsDTO;
-import com.viewer.dto.PhotoDTO;
+import com.viewer.dto.MediaDTO;
 import com.viewer.dto.SearchQueryDTO;
 
 @Local
@@ -209,7 +209,7 @@ public interface AlbumBeanLocal {
 	 * @return List of DTO encapsulating information regarding photo including
 	 *         source directory
 	 */
-	public List<PhotoDTO> fetchUserAlbumPhotos(long userid, long albumid);
+	public List<MediaDTO> fetchUserAlbumPhotos(long userid, long albumid);
 
 	/**
 	 * Fetches meta-data of photo
@@ -219,7 +219,7 @@ public interface AlbumBeanLocal {
 	 * @return DTO encapsulating information regarding photo including source
 	 *         directory
 	 */
-	public PhotoDTO fetchPhoto(long userid, long photoid);
+	public MediaDTO fetchPhoto(long userid, long photoid);
 
 	/**
 	 * Fetches the data encapsulated in the photo
@@ -262,7 +262,7 @@ public interface AlbumBeanLocal {
 	 *            InputStream to file being transferred
 	 * @return Success status of action
 	 */
-	public PhotoDTO uploadPhoto(long userid, long albumId, String name, String ext, InputStream data, int flags);
+	public MediaDTO uploadPhoto(long userid, long albumId, String name, String ext, InputStream data, int flags);
 
 	// Category & Tags
 

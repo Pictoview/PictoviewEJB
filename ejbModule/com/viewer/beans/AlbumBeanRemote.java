@@ -6,7 +6,7 @@ import javax.ejb.Remote;
 
 import com.viewer.dto.AlbumDTO;
 import com.viewer.dto.AlbumTagsDTO;
-import com.viewer.dto.PhotoDTO;
+import com.viewer.dto.MediaDTO;
 
 @Remote
 public interface AlbumBeanRemote {
@@ -16,9 +16,9 @@ public interface AlbumBeanRemote {
 
 	public AlbumDTO fetchUserAlbumInfo(long userid, long albumid);
 
-	public List<PhotoDTO> fetchUserAlbumPhotos(long userid, long albumid);
+	public List<MediaDTO> fetchUserAlbumPhotos(long userid, long albumid);
 
-	public PhotoDTO fetchPhoto(long userid, long photoid);
+	public MediaDTO fetchPhoto(long userid, long photoid);
 
 	public boolean createAlbum(long userid, AlbumDTO album);
 

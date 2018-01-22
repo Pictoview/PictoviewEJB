@@ -5,7 +5,7 @@ import java.util.List;
 
 import com.viewer.dto.AlbumDTO;
 import com.viewer.dto.AlbumTagsDTO;
-import com.viewer.dto.PhotoDTO;
+import com.viewer.dto.MediaDTO;
 import com.viewer.dto.SearchQueryDTO;
 
 public interface AlbumDAO {
@@ -75,15 +75,15 @@ public interface AlbumDAO {
 
 	// Photo Methods
 
-	public PhotoDTO fetchAlbumCoverPhoto(long userid, long albumId) throws SQLException;
+	public MediaDTO fetchAlbumCoverPhoto(long userid, long albumId) throws SQLException;
 
-	public List<PhotoDTO> fetchUserAlbumPhotos(long userid, long albumid) throws SQLException;
+	public List<MediaDTO> fetchUserAlbumPhotos(long userid, long albumid) throws SQLException;
 
-	public PhotoDTO fetchPhoto(long userid, long photoid) throws SQLException;
+	public MediaDTO fetchPhoto(long userid, long photoid) throws SQLException;
 
 	public List<String> fetchAllCategories(String visibility) throws SQLException;
 
-	public PhotoDTO insertPhoto(long userid, long albumId, String name, String ext) throws SQLException;
+	public MediaDTO insertPhoto(long userid, long albumId, String name, String ext) throws SQLException;
 
 	public boolean clearAlbumTag(long albumid) throws SQLException;
 

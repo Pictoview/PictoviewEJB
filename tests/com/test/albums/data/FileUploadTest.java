@@ -19,7 +19,7 @@ import com.viewer.dao.AlbumDAO;
 import com.viewer.dao.SQLConnector;
 import com.viewer.dao.impl.SQLAccountDAO;
 import com.viewer.dao.impl.SQLPhotoAlbumDAO;
-import com.viewer.dto.PhotoDTO;
+import com.viewer.dto.MediaDTO;
 import com.viewer.dto.UserDataDTO;
 import com.viewer.file.ConfigProperties;
 
@@ -103,7 +103,7 @@ public class FileUploadTest {
 
 			AlbumBeanLocal albumBean = new AlbumBean();
 			long albumid = albumBean.createAlbum(mockUserId1, "TestAlbum1", "", "Description", 0);
-			PhotoDTO photo1 = albumBean.uploadPhoto(mockUserId1, albumid, "image1.jpg", "jpg", data, 0);
+			MediaDTO photo1 = albumBean.uploadPhoto(mockUserId1, albumid, "image1.jpg", "jpg", data, 0);
 
 			albumDAO.deleteAlbum(mockUserId1, albumid);
 		} catch (IOException | SQLException e) {

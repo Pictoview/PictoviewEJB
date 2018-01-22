@@ -10,12 +10,10 @@ import java.util.List;
 import com.viewer.dao.AlbumDAO;
 import com.viewer.dao.SQLConnector;
 import com.viewer.dto.AlbumDTO;
-import com.viewer.dto.PhotoDTO;
+import com.viewer.dto.MediaDTO;
 import com.viewer.dto.SearchQueryDTO;
 
 public class SQLPhotoAlbumDAO extends SQLAlbumDAO implements AlbumDAO {
-
-	private final static int MEDIA_TYPE_PHOTO = 1;
 
 	@Override
 	public List<AlbumDTO> fetchAllPublicAlbums(int limit, int offset) throws SQLException {
@@ -65,8 +63,8 @@ public class SQLPhotoAlbumDAO extends SQLAlbumDAO implements AlbumDAO {
 
 	/** Photo Methods **/
 	@Override
-	public List<PhotoDTO> fetchUserAlbumPhotos(long userid, long albumid) throws SQLException {
-		List<PhotoDTO> photos = new ArrayList<PhotoDTO>();
+	public List<MediaDTO> fetchUserAlbumPhotos(long userid, long albumid) throws SQLException {
+		List<MediaDTO> photos = new ArrayList<MediaDTO>();
 		Connection conn = SQLConnector.connect();
 
 		// Create Statement
@@ -81,14 +79,14 @@ public class SQLPhotoAlbumDAO extends SQLAlbumDAO implements AlbumDAO {
 		// Execute Statement
 		ResultSet rs = stmt.executeQuery();
 		while (rs.next()) {
-			photos.add(new PhotoDTO(rs.getLong(1), rs.getString(2), rs.getString(3), albumid, userid));
+			photos.add(new MediaDTO(rs.getLong(1), rs.getString(2), rs.getString(3), albumid, userid, MEDIA_TYPE_PHOTO));
 		}
 		// conn.close();
 		return photos;
 	}
 
 	@Override
-	public PhotoDTO fetchPhoto(long userid, long photoid) throws SQLException {
+	public MediaDTO fetchPhoto(long userid, long photoid) throws SQLException {
 		Connection conn = SQLConnector.connect();
 
 		// Create Statement
@@ -99,10 +97,10 @@ public class SQLPhotoAlbumDAO extends SQLAlbumDAO implements AlbumDAO {
 		stmt.setLong(2, photoid);
 
 		// Execute Statement
-		PhotoDTO photo = null;
+		MediaDTO photo = null;
 		ResultSet rs = stmt.executeQuery();
 		while (rs.next()) {
-			photo = new PhotoDTO(rs.getLong(1), rs.getString(2), rs.getString(3), rs.getLong(4), userid);
+			photo = new MediaDTO(rs.getLong(1), rs.getString(2), rs.getString(3), rs.getLong(4), userid, MEDIA_TYPE_PHOTO);
 		}
 		// conn.close();
 		return photo;

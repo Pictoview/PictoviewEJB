@@ -14,7 +14,7 @@ import com.viewer.dao.AlbumDAO;
 import com.viewer.dao.impl.SQLPhotoAlbumDAO;
 import com.viewer.dto.AlbumDTO;
 import com.viewer.dto.AlbumTagsDTO;
-import com.viewer.dto.PhotoDTO;
+import com.viewer.dto.MediaDTO;
 import com.viewer.dto.SearchQueryDTO;
 import com.viewer.file.AlbumFileManager;
 
@@ -196,7 +196,7 @@ public class AlbumBean implements AlbumBeanLocal {
 	// Photo Related
 
 	@Override
-	public List<PhotoDTO> fetchUserAlbumPhotos(long userid, long albumid) {
+	public List<MediaDTO> fetchUserAlbumPhotos(long userid, long albumid) {
 		try {
 			return albumDAO.fetchUserAlbumPhotos(userid, albumid);
 		} catch (SQLException e) {
@@ -206,7 +206,7 @@ public class AlbumBean implements AlbumBeanLocal {
 	}
 
 	@Override
-	public PhotoDTO fetchPhoto(long userid, long photoid) {
+	public MediaDTO fetchPhoto(long userid, long photoid) {
 		try {
 			return albumDAO.fetchPhoto(userid, photoid);
 		} catch (SQLException e) {
@@ -218,7 +218,7 @@ public class AlbumBean implements AlbumBeanLocal {
 	@Override
 	public ImageInputStream fetchPhotoData(long userid, long photoid) {
 		try {
-			PhotoDTO photoDTO = albumDAO.fetchPhoto(userid, photoid);
+			MediaDTO photoDTO = albumDAO.fetchPhoto(userid, photoid);
 			String source = AlbumFileManager.StorageLocation + photoDTO.getSource();
 			return ImageIO.createImageInputStream(new File(source));
 		} catch (SQLException | IOException e) {
@@ -235,7 +235,7 @@ public class AlbumBean implements AlbumBeanLocal {
 	@Override
 	public ImageInputStream fetchPhotoThumbnailData(long userid, long photoid, int flags) {
 		try {
-			PhotoDTO photoDTO = albumDAO.fetchPhoto(userid, photoid);
+			MediaDTO photoDTO = albumDAO.fetchPhoto(userid, photoid);
 			String source = AlbumFileManager.ThumbnailStorageLocation + photoDTO.getSource();
 			return ImageIO.createImageInputStream(new File(source));
 		} catch (SQLException | IOException e) {
@@ -247,7 +247,7 @@ public class AlbumBean implements AlbumBeanLocal {
 	@Override
 	public ImageInputStream fetchAlbumCoverThumbnail(long userid, long albumid, int flags) {
 		try {
-			PhotoDTO photoDTO = albumDAO.fetchAlbumCoverPhoto(userid, albumid);
+			MediaDTO photoDTO = albumDAO.fetchAlbumCoverPhoto(userid, albumid);
 			String source = AlbumFileManager.ThumbnailStorageLocation + photoDTO.getSource();
 			return ImageIO.createImageInputStream(new File(source));
 		} catch (SQLException | IOException e) {
@@ -358,9 +358,9 @@ public class AlbumBean implements AlbumBeanLocal {
 	}
 
 	@Override
-	public PhotoDTO uploadPhoto(long userid, long albumId, String name, String ext, InputStream data, int flags) {
+	public MediaDTO uploadPhoto(long userid, long albumId, String name, String ext, InputStream data, int flags) {
 		try {
-			PhotoDTO photo = albumDAO.insertPhoto(userid, albumId, name, ext);
+			MediaDTO photo = albumDAO.insertPhoto(userid, albumId, name, ext);
 			AlbumFileManager.createPhotoFile(photo.getSource(), data, flags);
 			AlbumFileManager.createPhotoThumbnail(photo.getSource());
 			return photo;

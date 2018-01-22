@@ -12,12 +12,15 @@ import com.viewer.dao.SQLConnector;
 import com.viewer.dto.AlbumDTO;
 import com.viewer.dto.AlbumTagsDTO;
 import com.viewer.dto.CategoryDTO;
-import com.viewer.dto.PhotoDTO;
+import com.viewer.dto.MediaDTO;
 import com.viewer.dto.SearchQueryDTO;
 
 public abstract class SQLAlbumDAO {
 
 	private static final String ALBUM_BASIC_USER_PROJECTION = "Albums.id, Albums.owner, Albums.name, Albums.subtitle, Albums.description, UserSubscriptions.id";
+
+	protected final static int MEDIA_TYPE_PHOTO = 1;
+	protected final static int MEDIA_TYPE_VIDEO = 2;
 
 	/** Album Fetch Methods **/
 
@@ -623,7 +626,7 @@ public abstract class SQLAlbumDAO {
 
 	/** Photo Methods **/
 
-	public PhotoDTO fetchAlbumCoverPhoto(long userid, long albumid) throws SQLException {
+	public MediaDTO fetchAlbumCoverPhoto(long userid, long albumid) throws SQLException {
 		Connection conn = SQLConnector.connect();
 
 		// Create Statement
@@ -636,16 +639,16 @@ public abstract class SQLAlbumDAO {
 		stmt.setLong(2, albumid);
 
 		// Execute Statement
-		PhotoDTO photo = null;
+		MediaDTO photo = null;
 		ResultSet rs = stmt.executeQuery();
 		while (rs.next()) {
-			photo = new PhotoDTO(rs.getLong(1), rs.getString(2), rs.getString(3), albumid, userid);
+			photo = new MediaDTO(rs.getLong(1), rs.getString(2), rs.getString(3), albumid, userid, MEDIA_TYPE_PHOTO);
 		}
 		// conn.close();
 		return photo;
 	}
 
-	public PhotoDTO insertPhoto(long userid, long albumId, String name, String ext) throws SQLException {
+	public MediaDTO insertPhoto(long userid, long albumId, String name, String ext) throws SQLException {
 		Connection conn = SQLConnector.connect();
 
 		// Create Statement
@@ -658,10 +661,10 @@ public abstract class SQLAlbumDAO {
 		stmt.setTimestamp(5, new Timestamp(System.currentTimeMillis()));
 
 		// Get Id
-		PhotoDTO photo = null;
+		MediaDTO photo = null;
 		stmt.executeUpdate();
 		ResultSet rs = stmt.getGeneratedKeys();
-		if (rs.next()) photo = new PhotoDTO(rs.getLong(1), name, ext, albumId, userid);
+		if (rs.next()) photo = new MediaDTO(rs.getLong(1), name, ext, albumId, userid, MEDIA_TYPE_PHOTO);
 		stmt.close();
 		// conn.close();
 		return photo;

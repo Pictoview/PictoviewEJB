@@ -103,7 +103,7 @@ public class FileUploadTest {
 
 			AlbumBeanLocal albumBean = new AlbumBean();
 			long albumid = albumBean.createAlbum(mockUserId1, "TestAlbum1", "", "Description", 0);
-			MediaDTO photo1 = albumBean.uploadPhoto(mockUserId1, albumid, "image1.jpg", "jpg", data, 0);
+			MediaDTO photo1 = albumBean.uploadMedium(mockUserId1, albumid, "image1.jpg", "jpg", data, 0);
 
 			albumDAO.deleteAlbum(mockUserId1, albumid);
 		} catch (IOException | SQLException e) {

@@ -4,7 +4,6 @@ import java.io.InputStream;
 import java.util.List;
 
 import javax.ejb.Local;
-import javax.imageio.stream.ImageInputStream;
 
 import com.viewer.dto.AlbumDTO;
 import com.viewer.dto.AlbumTagsDTO;
@@ -209,7 +208,7 @@ public interface AlbumBeanLocal {
 	 * @return List of DTO encapsulating information regarding photo including
 	 *         source directory
 	 */
-	public List<MediaDTO> fetchUserAlbumPhotos(long userid, long albumid);
+	public List<MediaDTO> fetchUserAlbumMedia(long userid, long albumid);
 
 	/**
 	 * Fetches meta-data of photo
@@ -219,26 +218,7 @@ public interface AlbumBeanLocal {
 	 * @return DTO encapsulating information regarding photo including source
 	 *         directory
 	 */
-	public MediaDTO fetchPhoto(long userid, long photoid);
-
-	/**
-	 * Fetches the data encapsulated in the photo
-	 * 
-	 * @param userid
-	 * @param photoid
-	 * @return Stream of photo file data
-	 */
-	public ImageInputStream fetchPhotoData(long userid, long photoid);
-
-	/**
-	 * Fetches the data encapsulated in the photo thumbnail
-	 * 
-	 * @param userid
-	 * @param photoid
-	 * @param flags
-	 * @return Stream of photo thumbnail file data
-	 */
-	public ImageInputStream fetchPhotoThumbnailData(long userid, long photoid, int flags);
+	public MediaDTO fetchMedia(long userid, long photoid);
 
 	/**
 	 * Fetches the data encapsulated in the photo thumbnail
@@ -247,9 +227,7 @@ public interface AlbumBeanLocal {
 	 * @param photoid
 	 * @return Stream of photo thumbnail file data
 	 */
-	public ImageInputStream fetchPhotoThumbnailData(long userid, long photoid);
-
-	public ImageInputStream fetchAlbumCoverThumbnail(long userid, long albumId, int flags);
+	public MediaDTO fetchAlbumCover(long userid, long albumId);
 
 	/**
 	 * Uploads a photo to server file repository
@@ -262,7 +240,7 @@ public interface AlbumBeanLocal {
 	 *            InputStream to file being transferred
 	 * @return Success status of action
 	 */
-	public MediaDTO uploadPhoto(long userid, long albumId, String name, String ext, InputStream data, int flags);
+	public MediaDTO uploadMedium(long userid, long albumId, String name, String ext, InputStream data, int flags);
 
 	// Category & Tags
 

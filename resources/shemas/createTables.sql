@@ -1,6 +1,6 @@
 DROP TABLE Users;
 DROP TABLE Albums;
-DROP TABLE Photos;
+DROP TABLE Media;
 DROP TABLE UserInfo;
 DROP TABLE AlbumRatings;
 DROP TABLE AlbumAccess;
@@ -50,15 +50,16 @@ permission VARCHAR(25),
 mediaType INTEGER,
 lastModifiedDate TIMESTAMP,
 FOREIGN KEY(owner) REFERENCES Users(uid),
-FOREIGN KEY(coverid) REFERENCES Photos(id)
+FOREIGN KEY(coverid) REFERENCES Media(id)
 );
 
-CREATE TABLE Photos (
+CREATE TABLE Media (
 id INTEGER PRIMARY KEY,
 name VARCHAR(255) NOT NULL,
 ext VARCHAR(31) NOT NULL,
 albumid INTEGER,
 owner INTEGER,
+type INTEGER,
 lastModifiedDate TIMESTAMP,
 FOREIGN KEY(albumid) REFERENCES Albums(id),
 FOREIGN KEY(owner) REFERENCES Users(uid)
@@ -103,6 +104,6 @@ visibility VARCHAR(25)
 CREATE INDEX AlbumOwner ON Albums(owner);
 CREATE INDEX AlbumPermission ON Albums(permission);
 CREATE INDEX AlbumAccessOwner ON AlbumAccess(visitor);
-CREATE INDEX PhotoAlbumID ON Photos(albumid);
-CREATE INDEX PhotoOwnerID ON Photos(owner);
+CREATE INDEX MediaAlbumID ON Media(albumid);
+CREATE INDEX MediaOwnerID ON Media(owner);
 CREATE INDEX AlbumTagAlbum ON AlbumTags(albumid);

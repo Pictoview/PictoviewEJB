@@ -16,4 +16,20 @@ public class StringUtils {
 		if (value == null) return "";
 		return value;
 	}
+
+	public static boolean equals(String pattern, String expected) {
+		return notNullEmpty(pattern) && pattern.equals(expected);
+	}
+
+	public static boolean equalsAll(String pattern, String... expected) {
+		for (String p : expected)
+			if (!StringUtils.equals(pattern, p)) return false;
+		return true;
+	}
+
+	public static boolean equalsAny(String pattern, String... expected) {
+		for (String p : expected)
+			if (StringUtils.equals(pattern, p)) return true;
+		return false;
+	}
 }

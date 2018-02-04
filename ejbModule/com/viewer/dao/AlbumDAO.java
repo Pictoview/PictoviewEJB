@@ -77,13 +77,13 @@ public interface AlbumDAO {
 
 	public MediaDTO fetchAlbumCoverPhoto(long userid, long albumId) throws SQLException;
 
-	public List<MediaDTO> fetchUserAlbumPhotos(long userid, long albumid) throws SQLException;
+	public List<MediaDTO> fetchUserAlbumMedia(long userid, long albumid) throws SQLException;
 
-	public MediaDTO fetchPhoto(long userid, long photoid) throws SQLException;
+	public MediaDTO fetchMedia(long userid, long photoid) throws SQLException;
 
 	public List<String> fetchAllCategories(String visibility) throws SQLException;
 
-	public MediaDTO insertPhoto(long userid, long albumId, String name, String ext) throws SQLException;
+	public MediaDTO insertMedia(long userid, long albumId, String name, String ext) throws SQLException;
 
 	public boolean clearAlbumTag(long albumid) throws SQLException;
 

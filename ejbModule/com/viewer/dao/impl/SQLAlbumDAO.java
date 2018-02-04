@@ -14,6 +14,7 @@ import com.viewer.dto.AlbumTagsDTO;
 import com.viewer.dto.CategoryDTO;
 import com.viewer.dto.MediaDTO;
 import com.viewer.dto.SearchQueryDTO;
+import com.viewer.util.MediaFileUtils;
 
 public abstract class SQLAlbumDAO {
 
@@ -422,9 +423,9 @@ public abstract class SQLAlbumDAO {
 	public boolean deleteAlbum(long userid, long albumId) throws SQLException {
 		Connection conn = SQLConnector.connect();
 
-		String deletePhotos = "DELETE FROM Photos WHERE Photos.AlbumId = ? AND EXISTS (SELECT Users.uid FROM Users WHERE Users.uid = ?)";
+		String deleteMedia = "DELETE FROM Media WHERE Media.AlbumId = ? AND EXISTS (SELECT Users.uid FROM Users WHERE Users.uid = ?)";
 
-		PreparedStatement stmt = conn.prepareStatement(deletePhotos);
+		PreparedStatement stmt = conn.prepareStatement(deleteMedia);
 		stmt.setLong(1, albumId);
 		stmt.setLong(2, userid);
 		int row = stmt.executeUpdate();
@@ -630,11 +631,11 @@ public abstract class SQLAlbumDAO {
 		Connection conn = SQLConnector.connect();
 
 		// Create Statement
-		String selectPhotos = "SELECT Albums.coverid, Photos.name, Photos.ext FROM Albums"
-				+ " LEFT JOIN Photos ON Photos.id = Albums.coverid"
+		String selectMedia = "SELECT Albums.coverid, Media.name, Media.ext FROM Albums"
+				+ " LEFT JOIN Media ON Media.id = Albums.coverid"
 				+ " LEFT JOIN AlbumAccess ON AlbumAccess.albumid = Albums.id"
-				+ " WHERE (AlbumAccess.visitor = ? OR Albums.permission = 'PUBLIC') AND Photos.albumid = ? ";
-		PreparedStatement stmt = conn.prepareStatement(selectPhotos);
+				+ " WHERE (AlbumAccess.visitor = ? OR Albums.permission = 'PUBLIC') AND Media.albumid = ? ";
+		PreparedStatement stmt = conn.prepareStatement(selectMedia);
 		stmt.setLong(1, userid);
 		stmt.setLong(2, albumid);
 
@@ -648,16 +649,17 @@ public abstract class SQLAlbumDAO {
 		return photo;
 	}
 
-	public MediaDTO insertPhoto(long userid, long albumId, String name, String ext) throws SQLException {
+	public MediaDTO insertMedia(long userid, long albumId, String name, String ext) throws SQLException {
 		Connection conn = SQLConnector.connect();
 
 		// Create Statement
-		String sql = "INSERT INTO Photos VALUES (NULL, ?, ?, ?, ?, ?)";
+		String sql = "INSERT INTO Media VALUES (NULL, ?, ?, ?, ?, ?, ?)";
 		PreparedStatement stmt = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
 		stmt.setString(1, name);
 		stmt.setString(2, ext);
 		stmt.setLong(3, albumId);
 		stmt.setLong(4, userid);
+		stmt.setLong(5, MediaFileUtils.convertType(ext).ordinal());
 		stmt.setTimestamp(5, new Timestamp(System.currentTimeMillis()));
 
 		// Get Id
@@ -666,6 +668,50 @@ public abstract class SQLAlbumDAO {
 		ResultSet rs = stmt.getGeneratedKeys();
 		if (rs.next()) photo = new MediaDTO(rs.getLong(1), name, ext, albumId, userid, MEDIA_TYPE_PHOTO);
 		stmt.close();
+		// conn.close();
+		return photo;
+	}
+
+	/** Photo Methods **/
+
+	public List<MediaDTO> fetchUserAlbumMedia(long userid, long albumid) throws SQLException {
+		List<MediaDTO> media = new ArrayList<MediaDTO>();
+		Connection conn = SQLConnector.connect();
+
+		// Create Statement
+		String selectMedia = "SELECT Media.id, Media.name, Albums.id FROM Media"
+				+ " LEFT JOIN Albums ON Media.albumid = Albums.id"
+				+ " LEFT JOIN AlbumAccess ON AlbumAccess.albumid = Albums.id AND AlbumAccess.owner = Albums.owner"
+				+ " WHERE (AlbumAccess.visitor = ? OR Albums.permission = 'PUBLIC') AND Media.albumid = ? ORDER BY Media.name";
+		PreparedStatement stmt = conn.prepareStatement(selectMedia);
+		stmt.setLong(1, userid);
+		stmt.setLong(2, albumid);
+
+		// Execute Statement
+		ResultSet rs = stmt.executeQuery();
+		while (rs.next()) {
+			media.add(new MediaDTO(rs.getLong(1), rs.getString(2), rs.getString(3), albumid, userid, MEDIA_TYPE_PHOTO));
+		}
+		// conn.close();
+		return media;
+	}
+
+	public MediaDTO fetchMedia(long userid, long photoid) throws SQLException {
+		Connection conn = SQLConnector.connect();
+
+		// Create Statement
+		String selectMedia = "SELECT Media.id, Media.name, Media.ext, Media.albumid FROM Media"
+				+ " WHERE Media.owner = ? AND Media.id = ?";
+		PreparedStatement stmt = conn.prepareStatement(selectMedia);
+		stmt.setLong(1, userid);
+		stmt.setLong(2, photoid);
+
+		// Execute Statement
+		MediaDTO photo = null;
+		ResultSet rs = stmt.executeQuery();
+		while (rs.next()) {
+			photo = new MediaDTO(rs.getLong(1), rs.getString(2), rs.getString(3), rs.getLong(4), userid, MEDIA_TYPE_PHOTO);
+		}
 		// conn.close();
 		return photo;
 	}

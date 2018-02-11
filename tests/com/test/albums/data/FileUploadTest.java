@@ -12,13 +12,14 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.viewer.beans.AlbumBean;
 import com.viewer.beans.AlbumBeanLocal;
+import com.viewer.beans.PhotoAlbumBean;
 import com.viewer.dao.AccountDAO;
 import com.viewer.dao.AlbumDAO;
 import com.viewer.dao.SQLConnector;
 import com.viewer.dao.impl.SQLAccountDAO;
-import com.viewer.dao.impl.SQLPhotoAlbumDAO;
+import com.viewer.dao.impl.SQLAlbumDAO;
+import com.viewer.dao.impl.SQLAlbumDAO.MediaType;
 import com.viewer.dto.MediaDTO;
 import com.viewer.dto.UserDataDTO;
 import com.viewer.file.ConfigProperties;
@@ -48,7 +49,7 @@ public class FileUploadTest {
 	public void setUp() {
 		// Initialize Global Objects
 		accountDAO = new SQLAccountDAO();
-		albumDAO = new SQLPhotoAlbumDAO();
+		albumDAO = SQLAlbumDAO.createPhotoDAO();
 		// Creating Mock User
 		mockUserId1 = createMockUser(mockUser1);
 		mockUserId2 = createMockUser(mockUser2);
@@ -101,7 +102,7 @@ public class FileUploadTest {
 			InputStream data = new FileInputStream(
 					new File(ConfigProperties.getProperty("testStorageDirectory") + "image1.jpg"));
 
-			AlbumBeanLocal albumBean = new AlbumBean();
+			AlbumBeanLocal albumBean = new PhotoAlbumBean();
 			long albumid = albumBean.createAlbum(mockUserId1, "TestAlbum1", "", "Description", 0);
 			MediaDTO photo1 = albumBean.uploadMedium(mockUserId1, albumid, "image1.jpg", "jpg", data, 0);
 

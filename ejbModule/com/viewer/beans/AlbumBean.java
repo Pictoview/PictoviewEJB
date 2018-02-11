@@ -8,23 +8,23 @@ import java.util.List;
 import javax.ejb.Stateless;
 
 import com.viewer.dao.AlbumDAO;
-import com.viewer.dao.impl.SQLPhotoAlbumDAO;
+import com.viewer.dao.impl.SQLAlbumDAO;
 import com.viewer.dto.AlbumDTO;
 import com.viewer.dto.AlbumTagsDTO;
 import com.viewer.dto.MediaDTO;
 import com.viewer.dto.SearchQueryDTO;
 import com.viewer.file.AlbumFileManager;
 
-/**
- * Session Bean implementation class AlbumBean
- */
-@Stateless
-public class AlbumBean implements AlbumBeanLocal {
+public abstract class AlbumBean implements AlbumBeanLocal {
 
 	private AlbumDAO albumDAO;
 
-	public AlbumBean() {
-		albumDAO = new SQLPhotoAlbumDAO();
+	public AlbumBean(SQLAlbumDAO.MediaType mediaType) {
+		switch (mediaType) {
+			case PHOTO : albumDAO = SQLAlbumDAO.createPhotoDAO(); break;
+			case VIDEO : albumDAO = SQLAlbumDAO.createVideoDAO(); break;
+			default: break;
+		}
 	}
 
 	// Album Fetch Operations

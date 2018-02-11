@@ -8,6 +8,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.viewer.dao.AlbumDAO;
 import com.viewer.dao.SQLConnector;
 import com.viewer.dto.AlbumDTO;
 import com.viewer.dto.AlbumTagsDTO;
@@ -16,12 +17,26 @@ import com.viewer.dto.MediaDTO;
 import com.viewer.dto.SearchQueryDTO;
 import com.viewer.util.MediaFileUtils;
 
-public abstract class SQLAlbumDAO {
+public class SQLAlbumDAO implements AlbumDAO {
+
+	public enum MediaType {
+		UNKNOWN, PHOTO, VIDEO;
+	}
+
+	public static SQLAlbumDAO createPhotoDAO() {
+		return new SQLAlbumDAO(MediaType.PHOTO);
+	}
+	
+	public static SQLAlbumDAO createVideoDAO() {
+		return new SQLAlbumDAO(MediaType.VIDEO);
+	}
+
+	private SQLAlbumDAO(MediaType mediaType) {
+		this.mediaType = mediaType;
+	}
 
 	private static final String ALBUM_BASIC_USER_PROJECTION = "Albums.id, Albums.owner, Albums.name, Albums.subtitle, Albums.description, UserSubscriptions.id";
-
-	protected final static int MEDIA_TYPE_PHOTO = 1;
-	protected final static int MEDIA_TYPE_VIDEO = 2;
+	private final MediaType mediaType;
 
 	/** Album Fetch Methods **/
 
@@ -32,14 +47,14 @@ public abstract class SQLAlbumDAO {
 		}
 	}
 
-	public List<AlbumDTO> fetchAllPublicAlbums(int limit, int offset, int mediaType) throws SQLException {
+	public List<AlbumDTO> fetchAllPublicAlbums(int limit, int offset) throws SQLException {
 		List<AlbumDTO> dto = new ArrayList<AlbumDTO>();
 		Connection conn = SQLConnector.connect();
 
 		// Create Statement
 		String sql = "SELECT Albums.id, Albums.owner, Albums.name, Albums.subtitle, Albums.description FROM Albums"
 				+ " WHERE Albums.permission = 'PUBLIC' AND Albums.parent = 0 GROUP BY Albums.id LIMIT " + limit + " OFFSET "
-				+ offset + " AND Albums.mediaType = " + mediaType;
+				+ offset + " AND Albums.mediaType = " + mediaType.ordinal();
 		PreparedStatement stmt = conn.prepareStatement(sql);
 
 		// Execute Statement
@@ -55,7 +70,7 @@ public abstract class SQLAlbumDAO {
 		return dto;
 	}
 
-	public List<AlbumDTO> fetchViewableAlbums(long userid, long parentId, int ordering, int limit, int offset, int mediaType) throws SQLException {
+	public List<AlbumDTO> fetchViewableAlbums(long userid, long parentId, int ordering, int limit, int offset) throws SQLException {
 		List<AlbumDTO> dto = new ArrayList<AlbumDTO>();
 		Connection conn = SQLConnector.connect();
 
@@ -64,7 +79,7 @@ public abstract class SQLAlbumDAO {
 				+ " LEFT JOIN Albums ON Albums.owner = AlbumAccess.owner AND Albums.id = AlbumAccess.albumid"
 				+ " LEFT JOIN UserSubscriptions ON (AlbumAccess.visitor = UserSubscriptions.uid OR Albums.permission = 'PUBLIC' ) AND Albums.id = UserSubscriptions.albumid"
 				+ " LEFT JOIN AlbumRatings ON Albums.id = AlbumRatings.albumid"
-				+ " WHERE (AlbumAccess.visitor = ? OR Albums.permission = 'PUBLIC') AND Albums.parent = ? AND Albums.mediaType = " + mediaType
+				+ " WHERE (AlbumAccess.visitor = ? OR Albums.permission = 'PUBLIC') AND Albums.parent = ? AND Albums.mediaType = " + mediaType.ordinal()
 				+ " GROUP BY Albums.id"
 				+ " ORDER BY Albums."+ fetchOrdering(ordering) +" DESC"
 				+ " LIMIT ? OFFSET ?";
@@ -86,7 +101,7 @@ public abstract class SQLAlbumDAO {
 		return dto;
 	}
 
-	public List<AlbumDTO> fetchUserAlbums(long userid, long parentId, int ordering, int limit, int offset, int mediaType) throws SQLException {
+	public List<AlbumDTO> fetchUserAlbums(long userid, long parentId, int ordering, int limit, int offset) throws SQLException {
 		List<AlbumDTO> dto = new ArrayList<AlbumDTO>();
 		Connection conn = SQLConnector.connect();
 
@@ -94,7 +109,7 @@ public abstract class SQLAlbumDAO {
 		String selectViewable = "SELECT " + ALBUM_BASIC_USER_PROJECTION  + ", AVG(AlbumRatings.rating)" + " FROM Albums"
 				+ " LEFT JOIN UserSubscriptions ON Albums.owner = UserSubscriptions.uid AND Albums.id = UserSubscriptions.albumid"
 				+ " LEFT JOIN AlbumRatings ON Albums.id = AlbumRatings.albumid"
-				+ " WHERE Albums.owner = ? AND Albums.parent = ? AND Albums.mediaType = " + mediaType
+				+ " WHERE Albums.owner = ? AND Albums.parent = ? AND Albums.mediaType = " + mediaType.ordinal()
 				+ " GROUP BY Albums.id"
 				+ " ORDER BY Albums." + fetchOrdering(ordering) + " DESC"
 				+ " LIMIT ? OFFSET ?";
@@ -115,7 +130,7 @@ public abstract class SQLAlbumDAO {
 		return dto;
 	}
 
-	public List<AlbumDTO> fetchAllSubscribedAlbums(long userid, long parentId, int ordering, int limit, int offset, int mediaType) throws SQLException {
+	public List<AlbumDTO> fetchAllSubscribedAlbums(long userid, long parentId, int ordering, int limit, int offset) throws SQLException {
 		List<AlbumDTO> dto = new ArrayList<AlbumDTO>();
 		Connection conn = SQLConnector.connect();
 
@@ -124,7 +139,7 @@ public abstract class SQLAlbumDAO {
 				+ " LEFT JOIN Albums ON Albums.owner = AlbumAccess.owner AND Albums.id = AlbumAccess.albumid"
 				+ " LEFT JOIN UserSubscriptions ON (AlbumAccess.visitor = UserSubscriptions.uid OR Albums.permission = 'PUBLIC' ) AND Albums.id = UserSubscriptions.albumid"
 				+ " LEFT JOIN AlbumRatings ON Albums.id = AlbumRatings.albumid"
-				+ " WHERE (AlbumAccess.visitor = ? OR Albums.permission = 'PUBLIC') AND Albums.parent = ? AND Albums.mediaType = " + mediaType
+				+ " WHERE (AlbumAccess.visitor = ? OR Albums.permission = 'PUBLIC') AND Albums.parent = ? AND Albums.mediaType = " + mediaType.ordinal()
 				+ " AND UserSubscriptions.uid = ?"
 				+ " GROUP BY Albums.id"
 				+ " ORDER BY Albums." + fetchOrdering(ordering) + " DESC"
@@ -199,35 +214,35 @@ public abstract class SQLAlbumDAO {
 		return dto;
 	}
 
-	public List<AlbumDTO> fetchSearchUserViewableAlbums(long userid, SearchQueryDTO searchQuery, int mediaType) throws SQLException {
+	public List<AlbumDTO> fetchSearchUserViewableAlbums(long userid, SearchQueryDTO searchQuery) throws SQLException {
 		String selectViewable = "SELECT " + ALBUM_BASIC_USER_PROJECTION + ", Albums.parent FROM AlbumAccess"
 				+ " LEFT JOIN Albums ON Albums.owner = AlbumAccess.owner AND Albums.id = AlbumAccess.albumid"
 				+ " LEFT JOIN UserSubscriptions ON AlbumAccess.visitor = UserSubscriptions.uid AND Albums.id = UserSubscriptions.albumid"
 				+ " LEFT JOIN AlbumTags ON AlbumTags.albumid = Albums.id"
 				+ " LEFT JOIN TagCategory ON AlbumTags.cateid = TagCategory.id"
 				+ " WHERE (AlbumAccess.visitor = ? OR AlbumAccess.owner = ? OR Albums.permission = 'PUBLIC')"
-				+ " AND Albums.mediaType = " + mediaType;
+				+ " AND Albums.mediaType = " + mediaType.ordinal();
 		return fetchSearchAlbums(userid, searchQuery, selectViewable);
 	}
 
-	public List<AlbumDTO> fetchSearchUserAlbums(long userid, SearchQueryDTO searchQuery, int mediaType) throws SQLException {
+	public List<AlbumDTO> fetchSearchUserAlbums(long userid, SearchQueryDTO searchQuery) throws SQLException {
 		String sql = "SELECT " + ALBUM_BASIC_USER_PROJECTION + ", Albums.parent FROM Albums"
 				+ " LEFT JOIN UserSubscriptions ON Albums.owner = UserSubscriptions.uid AND Albums.id = UserSubscriptions.albumid"
 				+ " LEFT JOIN AlbumTags ON AlbumTags.albumid = Albums.id"
 				+ " LEFT JOIN TagCategory ON AlbumTags.cateid = TagCategory.id"
 				+ " WHERE (Albums.owner = ? AND Albums.owner = ? OR Albums.permission = 'PUBLIC')"
-				+ " AND Albums.mediaType = " + mediaType;
+				+ " AND Albums.mediaType = " + mediaType.ordinal();
 		return fetchSearchAlbums(userid, searchQuery, sql);
 	}
 
-	public List<AlbumDTO> fetchSearchUserSubscribedAlbums(long userid, SearchQueryDTO searchQuery, int mediaType) throws SQLException {
+	public List<AlbumDTO> fetchSearchUserSubscribedAlbums(long userid, SearchQueryDTO searchQuery) throws SQLException {
 		String sql = "SELECT " + ALBUM_BASIC_USER_PROJECTION + ", Albums.parent FROM AlbumAccess"
 				+ " LEFT JOIN Albums ON Albums.owner = AlbumAccess.owner AND Albums.id = AlbumAccess.albumid"
 				+ " LEFT JOIN UserSubscriptions ON AlbumAccess.visitor = UserSubscriptions.uid AND Albums.id = UserSubscriptions.albumid"
 				+ " LEFT JOIN AlbumTags ON AlbumTags.albumid = Albums.id"
 				+ " LEFT JOIN TagCategory ON AlbumTags.cateid = TagCategory.id"
 				+ " WHERE (AlbumAccess.visitor = ? AND AlbumAccess.owner = ? OR Albums.permission = 'PUBLIC')"
-				+ " AND Albums.mediaType = " + mediaType;
+				+ " AND Albums.mediaType = " + mediaType.ordinal();
 		return fetchSearchAlbums(userid, searchQuery, sql);
 	}
 
@@ -340,7 +355,7 @@ public abstract class SQLAlbumDAO {
 
 	/** Create Albums **/
 
-	public long createAlbum(long userid, String name, String subtitle, String description, String permission, int mediaType)
+	public long createAlbum(long userid, String name, String subtitle, String description, String permission)
 			throws SQLException {
 		Connection conn = SQLConnector.connect();
 
@@ -353,7 +368,7 @@ public abstract class SQLAlbumDAO {
 		stmt.setLong(5, 0); // ParentId
 		stmt.setString(6, description);
 		stmt.setString(7, permission);
-		stmt.setInt(8, mediaType);
+		stmt.setInt(8, mediaType.ordinal());
 		stmt.setTimestamp(9, new Timestamp(System.currentTimeMillis()));
 		int albumid = stmt.executeUpdate();
 		ResultSet rs = stmt.getGeneratedKeys();
@@ -367,7 +382,7 @@ public abstract class SQLAlbumDAO {
 		return albumid;
 	}
 
-	public long createAlbum(long userid, String name, String subtitle, String description, long parentId, int mediaType) throws SQLException {
+	public long createAlbum(long userid, String name, String subtitle, String description, long parentId) throws SQLException {
 		Connection conn = SQLConnector.connect();
 
 		String sql = "INSERT INTO Albums VALUES (NULL, ?, ?, ?, ?, ?, ?, (SELECT Albums.permission FROM Albums WHERE id = ?), ?, ?)";
@@ -379,7 +394,7 @@ public abstract class SQLAlbumDAO {
 		stmt.setLong(5, parentId);
 		stmt.setString(6, description);
 		stmt.setLong(7, parentId);
-		stmt.setInt(8, mediaType);
+		stmt.setInt(8, mediaType.ordinal());
 		stmt.setTimestamp(9, new Timestamp(System.currentTimeMillis()));
 		int albumid = stmt.executeUpdate();
 		ResultSet rs = stmt.getGeneratedKeys();
@@ -643,7 +658,7 @@ public abstract class SQLAlbumDAO {
 		MediaDTO photo = null;
 		ResultSet rs = stmt.executeQuery();
 		while (rs.next()) {
-			photo = new MediaDTO(rs.getLong(1), rs.getString(2), rs.getString(3), albumid, userid, MEDIA_TYPE_PHOTO);
+			photo = new MediaDTO(rs.getLong(1), rs.getString(2), rs.getString(3), albumid, userid, mediaType.ordinal());
 		}
 		// conn.close();
 		return photo;
@@ -666,7 +681,7 @@ public abstract class SQLAlbumDAO {
 		MediaDTO photo = null;
 		stmt.executeUpdate();
 		ResultSet rs = stmt.getGeneratedKeys();
-		if (rs.next()) photo = new MediaDTO(rs.getLong(1), name, ext, albumId, userid, MEDIA_TYPE_PHOTO);
+		if (rs.next()) photo = new MediaDTO(rs.getLong(1), name, ext, albumId, userid, mediaType.ordinal());
 		stmt.close();
 		// conn.close();
 		return photo;
@@ -690,7 +705,7 @@ public abstract class SQLAlbumDAO {
 		// Execute Statement
 		ResultSet rs = stmt.executeQuery();
 		while (rs.next()) {
-			media.add(new MediaDTO(rs.getLong(1), rs.getString(2), rs.getString(3), albumid, userid, MEDIA_TYPE_PHOTO));
+			media.add(new MediaDTO(rs.getLong(1), rs.getString(2), rs.getString(3), albumid, userid, mediaType.ordinal()));
 		}
 		// conn.close();
 		return media;
@@ -710,7 +725,7 @@ public abstract class SQLAlbumDAO {
 		MediaDTO photo = null;
 		ResultSet rs = stmt.executeQuery();
 		while (rs.next()) {
-			photo = new MediaDTO(rs.getLong(1), rs.getString(2), rs.getString(3), rs.getLong(4), userid, MEDIA_TYPE_PHOTO);
+			photo = new MediaDTO(rs.getLong(1), rs.getString(2), rs.getString(3), rs.getLong(4), userid, mediaType.ordinal());
 		}
 		// conn.close();
 		return photo;

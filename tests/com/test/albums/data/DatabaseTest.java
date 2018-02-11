@@ -21,7 +21,7 @@ import com.viewer.dao.AccountDAO;
 import com.viewer.dao.AlbumDAO;
 import com.viewer.dao.SQLConnector;
 import com.viewer.dao.impl.SQLAccountDAO;
-import com.viewer.dao.impl.SQLPhotoAlbumDAO;
+import com.viewer.dao.impl.SQLAlbumDAO;
 import com.viewer.dto.AlbumDTO;
 import com.viewer.dto.MediaDTO;
 import com.viewer.dto.UserDataDTO;
@@ -66,7 +66,7 @@ public class DatabaseTest {
 	public void setUp() {
 		// Initialize Global Objects
 		accountDAO = new SQLAccountDAO();
-		albumDAO = new SQLPhotoAlbumDAO();
+		albumDAO = SQLAlbumDAO.createPhotoDAO();
 		// Creating Mock User
 		userIds.put(mockUser1, createMockUser(mockUser1));
 		userIds.put(mockUser2, createMockUser(mockUser2));
